@@ -34,9 +34,7 @@ export function PersonalInfosStep({ steps, form }: PersonalInfosProps) {
   });
 
   async function onSubmit(data: PersonalInfosInterface) {
-    const adjustedData = { ...data,
-      username: data.email
-     };
+    const adjustedData = { ...data, username: data.email };
     form.setValues(adjustedData);
     steps.setCurrent(steps.current + 1);
   }
@@ -112,15 +110,6 @@ export function PersonalInfosStep({ steps, form }: PersonalInfosProps) {
           maxLength: 15,
         }}
       />
-      <label className="cursor-pointer label">
-        <span className="label-text text-lg">Sou doador</span>
-        <input
-          {...register("isDonor")}
-          type="checkbox"
-          defaultChecked
-          className="checkbox checkbox-accent"
-        />
-      </label>
       <label className="cursor-pointer label">
         <span className="label-text text-lg">Sou coordenador de abrigo</span>
         <input

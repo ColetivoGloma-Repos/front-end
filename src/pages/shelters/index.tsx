@@ -72,8 +72,10 @@ export default function SheltersScreen() {
       setShelters((currentshelter) => {
         return [respShelter, ...currentshelter];
       });
-
+      setOpenModal(false);
       toast.success("Ponto de distribuição criado");
+
+      handleRedirect(respShelter.id);
     } catch (error) {
       console.error(error);
       toast.error(toastMessage.INTERNAL_SERVER_ERROR);

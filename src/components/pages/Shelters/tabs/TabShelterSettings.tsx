@@ -7,6 +7,7 @@ import { Button, Collapse, Input, Textarea } from "../../../common";
 import { IShelterCreate } from "../../../../interfaces/shelter";
 import { ModalConfirmAction } from "../../../modals";
 import { useParams } from "react-router-dom";
+import { phoneMask } from "../../../../utils/masks";
 
 const defaultStyleBtnCollapse =
   "py-4 border-b border-solid border-black font-bold text-base";
@@ -65,13 +66,16 @@ export function TabShelterSettings() {
               <Input
                 label="Nome: "
                 placeholder="Digite o nome"
+                required
                 {...register("name")}
                 errors={errors}
               />
               <Input
                 label="Telefone: "
                 placeholder="(xx) x-xxxx-xxx"
+                required
                 {...register("phone")}
+                mask={phoneMask}
                 errors={errors}
               />
             </div>
@@ -98,42 +102,49 @@ export function TabShelterSettings() {
             <Input
               label="CEP: "
               placeholder="Digite o CEP"
+              required
               {...register("address.cep")}
               errors={errors}
             />
             <Input
               label="Estado: "
               placeholder="Digite o estado"
+              required
               {...register("address.estado")}
               errors={errors}
             />
             <Input
               label="País: "
               placeholder="Digite o país"
+              required
               {...register("address.pais")}
               errors={errors}
             />
             <Input
               label="Município: "
               placeholder="Digite o município"
+              required
               {...register("address.municipio")}
               errors={errors}
             />
             <Input
               label="Bairro: "
               placeholder="Digite o bairro"
+              required
               {...register("address.bairro")}
               errors={errors}
             />
             <Input
               label="Logradouro: "
               placeholder="Digite o logradouro"
+              required
               {...register("address.logradouro")}
               errors={errors}
             />
             <Input
               label="Número: "
               placeholder="Digite o número"
+              required
               {...register("address.numero")}
               errors={errors}
             />

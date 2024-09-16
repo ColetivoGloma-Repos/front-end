@@ -66,12 +66,14 @@ export function TabDistribuitionPointSettings() {
               <Input
                 label="Nome: "
                 placeholder="Digite o nome"
+                required
                 {...register("name")}
                 errors={errors}
               />
               <Input
                 label="Telefone: "
                 placeholder="(xx) x-xxxx-xxx"
+                required
                 {...register("phone")}
                 mask={phoneMask}
                 errors={errors}
@@ -100,43 +102,49 @@ export function TabDistribuitionPointSettings() {
             <Input
               label="CEP: "
               placeholder="Digite o CEP"
+              required
               {...register("address.cep")}
-              mask={zipCodeMask}
               errors={errors}
             />
             <Input
               label="Estado: "
               placeholder="Digite o estado"
+              required
               {...register("address.estado")}
               errors={errors}
             />
             <Input
               label="País: "
               placeholder="Digite o país"
+              required
               {...register("address.pais")}
               errors={errors}
             />
             <Input
               label="Município: "
               placeholder="Digite o município"
+              required
               {...register("address.municipio")}
               errors={errors}
             />
             <Input
               label="Bairro: "
               placeholder="Digite o bairro"
+              required
               {...register("address.bairro")}
               errors={errors}
             />
             <Input
               label="Logradouro: "
               placeholder="Digite o logradouro"
+              required
               {...register("address.logradouro")}
               errors={errors}
             />
             <Input
               label="Número: "
               placeholder="Digite o número"
+              required
               {...register("address.numero")}
               errors={errors}
             />

@@ -14,3 +14,17 @@ export const phoneMask = (value: string) => {
   value = value.replace(/(\d)(\d{4})$/, "$1-$2");
   return value;
 };
+
+export const percentageMask = (value: string) => {
+  if (!value) return "";
+  value = value.replace(",", ".");
+  value = value.replace(/[^0-9.]/g, "");
+  const parts = value.split(".");
+  if (parts.length > 2) {
+    value = `${parts[0]}.${parts.slice(1).join("")}`;
+  }
+  if (value.startsWith(".")) {
+    value = `0${value}`;
+  }
+  return value;
+};

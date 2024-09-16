@@ -19,12 +19,14 @@ export function TabShelter({ register, errors }: ITabShelter) {
       <Input
         label="Nome: "
         placeholder="Digite o nome"
+        required
         {...register("name")}
         errors={errors}
       />
       <Input
         label="Telefone: "
         placeholder="(xx) x-xxxx-xxx"
+        required
         {...register("phone")}
         mask={phoneMask}
         errors={errors}

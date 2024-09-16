@@ -8,7 +8,6 @@ export type PersonalInfosInterface = {
   confirm: string;
   birthDate: string;
   phone: string;
-  isDonor: boolean;
   isCoordinator: boolean;
 };
 
@@ -60,8 +59,7 @@ export const PersonalInfosSchema = z
       .min(1, { message: "Telefone vazio" })
       .min(14, { message: "Telefone Invalido" })
       .max(15, { message: "Telefone Invalido" }),
-    isDonor: z.boolean(),
-    isCoordinator: z.boolean()
+    isCoordinator: z.boolean(),
   })
   .refine(
     ({ password, confirm }) => {
@@ -72,5 +70,3 @@ export const PersonalInfosSchema = z
       path: ["confirm"],
     }
   );
-
-

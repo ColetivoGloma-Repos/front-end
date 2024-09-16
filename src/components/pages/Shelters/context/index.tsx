@@ -121,7 +121,11 @@ export function ShelterProvider({
 
       await removeCoordinator(id, { coordinatorId: coordinatorId });
       handleCoordinators();
-      updateShelterState({ isSubscribe: false });
+
+      if (shelter.creator.id === coordinatorId) {
+        updateShelterState({ isSubscribe: false });
+      }
+
       setOpenModalRemoveCoordinator(false);
 
       toast.success("Coordenador removido do abrigo");

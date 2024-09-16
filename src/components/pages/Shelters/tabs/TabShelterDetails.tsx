@@ -14,25 +14,7 @@ export function TabShelterDetails() {
 
   return (
     <div className="my-5">
-      <div className="stats bg-white stats-vertical md:stats-horizontal shadow w-full">
-        <div className="stat">
-          <div className="stat-title">Total Page Views</div>
-          <div className="stat-value">89,400</div>
-          <div className="stat-desc">21% more than last month</div>
-        </div>
-        <div className="stat">
-          <div className="stat-title">Total Page Views</div>
-          <div className="stat-value">89,400</div>
-          <div className="stat-desc">21% more than last month</div>
-        </div>
-        <div className="stat">
-          <div className="stat-title">Total Page Views</div>
-          <div className="stat-value">89,400</div>
-          <div className="stat-desc">21% more than last month</div>
-        </div>
-      </div>
-
-      <h2 className="py-8 pb-4 font-bold text-lg">Abrigo</h2>
+      <h2 className="pb-4 font-bold text-lg">Abrigo</h2>
 
       <div className="card bg-white rounded-xl shadow">
         <div className="card-body p-4 grid grid-cols-1 gap-4 md:grid-cols-2 md:p-8">

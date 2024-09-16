@@ -37,17 +37,10 @@ export function TableProducts({
       },
     },
     {
-      title: "Quantidade",
-      dataIndex: "quantity",
-      render: (quantity: number) => {
-        return <p>{quantity}</p>;
-      },
-    },
-    {
-      title: "Peso",
+      title: "Peso (kg)",
       dataIndex: "weight",
       render: (weight: string) => {
-        return <p>{weight}</p>;
+        return <p>{weight} kg</p>;
       },
     },
     {

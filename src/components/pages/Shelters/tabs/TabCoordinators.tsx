@@ -67,7 +67,7 @@ export function TabCoordinators() {
 
         {currentUser && !currentUser.isCoordinator && (
           <Alert icon={<IoWarningOutline />} type="alert-warning" className="mt-4">
-            <p>Para inscrever-se nesse abrigo, você precisa ser um coordenador.</p>
+            <p>Para inscrever-se em qualquer abrigo, você precisa ser um coordenador.</p>
           </Alert>
         )}
       </div>

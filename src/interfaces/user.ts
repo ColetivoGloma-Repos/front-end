@@ -10,7 +10,6 @@ export interface IUserCreate {
   address: IAddress;
   phone?: string;
   birthDate?: Date;
-  isDonor?: boolean;
   isCoordinator?: boolean;
   hasVehicle?: boolean;
   vehicleType?: string;
@@ -29,7 +28,6 @@ export interface IUser {
   address: IAddress;
   phone: string;
   birthDate: Date;
-  isDonor: boolean;
   isCoordinator: boolean;
   roles: typeRoles[];
   hasVehicle?: boolean;

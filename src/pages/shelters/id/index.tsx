@@ -38,8 +38,6 @@ function CoordinatorsScreen() {
         listCoordinators(id),
       ]);
 
-      console.log(respShelter);
-
       setInitialShelter(respShelter);
       setInitialCoordinators(respCoordinators);
     } catch (error) {

@@ -4,6 +4,7 @@ import { Button, Input, Modal, Select, Textarea } from "../common";
 import { IProduct, IProductCreate } from "../../interfaces/products";
 import { productSchema } from "../../validators";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { percentageMask } from "../../utils/masks";
 
 interface IModalProduct {
   close: () => void;
@@ -58,20 +59,23 @@ export function ModalProduct({
       <div className="p-4 pt-10">
         <form
           className={`
-            grid grid-flow-row auto-rows-max
-            gap-2
+            grid grid-cols-1 md:grid-cols-2
+            gap-2 gap-x-4
           `}
           onSubmit={handleSubmit(onFinish)}
         >
           <Input
             label="Nome: "
             placeholder="Digite o nome"
+            required
             {...register("name")}
             errors={errors}
+            containerClassName="col-span-1 md:col-span-2"
           />
 
           <Select
             label="Tipo: "
+            required
             {...register("type")}
             options={[
               { label: "Perecivel", value: "perishable" },
@@ -80,34 +84,26 @@ export function ModalProduct({
             errors={errors}
           />
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Input
-              label="Quantidade: "
-              placeholder="Digite a quantidade"
-              type="number"
-              {...register("quantity")}
-              errors={errors}
-            />
-
-            <Input
-              label="Peso: "
-              placeholder="Digite o peso"
-              {...register("weight")}
-              errors={errors}
-            />
-          </div>
+          <Input
+            label="Peso: "
+            placeholder="Digite o peso"
+            {...register("weight")}
+            mask={percentageMask}
+            errors={errors}
+          />
 
           <Textarea
             label="Descrição: "
             placeholder="Digite uma descrição"
             {...register("description")}
             errors={errors}
+            containerClassName="col-span-1 md:col-span-2"
           />
 
           <Button
             type="submit"
             text={`${modalType === "create" ? "Doar" : "Atualizar"} produto`}
-            className="w-full mt-4 bg-black text-white"
+            className="w-full mt-4 bg-black text-white col-span-1 md:col-span-2"
           />
         </form>
       </div>

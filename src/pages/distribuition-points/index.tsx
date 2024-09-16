@@ -87,8 +87,10 @@ export default function DistribuitionPointsScreen() {
       setDistribuitionPoints((currentDistribuitionPoints) => {
         return [respDistribuitionPoint, ...currentDistribuitionPoints];
       });
-
+      setOpenModal(false);
       toast.success("Ponto de distribuição criado");
+
+      handleRedirect(respDistribuitionPoint.id);
     } catch (error) {
       console.error(error);
       toast.error(toastMessage.INTERNAL_SERVER_ERROR);

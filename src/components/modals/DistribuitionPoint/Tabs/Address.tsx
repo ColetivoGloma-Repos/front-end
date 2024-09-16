@@ -19,6 +19,7 @@ export function TabAddress({ register, errors }: ITabAddress) {
       <Input
         label="CEP: "
         placeholder="Digite o CEP"
+        required
         {...register("address.cep")}
         mask={zipCodeMask}
         errors={errors}
@@ -26,36 +27,42 @@ export function TabAddress({ register, errors }: ITabAddress) {
       <Input
         label="Estado: "
         placeholder="Digite o estado"
+        required
         {...register("address.estado")}
         errors={errors}
       />
       <Input
         label="País: "
         placeholder="Digite o país"
+        required
         {...register("address.pais")}
         errors={errors}
       />
       <Input
         label="Município: "
         placeholder="Digite o município"
+        required
         {...register("address.municipio")}
         errors={errors}
       />
       <Input
         label="Bairro: "
         placeholder="Digite o bairro"
+        required
         {...register("address.bairro")}
         errors={errors}
       />
       <Input
         label="Logradouro: "
         placeholder="Digite o logradouro"
+        required
         {...register("address.logradouro")}
         errors={errors}
       />
       <Input
         label="Número: "
         placeholder="Digite o número"
+        required
         {...register("address.numero")}
         errors={errors}
       />
