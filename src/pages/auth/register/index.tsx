@@ -31,8 +31,6 @@ function SignUpScreen() {
       return;
     }
 
-    console.log(data);
-
     try {
       setRequesting(true);
 
@@ -114,7 +112,7 @@ function SignUpScreen() {
                 </label>
 
                 <div className="form-control">
-                  <button className="btn btn-primary rounded-lg">Login</button>
+                  <button className="btn btn-primary rounded-lg">Cadastrar</button>
                 </div>
               </form>
 
