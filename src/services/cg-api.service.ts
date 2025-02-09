@@ -9,7 +9,7 @@ interface IMethod {
   options?: Record<string, any>;
 }
 
-const apiBase = process.env.API_URI || "http://localhost:8080";
+const apiBase = process.env.API_URI 
 
 async function responseJson(response: Response) {
   if (!response.ok || response.status >= 400) {
