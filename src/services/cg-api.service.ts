@@ -9,7 +9,7 @@ interface IMethod {
   options?: Record<string, any>;
 }
 
-const apiBase = process.env.API_URI 
+const apiBase = 'https://coral-app-yndk5.ondigitalocean.app/api'
 
 async function responseJson(response: Response) {
   if (!response.ok || response.status >= 400) {
