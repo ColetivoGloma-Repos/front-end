@@ -39,7 +39,7 @@ export async function request(
     ...(headers || {}),
   };
 
-  return await fetch(isUrl(url) ? url : `${apiBase}/api${url}`, {
+  return await fetch(isUrl(url) ? url : `${apiBase}/${url}`, {
     method: method,
     headers: updatedHeader,
     body: body ? JSON.stringify(body) : null,
