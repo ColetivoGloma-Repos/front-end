@@ -1,8 +1,5 @@
-export interface IRegister {
-  name: string;
-  email: string;
-  username: string;
-  password: string;
+import { IUserCreate } from "../../../interfaces/user";
+
+export interface IRegister extends IUserCreate {
   confirm: string;
-  isCoordinator: boolean;
 }

@@ -5,8 +5,11 @@ import { IShelter } from "./shelter";
 export interface IUserCreate {
   name: string;
   email: string;
-  username: string;
   password: string;
+}
+
+export interface IUserUpdate extends IUserCreate {
+  username: string;
   address?: IAddress;
   phone?: string;
   birthDate?: Date;

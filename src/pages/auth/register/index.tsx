@@ -34,10 +34,7 @@ function SignUpScreen() {
     try {
       setRequesting(true);
 
-      const response = await createUser({
-        ...data,
-        isCoordinator: data.isCoordinator || false,
-      });
+      const response = await createUser(data);
 
       setCookie("token", response.token, 7);
 
@@ -72,13 +69,6 @@ function SignUpScreen() {
                 />
 
                 <Input
-                  label="Nome de usuário: "
-                  placeholder="Digite o seu nome de usuário"
-                  {...register("username")}
-                  errors={errors}
-                />
-
-                <Input
                   label="Email: "
                   type="email"
                   placeholder="Digite o seu email"
@@ -101,15 +91,6 @@ function SignUpScreen() {
                   {...register("confirm")}
                   errors={errors}
                 />
-
-                <label className="cursor-pointer label">
-                  <span className="label-text text-lg">Sou coordenador de abrigo</span>
-                  <input
-                    {...register("isCoordinator")}
-                    type="checkbox"
-                    className="checkbox checkbox-accent"
-                  />
-                </label>
 
                 <div className="form-control">
                   <button className="btn btn-primary rounded-lg">Cadastrar</button>
