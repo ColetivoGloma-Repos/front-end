@@ -1,4 +1,5 @@
 import React from "react";
+import useParams from "../../hooks/useParams";
 
 interface ITabsProps {
   tabs: {
@@ -13,7 +14,7 @@ interface ITabsProps {
 }
 
 export function Tabs({ tabs, tabDeafult, className, classNameTabs }: ITabsProps) {
-  const [tabState, setTabState] = React.useState<string>(tabDeafult || tabs[0].key);
+  const [tabState, setTabState] = useParams<string>("tab", tabDeafult || tabs[0].key);
 
   const handleTab = (selectTab: string) => {
     setTabState(selectTab);
