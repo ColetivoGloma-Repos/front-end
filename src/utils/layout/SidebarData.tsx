@@ -4,7 +4,7 @@ import { IUser } from "../../interfaces/user";
 export const sidebarData = (currentUser: IUser): ISidebar[] => {
 
   
- const isCoordinator = currentUser?.roles.includes("coordinator");
+ const admin = currentUser?.roles.includes("admin");
 
 
   const menuItems: ISidebar[] = [
@@ -15,7 +15,7 @@ export const sidebarData = (currentUser: IUser): ISidebar[] => {
     { id: "options", text: "Outras opções", route: "#" },
   ];
 
-  if (!isCoordinator) {
+  if (!admin) {
     return menuItems.filter(item => item.id !== "coordinators-status");
   }
 

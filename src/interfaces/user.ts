@@ -51,7 +51,9 @@ export interface IUserDash {
   status: string;
 }
 
-export interface ISearchCoordinator extends IParamsDefault { }
+export interface ISearchCoordinator extends IParamsDefault {
+  name?: string
+}
 
 export interface IChangeStatus {
   id: string;
