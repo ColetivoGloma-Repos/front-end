@@ -3,9 +3,9 @@ import { IChangeStatus } from "../interfaces/user";
 import { get, patch } from "./cg-api.service";
 
 export async function listAllCoordinator(params: ISearchDemandPoint) {
-    return get(`/user-dashboard/coordinators`,  { params })
+    return get(`/dashboard/coordinators`,  { params })
 }
 
 export async function changeStatusCoordinator(data: IChangeStatus) {
-    return patch(`/user-dashboard/coordinators`, { data })
+    return patch(`/dashboard/coordinators`, { data })
 }
