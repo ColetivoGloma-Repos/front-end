@@ -40,6 +40,7 @@ export interface IUser {
   vehicleType?: string;
   status: typeStatus;
   shelter: IShelter;
+  url?: string;
 }
 
 
@@ -49,6 +50,7 @@ export interface IUserDash {
   email: string;
   phone: string;
   status: string;
+  url?: string;
 }
 
 export interface ISearchCoordinator extends IParamsDefault {

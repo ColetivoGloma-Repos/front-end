@@ -109,6 +109,7 @@ const updateCoordinatorStatus = (id: string, newStatus: string) => {
     )
   );
 };
+  
 
   const convertStatus = (status: string): string => {
   const statusConvert = {
@@ -120,7 +121,7 @@ const updateCoordinatorStatus = (id: string, newStatus: string) => {
   return statusConvert[status as StatusKey] || statusConvert.waiting;
 }
 
-
+ const urlWhatsapp = "https://wa.me/55"
   const openModalWithParams = (id: string) => {
     setCoordinatorId(id);
     setOpenModal(true);
@@ -136,7 +137,7 @@ const updateCoordinatorStatus = (id: string, newStatus: string) => {
     });
     const respData = resp.data;
     const respTotal = resp.total;
-
+   
     setCoordinators((prevCoordinators) => [...prevCoordinators, ...respData]);
     setInfinitScroll(respTotal > limit ? respData.length > 0 : false);
     page.current++;
@@ -181,10 +182,21 @@ const updateCoordinatorStatus = (id: string, newStatus: string) => {
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {coordinators.map((c, index) => {
               return (
-                <CardPrimary key={`${c.id}-${index}`} image="" title={c.name}>
+                <CardPrimary key={`${c.id}-${index}`} image={c.url || ''} title={c.name}>
                   <div>                    
                       <p>
-                        <strong>Telefone:</strong> {c.phone || 'N/A'}
+                      <strong>Telefone: </strong> 
+                        {c.phone ? (
+                          <a 
+                            href={`${urlWhatsapp+c.phone}`} 
+                            target="_blank"
+                            className="text-green-500 hover:text-green-600 font-semibold" rel="noreferrer" 
+                          >
+                             {c.phone}
+                          </a>
+                        ) : (
+                          <span className="text-gray-500">N/A</span>
+                        )}
                       </p>              
                     <p>
                       <strong>E-mail:</strong> {c.email}

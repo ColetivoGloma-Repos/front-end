@@ -2,8 +2,6 @@ import { ISidebar } from "../../interfaces/layout";
 import { IUser } from "../../interfaces/user";
 
 export const sidebarData = (currentUser: IUser): ISidebar[] => {
-
-  
  const admin = currentUser?.roles.includes("admin");
 
 
