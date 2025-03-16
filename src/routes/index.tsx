@@ -13,6 +13,8 @@ import DistribuitionPointScreen from "../pages/distribuition-points/id";
 import  ProfileScreen from "../pages/profile"
 import DemandsPointScreen from "../pages/demand-point";
 import DemandPointScreen from "../pages/demand-point/id";
+import AllCoordinatorsScreen from "../pages/approve-coordinators";
+import { PrivateRoleRoute } from "./Auth/PrivateRoleRoute";
 
 export function RoutesPage() {
   return (
@@ -45,7 +47,12 @@ export function RoutesPage() {
             <Route path="/shelters" element={<SheltersScreen />} />
             <Route path="/profile" element={<ProfileScreen />} />
             <Route path="/shelters/:id" element={<CoordinatorsScreen />} />
+            
           </Route>
+          <Route element={<PrivateRoleRoute roles={['admin']} />}>
+            <Route path="/coordinators" element={<AllCoordinatorsScreen />} />
+          </Route>
+          <Route path="*" element={<DemandsPointScreen />} />
         </Route>
       </Routes>
     </Router>
