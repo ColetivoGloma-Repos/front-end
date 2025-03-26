@@ -1,5 +1,6 @@
 import { IAddress } from "./address";
 import { typeRoles, typeStatus } from "./auth";
+import { IParamsDefault } from "./default";
 import { IShelter } from "./shelter";
 
 export interface IUserCreate {
@@ -39,4 +40,24 @@ export interface IUser {
   vehicleType?: string;
   status: typeStatus;
   shelter: IShelter;
+  url?: string;
+}
+
+
+export interface IUserDash {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  status: string;
+  url?: string;
+}
+
+export interface ISearchCoordinator extends IParamsDefault {
+  name?: string
+}
+
+export interface IChangeStatus {
+  id: string;
+  status: string
 }
