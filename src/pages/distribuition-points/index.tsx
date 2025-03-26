@@ -148,8 +148,8 @@ export default function DistribuitionPointsScreen() {
             ]}
           />
 
-          {(currentUser?.roles.includes("coordinator") ||
-            currentUser?.roles.includes("admin")) && (
+          {(currentUser?.roles?.includes("coordinator") ||
+            currentUser?.roles?.includes("admin")) && (
             <Button
               text="Novo ponto de distribuição"
               className="bg-black text-white"

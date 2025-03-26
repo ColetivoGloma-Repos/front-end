@@ -59,7 +59,7 @@ export default function ProfileScreen() {
             </div>
             <div className="donation-section flex-1">
               <div className="flex flex-col items-center w-full mb-4">
-                {currentUser?.roles.includes("coordinator") ? (
+                {currentUser?.roles?.includes("coordinator") ? (
                   <>
                     <div className="flex flex-row justify-between w-full">
                       <h4 className="text-2xl">Demandas</h4>
