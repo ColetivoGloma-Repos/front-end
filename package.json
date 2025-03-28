@@ -30,11 +30,15 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "start:dev": "react-scripts start",
+    "start:debug": "react-scripts start --inspect",
+    "start:prod": "react-scripts build && serve -s build",
     "build": "react-scripts build",
+    "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --fix",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "test:watch": "react-scripts test --watch",
+    "test:cov": "react-scripts test --coverage",
+    "dev": "yarn start:dev"
   },
   "eslintConfig": {
     "extends": [
@@ -45,19 +49,8 @@
       "plugin:storybook/recommended"
     ]
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@storybook/addon-essentials": "8.4.7",
     "@storybook/addon-interactions": "8.4.7",
     "@storybook/addon-onboarding": "8.4.7",
@@ -74,5 +67,17 @@
     "storybook": "8.4.7",
     "tailwind": "^4.0.0",
     "webpack": "5.97.1"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
