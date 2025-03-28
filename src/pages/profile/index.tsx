@@ -49,7 +49,7 @@ export default function ProfileScreen() {
                   {currentUser?.address?.municipio} -{" "}
                   {currentUser?.address?.estado?.toUpperCase()};<br />
                   CEP: {currentUser?.address?.cep};<br />
-                  Complemento: {currentUser?.address?.complemento || "Não informado"}.
+                  Complemento: {currentUser?.address?.complemento ?? "Não informado"}.
                 </li>
                 <li className="flex justify-start text-lg">
                   Veiculo:{" "}
@@ -113,43 +113,41 @@ export default function ProfileScreen() {
                     </div>
                   </>
                 ) : (
-                  <>
-                    <h2 className="text-3xl">Minhas Doações</h2>
-                    <div className="flex flex-row justify-center space-x-4">
-                      {product ? (
-                        <div
-                          className={`
-                            grid grid-cols-1 gap-3
-                            sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4
-                          `}
-                        >
-                          <CardPrimary image={""} title="Teste">
-                            <div>
-                              <p>teste</p>
-                              <p>teste, teste, teste</p>
-                            </div>
-
-                            <div
+                  <h2 className="text-3xl">Minhas Doações</h2>
+                  <div className="flex flex-row justify-center space-x-4">
+                    {product ? (
+                      <div
+                        className={`
+                          grid grid-cols-1 gap-3
+                          sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4
+                        `}
+                      >
+                        <CardPrimary image={""} title="Teste">
+                          <div>
+                            <p>teste</p>
+                            <p>teste, teste, teste</p>
+                          </div>
+                  
+                          <div
+                            className={`
+                              absolute bottom-0 right-0
+                              m-4 rounded-md 
+                              cursor-pointer 
+                            `}
+                          >
+                            <Button
+                              text="Detalhes"
                               className={`
-                                absolute bottom-0 right-0
-                                m-4 rounded-md 
-                                cursor-pointer 
+                                bg-black text-white w-full
                               `}
-                            >
-                              <Button
-                                text="Detalhes"
-                                className={`
-                                  bg-black text-white w-full
-                                `}
-                              />
-                            </div>
-                          </CardPrimary>
-                        </div>
-                      ) : (
-                        <h4>Sem doações.</h4>
-                      )}
-                    </div>
-                  </>
+                            />
+                          </div>
+                        </CardPrimary>
+                      </div>
+                    ) : (
+                      <h4>Sem doações.</h4>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
