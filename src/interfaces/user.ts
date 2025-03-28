@@ -24,19 +24,21 @@ export interface IUserUpdate extends IUserCreate {
 }
 
 export interface IUser {
-  id: string;
-  name: string;
-  username: string;
-  email: string;
-  password: string;
-  address: IAddress;
-  phone: string;
-  birthDate: Date;
-  isDonor: boolean;
-  isCoordinator: boolean;
-  roles: typeRoles[];
-  hasVehicle?: boolean;
-  vehicleType?: string;
-  status: typeStatus;
-  shelter: IShelter;
+  data: {
+    id: string;
+    name: string;
+    username: string;
+    email: string;
+    password: string;
+    address: IAddress;
+    phone: string;
+    birthDate: Date;
+    isDonor: boolean;
+    isCoordinator: boolean;
+    roles: typeRoles[];
+    hasVehicle?: boolean;
+    vehicleType?: string;
+    status: typeStatus;
+    shelter: IShelter;
+  }
 }

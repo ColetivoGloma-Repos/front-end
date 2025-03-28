@@ -1,24 +1,21 @@
 import React from "react";
-import { IUser } from "../../interfaces/user";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Avatar, Button } from "../../components/common";
 import { CardPrimary } from "../../components/cards/CardPrimary";
-import { BsChevronRight, BsTypeH1 } from "react-icons/bs";
 import { IProduct } from "../../interfaces/products";
-import { listProducts } from "../../services/products.service";
-import { getUser } from "../../services/user.service";
 import { useAuthProvider } from "../../context/Auth";
 
 export default function ProfileScreen() {
   const [product, setProduct] = React.useState<IProduct>();
-  //vou ter que trabalhar após a criação da rota da demanda
+
   const navigate = useNavigate();
-  //verificar se realmenter vai querer que seja redirecionado para o product
+
   const handleRedirect = (id: string) => {
     navigate(`/product/${id}`);
   };
 
   const { currentUser } = useAuthProvider();
+  console.log(currentUser, 'current user')
 
   return (
     <section className="profile-section p-0 flex h-screen">
@@ -30,11 +27,11 @@ export default function ProfileScreen() {
                 <li className="flex justify-center mb-4">
                   <Avatar src={""} />
                 </li>
-                <li className="flex justify-start text-lg">Nome: {currentUser?.name};</li>
+                <li className="flex justify-start text-lg">Nome: {currentUser?.data?.name};</li>
                 <li className="flex justify-start text-lg">
                   E-mail: {currentUser?.email};
                 </li>
-                <li className="flex justify-start text-lg">Tel: {currentUser?.phone};</li>
+                <li className="flex justify-start text-lg">Tel: {currentUser?.data?.phone};</li>
                 <li className="flex justify-start text-lg">
                   Data de nascimento:{" "}
                   {currentUser?.birthDate
@@ -59,7 +56,7 @@ export default function ProfileScreen() {
             </div>
             <div className="donation-section flex-1">
               <div className="flex flex-col items-center w-full mb-4">
-                {currentUser?.roles.includes("coordinator") ? (
+                {currentUser?.roles?.includes("coordinator") ? (
                   <>
                     <div className="flex flex-row justify-between w-full">
                       <h4 className="text-2xl">Demandas</h4>
