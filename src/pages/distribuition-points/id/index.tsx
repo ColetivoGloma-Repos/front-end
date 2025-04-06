@@ -54,7 +54,7 @@ function DistribuitionPointScreen() {
         }),
         listStaticsDistribuitionPointRequested(id)
       ]);
-      
+      console.log(respInventory)
       setInitialDistribuitionPoint(respDistribuitionPoint);
       setInitialProducts(respProducts);
       setInitialInventory(respInventory);
@@ -80,12 +80,12 @@ function DistribuitionPointScreen() {
     {
       key: "products-receives",
       label: "Produtos em estoque",
-      children: <TabProducts distributionPointId={initialDistribuitionPoint?.id} statusSolicitation={"received"} isCoordinator={currentUser?.isCoordinator} />,
+      children: <TabProducts distributionPointId={initialDistribuitionPoint?.id} statusSolicitation={"received"} isCoordinator={currentUser?.roles.includes("coordinator")} />,
     },
     {
       key: "products-requestes",
       label: "Produtos solicitados",
-      children: <TabProductsRequested distributionPointId={initialDistribuitionPoint?.id} statusSolicitation={"requested"} isCoordinator={currentUser?.isCoordinator} />,
+      children: <TabProductsRequested distributionPointId={initialDistribuitionPoint?.id} statusSolicitation={"requested"} isCoordinator={currentUser?.roles.includes("coordinator")} />,
     },
     
  ];
