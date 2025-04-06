@@ -64,6 +64,11 @@ const filteredProducts = products.data.filter((product) => {
   return true; 
 });
 
+const deleteHandle = async(productId: string) => {
+  await handleDeleteProduct(productId)
+}
+  
+
   return (
         <div>
           <div className="my-5">
@@ -118,7 +123,7 @@ const filteredProducts = products.data.filter((product) => {
         close={() => setOpenModalProduct(false)}
         onSubmit={handleCreateProduct}
         distributionPointId={distributionPointId}
-        isCoordinator={currentUser?.isCoordinator}/>
+        isCoordinator={currentUser?.roles.includes("coordinator")}/>
 
       <ModalProduct
         open={openModalUpdateProduct}
@@ -133,7 +138,7 @@ const filteredProducts = products.data.filter((product) => {
         title="Tem certeza que deseja remover esse produto?"
         open={openModalConfirmActionProduct}
         close={() => setOpenModalConfirmActionProduct(false)}
-        onSubmit={() => handleDeleteProduct(product?.id || "")}
+        onSubmit={() => deleteHandle(product?.id || "")}
       />
 
       <ModalDonateProduct 

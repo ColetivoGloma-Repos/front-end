@@ -109,11 +109,11 @@ const Chart: React.FC<GraphicProps> = ({ data, type}) => {
   return (
     <div>
       {type === "not_food" ? (
-        <BarChart chartData={datas} />
+        <BarChart chartData={datas}   />
       ) : (
         <>
           {/* Gráfico de Pizza para Quantidade */}
-          <PieChart chartData={generatePieData(data.productsFood, "Gráfico de alimentos em quantidade")} title={"Gráfico de alimentos em quantidade"} />
+          <PieChart chartData={generatePieData(data.productsFood, "Gráfico de alimentos em quantidade")} title={"Gráfico de alimentos em quantidade"}/>
           
           {/* Gráfico de Pizza para Peso */}
           <PieChart 

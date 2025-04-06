@@ -45,6 +45,13 @@ export function TabProducts({ distributionPointId, statusSolicitation }: TabProd
       setOpenModalConfirmActionProduct(true);
     }
   };
+
+
+
+const deleteHandle = async(productId: string) => {
+  await handleDeleteProduct(productId)
+}
+  
 // Filtrando os produtos com base no status
 const filteredProducts = products.data.filter((product) => { 
   
@@ -81,7 +88,7 @@ const filteredProducts = products.data.filter((product) => {
             ]}
           />
 
-          {currentUser?.isDonor && (           
+          {!currentUser?.roles.includes("coordinator") && (           
             <Button
               text="Doar produto"
               className="bg-black text-white"
@@ -91,7 +98,7 @@ const filteredProducts = products.data.filter((product) => {
           
           )}
 
-            {currentUser?.isCoordinator && (           
+            {currentUser?.roles.includes("coordinator") && (           
             <Button
               text="Doar/Solicitar produto"
               className="bg-black text-white"
@@ -128,7 +135,7 @@ const filteredProducts = products.data.filter((product) => {
         open={openModalProduct}
         close={() => setOpenModalProduct(false)}
         onSubmit={handleCreateProduct}
-        distributionPointId={distributionPointId} isCoordinator={currentUser?.isCoordinator}      />
+        distributionPointId={distributionPointId} isCoordinator={currentUser?.roles.includes("coordinator")}      />
 
       <ModalProduct
         open={openModalUpdateProduct}
@@ -136,13 +143,13 @@ const filteredProducts = products.data.filter((product) => {
         onSubmit={(data) => handleUpdateProduct(product?.id || "", data)}
         modalType="update"
         product={product}
-        distributionPointId={distributionPointId} isCoordinator={currentUser?.isCoordinator}      />
+        distributionPointId={distributionPointId} isCoordinator={currentUser?.roles.includes("coordinator")}      />
 
       <ModalConfirmAction
         title="Tem certeza que deseja remover esse produto?"
         open={openModalConfirmActionProduct}
         close={() => setOpenModalConfirmActionProduct(false)}
-        onSubmit={() => handleDeleteProduct(product?.id || "")}
+        onSubmit={() => deleteHandle(product?.id || "")}
       />
     </div>
   );

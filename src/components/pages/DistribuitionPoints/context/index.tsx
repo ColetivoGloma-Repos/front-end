@@ -138,7 +138,7 @@ export function DistribuitionPointProvider({
       return;
     } 
     data.quantity = Number(data.quantity)
-
+  
     try {
       setRequesting(true);
 
@@ -192,10 +192,10 @@ export function DistribuitionPointProvider({
       });     
       setOpenModalProduct(false);
       toast.success("Produto atualizado");
-    } catch (error) {
-      console.error(error);
+    } catch (error) {     
       toast.error(toastMessage.INTERNAL_SERVER_ERROR);
     } finally {
+      handleStatistics(distribuitionPoint.id);
       setRequesting(false);
     }
   };
@@ -205,23 +205,22 @@ export function DistribuitionPointProvider({
       toast.warn(toastMessage.REQUESTING);
       return;
     }
-
+  
     try {
       setRequesting(true);
-
       await deleteProduct(productId);
-      handleProducts();
-
-      setOpenModalConfirmActionProduct(false);
-
-      toast.success("Produto deletado");
+      await handleProducts();
+      await handleStatistics(distribuitionPoint.id);
+      toast.success("Produto deletado com sucesso");
+      
     } catch (error) {
-      console.error(error);
-      toast.error(toastMessage.INTERNAL_SERVER_ERROR);
+      console.error("Erro ao deletar produto:", error);   
     } finally {
+      window.location.reload()
       setRequesting(false);
+      setOpenModalConfirmActionProduct(false);
     }
-  };
+   };
 
   const handleProduct = async (productId: string) => {
     if (requesting) {
@@ -277,6 +276,7 @@ export function DistribuitionPointProvider({
       console.error(error);
       toast.error(toastMessage.INTERNAL_SERVER_ERROR);
     } finally {
+      handleStatistics(distribuitionPoint.id);
       setRequesting(false);
     }
   };
@@ -290,7 +290,6 @@ export function DistribuitionPointProvider({
       const data = await listStaticsDistribuitionPointRequested(distribuitionPointId)
       setStatistics(data);
     } catch (error) {
-      console.log(error)
       toast.error(toastMessage.INTERNAL_SERVER_ERROR);
     }
 
