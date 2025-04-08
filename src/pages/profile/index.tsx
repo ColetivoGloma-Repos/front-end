@@ -54,5 +54,6 @@ export default function ProfileScreen() {
         </div>
       )}
     </section>
+    
   );
 }
