@@ -36,7 +36,7 @@ export function Header({ openSidebar }: IHeaderProps) {
           <div className="flex justify-end items-center">
             {currentUser ? (
               <div className="flex justify-center" onClick={openSidebar}>
-                <Avatar src="" className="cursor-pointer size-[40px]" />
+                <Avatar src={currentUser?.url || logo} className="cursor-pointer size-[40px]" />
               </div>
             ) : (
               <div className="flex justify-center gap-2">

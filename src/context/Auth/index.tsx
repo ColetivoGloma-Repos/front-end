@@ -9,8 +9,7 @@ import { defaultSettings } from "../../utils/default";
 const AuthContext = React.createContext<IAuthProvider>({} as IAuthProvider);
 
 export function AuthProvider({ children }: IContextProvider) {
-  const [currentUser, setCurrentUser] = React.useState<any>(null); // Adjusts here - IUser
-  // Adjusts here - IUser
+  const [currentUser, setCurrentUser] = React.useState<any>(null);
   const [status, setStatus] = React.useState<string>("pending");
 
   const [settings] = React.useState<ISettings>(defaultSettings);
