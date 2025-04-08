@@ -61,3 +61,18 @@ export interface IUserEditProfile {
     shelter: IShelter;
 }
   
+export interface IChangeStatus {
+  id: string;
+  status: string
+}
+
+export interface ISearchCoordinator extends IParamsDefault { }
+
+export interface IUserDash {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  status: string;
+  url?: string;
+}
