@@ -7,6 +7,7 @@ import ProfileAddress from "../../components/pages/Profile/Edit/ProfileAddress";
 
 export default function ProfileScreen() {
   const { currentUser } = useAuthProvider();
+  console.log(currentUser, 'current')
   const [isEditing, setIsEditing] = useState(false);
 
   const handleEditToggle = () => {
@@ -15,22 +16,20 @@ export default function ProfileScreen() {
 
   return (
     <section className="profile-section p-5 flex h-screen">
-      {currentUser?.data ? (
+      {currentUser? (
         <div className="card w-full bg-base-100 shadow-xl p-5">
           <div className="flex flex-col items-center">
             <Avatar
-              src={currentUser.data.url || ""}
+              src={currentUser?.url || ""}
               className="mb-4 w-24 h-24 rounded-full"
             />
             <h2 className="text-2xl font-bold mb-4">Perfil do Usuário</h2>
           </div>
           <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Informações Pessoais */}
-            <ProfilePersonalInfo currentUser={currentUser.data} isEditing={isEditing} />
+            <ProfilePersonalInfo currentUser={currentUser} isEditing={isEditing} />
 
-            <ProfileAddress address={currentUser.data.address} isEditing={isEditing} />
-
-            {/* Veículo */}
+            <ProfileAddress address={currentUser.address} isEditing={isEditing} />
+            
             <div className="form-control">
               <label className="label">
                 <span className="label-text">Veículo</span>
@@ -38,8 +37,8 @@ export default function ProfileScreen() {
               <input
                 type="text"
                 value={
-                  currentUser.data.hasVehicle
-                    ? currentUser.data.vehicleType || "Tipo não informado"
+                  currentUser.hasVehicle
+                    ? currentUser.vehicleType || "Tipo não informado"
                     : "Não possui"
                 }
                 className="input input-bordered"
