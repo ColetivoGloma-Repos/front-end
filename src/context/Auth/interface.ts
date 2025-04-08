@@ -3,7 +3,7 @@ import { IUser } from "../../interfaces/user";
 import { ISettings } from "../../interfaces/settings";
 
 export interface IAuthProvider {
-  currentUser: any | null;
+  currentUser: IUser | null;
   status: string;
   settings: ISettings;
   logout: () => void;

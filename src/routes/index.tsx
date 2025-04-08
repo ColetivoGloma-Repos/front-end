@@ -10,7 +10,7 @@ import SheltersScreen from "../pages/shelters";
 import CoordinatorsScreen from "../pages/shelters/id";
 import DistribuitionPointsScreen from "../pages/distribuition-points";
 import DistribuitionPointScreen from "../pages/distribuition-points/id";
-import  ProfileScreen from "../pages/profile"
+import ProfileScreen from "../pages/profile";
 import DemandsPointScreen from "../pages/demand-point";
 import DemandPointScreen from "../pages/demand-point/id";
 

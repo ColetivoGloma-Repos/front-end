@@ -24,7 +24,7 @@ export interface IUserUpdate extends IUserCreate {
 }
 
 export interface IUser {
-  data: {
+    [x: string]: any;
     id: string;
     name: string;
     username: string;
@@ -40,5 +40,23 @@ export interface IUser {
     vehicleType?: string;
     status: typeStatus;
     shelter: IShelter;
-  }
 }
+
+export interface IUserEditProfile {
+    id: string;
+    name: string;
+    username: string;
+    email: string;
+    password: string;
+    address: IAddress;
+    phone: string;
+    birthDate: Date;
+    isDonor: boolean;
+    isCoordinator: boolean;
+    roles: typeRoles[];
+    hasVehicle?: boolean;
+    vehicleType?: string;
+    status: typeStatus;
+    shelter: IShelter;
+}
+  
