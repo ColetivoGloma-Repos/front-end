@@ -66,9 +66,9 @@ export function Sidebar({ open, close }: ISidebarProps) {
                 !menu.roles ||
                 menu.roles.some((role) => currentUser?.roles.includes(role));
 
-              if (!currentUser?.roles.includes("admin") && !hasRequiredRole) return null;
+              if (!currentUser?.roles?.includes("admin") && !hasRequiredRole) return null;
               
-              if (!currentUser?.roles.includes("coordinator") && menu.id === "register-demand-point") {
+              if (!currentUser?.roles?.includes("coordinator") && menu.id === "register-demand-point") {
                 return null;
               }
               return (

@@ -25,39 +25,39 @@ export interface IUserUpdate extends IUserCreate {
 }
 
 export interface IUser {
-  id: string;
-  name: string;
-  username: string;
-  email: string;
-  password: string;
-  address: IAddress;
-  phone: string;
-  birthDate: Date;
-  isDonor: boolean;
-  isCoordinator: boolean;
-  roles: typeRoles[];
-  hasVehicle?: boolean;
-  vehicleType?: string;
-  status: typeStatus;
-  shelter: IShelter;
-  url?: string;
+    [x: string]: any;
+    id: string;
+    name: string;
+    username: string;
+    email: string;
+    password: string;
+    address: IAddress;
+    phone: string;
+    birthDate: Date;
+    isDonor: boolean;
+    isCoordinator: boolean;
+    roles: typeRoles[];
+    hasVehicle?: boolean;
+    vehicleType?: string;
+    status: typeStatus;
+    shelter: IShelter;
 }
 
-
-export interface IUserDash {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  status: string;
-  url?: string;
+export interface IUserEditProfile {
+    id: string;
+    name: string;
+    username: string;
+    email: string;
+    password: string;
+    address: IAddress;
+    phone: string;
+    birthDate: Date;
+    isDonor: boolean;
+    isCoordinator: boolean;
+    roles: typeRoles[];
+    hasVehicle?: boolean;
+    vehicleType?: string;
+    status: typeStatus;
+    shelter: IShelter;
 }
-
-export interface ISearchCoordinator extends IParamsDefault {
-  name?: string
-}
-
-export interface IChangeStatus {
-  id: string;
-  status: string
-}
+  
