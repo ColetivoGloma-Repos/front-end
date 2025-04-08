@@ -4,11 +4,11 @@ import { typeRoles } from "../../interfaces/auth";
 
 export function PrivateRoleRoute({ roles }: { roles: typeRoles[] }) {
   const { currentUser } = useAuthProvider();
-
+  
   const hasRequiredRole = roles.some((role) => currentUser?.roles.includes(role));
 
   if (!hasRequiredRole) {
-    return <Navigate to={"/home"} />;
+    return <Navigate to={"/"} />;
   }
 
   return <Outlet />;

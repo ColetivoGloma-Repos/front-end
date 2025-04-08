@@ -1,5 +1,6 @@
 import { IAddress } from "./address";
 import { typeRoles, typeStatus } from "./auth";
+import { IParamsDefault } from "./default";
 import { IShelter } from "./shelter";
 
 export interface IUserCreate {

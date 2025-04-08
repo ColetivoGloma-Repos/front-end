@@ -61,7 +61,7 @@ export function Sidebar({ open, close }: ISidebarProps) {
               flex flex-col gap-2
             `}
           >
-            {sidebarData().map((menu) => {
+            {sidebarData(currentUser).map((menu) => {
               const hasRequiredRole =
                 !menu.roles ||
                 menu.roles.some((role) => currentUser?.roles.includes(role));

@@ -24,8 +24,7 @@ export function AuthProvider({ children }: IContextProvider) {
   const loginUser = async () => {
     try {
       const resp = await getUser();
-
-      setCurrentUser(resp.data);
+      setCurrentUser(resp.data.data);
       setStatus(resp.data.status);
     } catch (error) {
       console.error(error);
