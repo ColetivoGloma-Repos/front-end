@@ -46,7 +46,7 @@ export interface ISearchProducts extends IParamsDefault {
 export interface IProductDonate {
   quantity: number;  
   productReferenceID: string;
-  weight?: string | null;
+  weight?: string | null ;
 }
 
 export interface IProductUpdate {
