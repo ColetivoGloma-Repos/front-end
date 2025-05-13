@@ -51,13 +51,13 @@ $ npm install
 ## Rodando a aplicação
 
 ```bash
-# development
-$ npm run start
+# Inicia o servidor de desenvolvimento
+$ npm start
 
-# watch mode
+# Inicia o servidor de desenvolvimento com observação de mudanças
 $ npm run start:dev
 
-# production mode
+# Gera os arquivos otimizados para produção e inicia o servidor para servir a versão otimizada
 $ npm run start:prod
 ```
 
@@ -82,6 +82,66 @@ Discord: https://discord.gg/uCDNmkYz
 
 - Idealizador - [Thiago Blauth Ferreira](https://kamilmysliwiec.com) (Site ou linkedin)
 
+Show! Aqui está sua seção de **Tecnologias Utilizadas** formatada direitinho em Markdown, pronta pra colar no `README.md`:
+
+---
+
+## 🚧 Tecnologias Utilizadas
+
+Para a criação do front-end foram utilizadas as seguintes tecnologias e suas respectivas versões:
+
+> 📦 **As dependências completas estão disponíveis no `package.json`**
+
+### 🔧 Principais
+
+- **react** `^18.3.1` / **react-dom** `^18.3.1` – Base do projeto, renderização de componentes.
+- **react-router-dom** `^6.23.1` – Navegação entre páginas.
+- **react-hook-form** `^7.51.5` – Manipulação e controle de formulários.
+- **@hookform/resolvers** `^3.9.0` + **zod** `^3.23.8` – Validação de formulários com schemas.
+- **react-icons** `^5.2.1` – Ícones prontos pra usar.
+- **react-input-mask** `^2.0.4` – Máscaras para inputs (CPF, telefone etc).
+- **react-toastify** `^10.0.5` – Notificações rápidas e customizáveis.
+- **js-cookie** `^3.0.5` – Leitura e escrita de cookies.
+- **moment** `^2.30.1` – Manipulação de datas.
+- **chart.js** `^4.4.5` + **react-chartjs-2** `^5.2.0` – Gráficos dinâmicos com React.
+- **@preact/signals-react** `^2.0.2` – Gerenciamento de estado leve e reativo.
+
+### 🎨 Dev e Estilo
+
+- **typescript** `^4.9.5` – Tipagem estática no JavaScript.
+- **tailwind** `^4.0.0` / **daisyui** `^4.11.1` – Estilização moderna com classes utilitárias e componentes prontos.
+- **react-scripts** `^5.0.1` – Scripts padrão do Create React App.
+- **web-vitals** `^2.1.4` – Métricas de performance baseadas na experiência do usuário.
+
+### 📘 Storybook
+
+- **@storybook/react** `^8.4.6` e demais pacotes `@storybook/*` – Documentação e visualização isolada de componentes.
+- **eslint-plugin-storybook** `^0.11.1` – Regras de lint específicas para manter boas práticas com Storybook.
+
+## 📁 Estrutura de Pastas
+
+public/               # Arquivos estáticos (imagens, ícones, fontes)
+src/
+├── assets/           # Arquivos estáticos (imagens, ícones, fontes)
+├── components/       # Componentes reutilizáveis
+├── contexts/         # Contextos globais (React Context API)
+├── helpers/          # Funções utilitárias que auxiliam em diversas partes do código
+├── hooks/            # Hooks personalizados
+├── interfaces/       # Interfaces compartilhadas e usadas globalmente no projeto, principalmente de entidades
+├── layout/           # Layout principal da aplicação, incluindo cabeçalho, barra lateral, etc.
+├── pages/            # Páginas da aplicação
+├── routes/           # Definição e gerenciamento das rotas da aplicação
+├── services/         # Integração com APIs e serviços externos
+├── styles/           # Estilos globais e configurações do Tailwind CSS
+├── utils/            # Funções auxiliares que não se encaixam em helpers (geralmente relacionadas a lógica ou formatação)
+├── validators/       # Validações de formulários usando Zod
+├── App.tsx           # Componente raiz da aplicação
+├── index.tsx         # Ponto de entrada principal da aplicação
+├── react-app.env.d.ts # Tipagens do ambiente do React App
+└── reportWebVitals   # Função para medição de performance
+
+
 ## License
 
-(adiciona licensa eventualmente).
+Copyright (c) [2025] [Coletivo gloma].  
+All rights reserved. This software is not licensed for use, reproduction, modification, or distribution without explicit written permission from the copyright holder.
