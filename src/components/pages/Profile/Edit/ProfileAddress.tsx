@@ -1,12 +1,22 @@
 import React from "react";
 
-export default function ProfileAddress({
-  address,
-  isEditing,
-}: {
+type Props = {
   address: any;
   isEditing: boolean;
-}) {
+  setUser: React.Dispatch<React.SetStateAction<any>>;
+};
+
+export default function ProfileAddress({ address, isEditing, setUser }: Props) {
+  const handleChange = (field: string, value: string) => {
+    setUser((prev: any) => ({
+      ...prev,
+      address: {
+        ...prev.address,
+        [field]: value,
+      },
+    }));
+  };
+
   return (
     <div className="form-control col-span-2">
       <label className="label">
@@ -19,78 +29,88 @@ export default function ProfileAddress({
           </label>
           <input
             type="text"
-            value={address?.logradouro || "Não informado"}
+            value={address?.logradouro || ""}
             className="input input-bordered"
             readOnly={!isEditing}
+            onChange={(e) => handleChange("logradouro", e.target.value)}
           />
         </div>
+
         <div className="form-control">
           <label className="label">
             <span className="label-text">Número</span>
           </label>
           <input
             type="text"
-            value={address?.numero || "S/N"}
+            value={address?.numero || ""}
             className="input input-bordered"
             readOnly={!isEditing}
+            onChange={(e) => handleChange("numero", e.target.value)}
           />
         </div>
+
         <div className="form-control">
           <label className="label">
             <span className="label-text">Bairro</span>
           </label>
           <input
             type="text"
-            value={address?.bairro || "Não informado"}
+            value={address?.bairro || ""}
             className="input input-bordered"
             readOnly={!isEditing}
-            disabled
+            onChange={(e) => handleChange("bairro", e.target.value)}
           />
         </div>
+
         <div className="form-control">
           <label className="label">
             <span className="label-text">Município</span>
           </label>
           <input
             type="text"
-            value={address?.municipio || "Não informado"}
+            value={address?.municipio || ""}
             className="input input-bordered"
             readOnly={!isEditing}
-            disabled
+            onChange={(e) => handleChange("municipio", e.target.value)}
           />
         </div>
+
         <div className="form-control">
           <label className="label">
             <span className="label-text">Estado</span>
           </label>
           <input
             type="text"
-            value={address?.estado?.toUpperCase() || "Não informado"}
+            value={address?.estado?.toUpperCase() || ""}
             className="input input-bordered"
             readOnly={!isEditing}
-            disabled
+            onChange={(e) => handleChange("estado", e.target.value.toUpperCase())}
           />
         </div>
+
         <div className="form-control">
           <label className="label">
             <span className="label-text">CEP</span>
           </label>
           <input
             type="text"
-            value={address?.cep || "Não informado"}
+            value={address?.cep || ""}
             className="input input-bordered"
             readOnly={!isEditing}
+            onChange={(e) => handleChange("cep", e.target.value)}
           />
         </div>
+
         <div className="form-control col-span-2">
           <label className="label">
             <span className="label-text">Complemento</span>
           </label>
           <input
             type="text"
-            value={address?.complemento || "Não informado"}
+            value={address?.complemento || ""}
             className="input input-bordered"
             readOnly={!isEditing}
+            onChange={(e) => handleChange("complemento", e.target.value)}
           />
         </div>
       </div>

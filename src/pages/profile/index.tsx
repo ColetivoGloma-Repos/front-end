@@ -1,35 +1,65 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Avatar, Button } from "../../components/common";
+import React from "react";
+import { Button } from "../../components/common/Button";
 import { useAuthProvider } from "../../context/Auth";
 import ProfilePersonalInfo from "../../components/pages/Profile/Edit/ProfilePersonalInfo";
+import { Avatar } from "../../components/common";
 import ProfileAddress from "../../components/pages/Profile/Edit/ProfileAddress";
+import { updateUser } from "../../services/auth.service";
+import { IUserUpdate } from "../../interfaces/user";
+import { toast } from "react-toastify";
+import { toastMessage } from "../../helpers/toast-message";
 
 export default function ProfileScreen() {
   const { currentUser } = useAuthProvider();
-  console.log(currentUser, 'current')
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [user, setUser] = React.useState(currentUser);
+  const [request, setRequesting ] = React.useState(false)
 
-  const handleEditToggle = () => {
+  React.useEffect(() => {
+    if (currentUser) {
+      
+      setUser({ ...currentUser });
+    }
+  }, [currentUser]);
+  const handleEditToggle = async () => {   
     setIsEditing(!isEditing);
+    if (isEditing) {      
+      try {
+        setRequesting(true)
+        if (request ) {
+            toast.warn('Carregando...');
+        }
+       const updatedUser = await  updateUser(currentUser!.id, user as IUserUpdate)
+       await setUser(updatedUser)
+      toast.success("Usuário atualizado com sucesso");       
+      } catch (error) {
+        console.log(error)
+        toast.error(toastMessage.INTERNAL_SERVER_ERROR)
+      }         
+    }   
   };
 
   return (
-    <section className="profile-section p-5 flex h-screen">
-      {currentUser? (
-        <div className="card w-full bg-base-100 shadow-xl p-5">
-          <div className="flex flex-col items-center">
+    <section className="profile-section p-5 flex h-full min-h-screen">
+      {user ? (
+        <div className="w-full max-w-4xl mx-auto bg-base-100 shadow-xl p-5 border-2 rounded-lg">
+          <div className="flex flex-col items-center mb-6">
             <Avatar
-              src={currentUser?.url || ""}
+              src={user.url || ""}
               className="mb-4 w-24 h-24 rounded-full"
             />
-            <h2 className="text-2xl font-bold mb-4">Perfil do Usuário</h2>
+            <h2 className="text-2xl font-bold">Perfil do Usuário</h2>
           </div>
-          <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <ProfilePersonalInfo currentUser={currentUser} isEditing={isEditing} />
 
-            <ProfileAddress address={currentUser.address} isEditing={isEditing} />
-            
+          <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={e => e.preventDefault()}>
+            <div className="space-y-4">
+              <ProfilePersonalInfo currentUser={user} isEditing={isEditing} setUser={setUser} />
+
+            </div>
+
+            <div className="space-y-4">
+              <ProfileAddress address={user.address} isEditing={isEditing} setUser={setUser} />
+           </div>
             <div className="form-control">
               <label className="label">
                 <span className="label-text">Veículo</span>
@@ -37,12 +67,21 @@ export default function ProfileScreen() {
               <input
                 type="text"
                 value={
-                  currentUser.hasVehicle
-                    ? currentUser.vehicleType || "Tipo não informado"
+                  user.hasVehicle
+                    ? user.vehicleType || "Tipo não informado"
                     : "Não possui"
                 }
                 className="input input-bordered"
                 readOnly={!isEditing}
+              />
+            </div>
+
+            <div className="md:col-span-2 flex justify-end mt-4">
+              <Button
+                type="button"
+                onClick={handleEditToggle}
+                className="btn btn-primary"
+                text={isEditing ? "Salvar" : "Editar"}
               />
             </div>
           </form>
@@ -53,6 +92,5 @@ export default function ProfileScreen() {
         </div>
       )}
     </section>
-    
   );
 }

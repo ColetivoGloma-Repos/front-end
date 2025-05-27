@@ -1,12 +1,12 @@
 import React from "react";
 
-export default function ProfilePersonalInfo({
-  currentUser,
-  isEditing,
-}: {
+type Props = {
   currentUser: any;
   isEditing: boolean;
-}) {
+  setUser: React.Dispatch<React.SetStateAction<any>>;
+};
+
+export default function ProfilePersonalInfo({ currentUser, isEditing, setUser }: Props) {
   return (
     <>
       <div className="form-control">
@@ -17,8 +17,13 @@ export default function ProfilePersonalInfo({
           type="text"
           value={currentUser.name || ""}
           className="input input-bordered"
+          readOnly={!isEditing}
+          onChange={(e) =>
+            setUser((prev: any) => ({ ...prev, name: e.target.value }))
+          }
         />
       </div>
+
       <div className="form-control">
         <label className="label">
           <span className="label-text">E-mail</span>
@@ -27,10 +32,11 @@ export default function ProfilePersonalInfo({
           type="email"
           value={currentUser.email || ""}
           className="input input-bordered"
-          readOnly={true}
+          readOnly
           disabled
         />
       </div>
+
       <div className="form-control">
         <label className="label">
           <span className="label-text">Telefone</span>
@@ -40,21 +46,24 @@ export default function ProfilePersonalInfo({
           value={currentUser.phone || ""}
           className="input input-bordered"
           readOnly={!isEditing}
+          onChange={(e) =>
+            setUser((prev: any) => ({ ...prev, phone: e.target.value }))
+          }
         />
       </div>
+
       <div className="form-control">
         <label className="label">
           <span className="label-text">Data de Nascimento</span>
         </label>
         <input
-          type="text"
-          value={
-            currentUser.birthDate
-              ? new Date(currentUser.birthDate).toLocaleDateString("pt-BR")
-              : "01/01/2000"
-          }
+          type="date"
+          value={currentUser.birthDate?.split("T")[0] || "2000-01-01"}
           className="input input-bordered"
           readOnly={!isEditing}
+          onChange={(e) =>
+            setUser((prev: any) => ({ ...prev, birthDate: e.target.value }))
+          }
         />
       </div>
     </>

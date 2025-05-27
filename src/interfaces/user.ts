@@ -10,6 +10,7 @@ export interface IUserCreate {
 }
 
 export interface IUserUpdate extends IUserCreate {
+  id?: string
   username: string;
   address?: IAddress;
   phone?: string;
