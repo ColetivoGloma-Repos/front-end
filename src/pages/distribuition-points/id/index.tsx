@@ -54,7 +54,6 @@ function DistribuitionPointScreen() {
         }),
         listStaticsDistribuitionPointRequested(id)
       ]);
-      console.log(respInventory)
       setInitialDistribuitionPoint(respDistribuitionPoint);
       setInitialProducts(respProducts);
       setInitialInventory(respInventory);

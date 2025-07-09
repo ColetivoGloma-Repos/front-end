@@ -14,7 +14,7 @@ import { toastMessage } from "../../helpers/toast-message";
 import { ISearchDemandPoint } from "../../interfaces/demand-point";
 import { IChangeStatus, ISearchCoordinator, IUserDash } from "../../interfaces/user";
 import { changeStatusCoordinator, listAllCoordinator } from "../../services/coordinators.service";
-import { ModalStatus } from "../../components/modals/Coordinators/ChangeStatus";
+import { ModalStatusCoordinator } from "../../components/modals/Dashboard/ChangeStatusCoordinator";
 
 const limit = 12;
 
@@ -231,7 +231,7 @@ const updateCoordinatorStatus = (id: string, newStatus: string) => {
         </>
       )}
 
-      <ModalStatus open={openModal} close={() => setOpenModal(false)} onSubmit={handleChangeStatusCoordinator} id={coordinatorId} />
+      <ModalStatusCoordinator open={openModal} close={() => setOpenModal(false)} onSubmit={handleChangeStatusCoordinator} id={coordinatorId} />
     </div>
   );
 }

@@ -12,7 +12,7 @@ interface IModalCoordinator {
   id: string;
 }
 
-export function ModalStatus({ close, open, onSubmit, id }: IModalCoordinator) {
+export function ModalStatusCoordinator({ close, open, onSubmit, id }: IModalCoordinator) {
   const {
     register,
     handleSubmit,

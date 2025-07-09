@@ -15,6 +15,7 @@ import DemandsPointScreen from "../pages/demand-point";
 import DemandPointScreen from "../pages/demand-point/id";
 import AllCoordinatorsScreen from "../pages/approve-coordinators";
 import { PrivateRoleRoute } from "./Auth/PrivateRoleRoute";
+import { DashboardAdminScreen } from "../pages/dashboard-admin";
 
 export function RoutesPage() {
   return (
@@ -51,6 +52,7 @@ export function RoutesPage() {
           </Route>
           <Route element={<PrivateRoleRoute roles={['admin']} />}>
             <Route path="/coordinators" element={<AllCoordinatorsScreen />} />
+            <Route path="/dashboard-admin" element={<DashboardAdminScreen />} />
           </Route>
           <Route path="*" element={<DemandsPointScreen />} />
         </Route>
