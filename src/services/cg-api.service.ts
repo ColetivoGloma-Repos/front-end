@@ -9,7 +9,15 @@ interface IMethod {
   options?: Record<string, any>;
 }
 
-const apiBase = 'https://coral-app-yndk5.ondigitalocean.app/api'
+const environement = process.env.REACT_APP_NODE_ENV
+let apiBase: string = ''
+
+if(environement === 'production') {
+    apiBase = process.env.REACT_APP_API_URI_PROD!    
+} else {
+  apiBase = process.env.REACT_APP_API_URI_DEV!
+}
+
 
 
 async function responseJson(response: Response) {
