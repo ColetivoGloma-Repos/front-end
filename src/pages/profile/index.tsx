@@ -8,35 +8,36 @@ import { updateUser } from "../../services/auth.service";
 import { IUserUpdate } from "../../interfaces/user";
 import { toast } from "react-toastify";
 import { toastMessage } from "../../helpers/toast-message";
+import ProfileVehicle from "../../components/pages/Profile/Edit/VehicleInfo";
 
 export default function ProfileScreen() {
   const { currentUser } = useAuthProvider();
   const [isEditing, setIsEditing] = React.useState(false);
   const [user, setUser] = React.useState(currentUser);
-  const [request, setRequesting ] = React.useState(false)
+  const [request, setRequesting] = React.useState(false);
 
   React.useEffect(() => {
     if (currentUser) {
-      
       setUser({ ...currentUser });
     }
   }, [currentUser]);
-  const handleEditToggle = async () => {   
+
+  const handleEditToggle = async () => {
     setIsEditing(!isEditing);
-    if (isEditing) {      
+    if (isEditing) {
       try {
-        setRequesting(true)
-        if (request ) {
-            toast.warn('Carregando...');
+        setRequesting(true);
+        if (request) {
+          toast.warn("Carregando...");
         }
-       const updatedUser = await  updateUser(currentUser!.id, user as IUserUpdate)
-       await setUser(updatedUser)
-      toast.success("Usuário atualizado com sucesso");       
+        const updatedUser = await updateUser(currentUser!.id, user as IUserUpdate);
+        await setUser(updatedUser);
+        toast.success("Usuário atualizado com sucesso");
       } catch (error) {
-        console.log(error)
-        toast.error(toastMessage.INTERNAL_SERVER_ERROR)
-      }         
-    }   
+        console.log(error);
+        toast.error(toastMessage.INTERNAL_SERVER_ERROR);
+      }
+    }
   };
 
   return (
@@ -51,30 +52,29 @@ export default function ProfileScreen() {
             <h2 className="text-2xl font-bold">Perfil do Usuário</h2>
           </div>
 
-          <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={e => e.preventDefault()}>
+          <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={(e) => e.preventDefault()}>
             <div className="space-y-4">
-              <ProfilePersonalInfo currentUser={user} isEditing={isEditing} setUser={setUser} />
-
-            </div>
-
-            <div className="space-y-4">
-              <ProfileAddress address={user.address} isEditing={isEditing} setUser={setUser} />
-           </div>
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Veículo</span>
-              </label>
-              <input
-                type="text"
-                value={
-                  user.hasVehicle
-                    ? user.vehicleType || "Tipo não informado"
-                    : "Não possui"
-                }
-                className="input input-bordered"
-                readOnly={!isEditing}
+              <ProfilePersonalInfo
+                currentUser={user}
+                isEditing={isEditing}
+                setUser={setUser}
               />
             </div>
+
+            <div className="space-y-4">
+              <ProfileAddress
+                address={user.address}
+                isEditing={isEditing}
+                setUser={setUser}
+              />
+
+              <ProfileVehicle
+                hasVehicle={user?.hasVehicle}
+                vehicleType={user?.vehicleType}
+                isEditing={isEditing}
+                setUser={setUser}
+              />
+              </div>
 
             <div className="md:col-span-2 flex justify-end mt-4">
               <Button
