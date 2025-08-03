@@ -4,11 +4,12 @@ import { useAuthProvider } from "../../context/Auth";
 import ProfilePersonalInfo from "../../components/pages/Profile/Edit/ProfilePersonalInfo";
 import { Avatar } from "../../components/common";
 import ProfileAddress from "../../components/pages/Profile/Edit/ProfileAddress";
-import { updateUser } from "../../services/auth.service";
+import { askIfChangeStatusToCoordinator, updateUser } from "../../services/auth.service";
 import { IUserUpdate } from "../../interfaces/user";
 import { toast } from "react-toastify";
 import { toastMessage } from "../../helpers/toast-message";
 import ProfileVehicle from "../../components/pages/Profile/Edit/VehicleInfo";
+import CooridnatorRequest from "../../components/pages/Profile/Edit/CoordinatorRequest";
 
 export default function ProfileScreen() {
   const { currentUser } = useAuthProvider();
@@ -40,6 +41,22 @@ export default function ProfileScreen() {
     }
   };
 
+   const handleAskIfCanToChangeForCoordinador = async () => {     
+      try {
+        setRequesting(true);
+        if (request) {
+          toast.warn("Carregando...");
+        }
+        const updatedUser = await askIfChangeStatusToCoordinator(currentUser!.id);
+        await setUser(updatedUser);
+        toast.success("Usuário atualizado com sucesso");
+      } catch (error) {
+        console.log(error);
+        toast.error(toastMessage.INTERNAL_SERVER_ERROR);
+      }
+    
+  };
+
   return (
     <section className="profile-section p-5 flex h-full min-h-screen">
       {user ? (
@@ -51,6 +68,9 @@ export default function ProfileScreen() {
             />
             <h2 className="text-2xl font-bold">Perfil do Usuário</h2>
           </div>
+         {!currentUser?.roles?.includes('coordinator') && (
+            <CooridnatorRequest onRequest={handleAskIfCanToChangeForCoordinador} />
+          )}
 
           <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={(e) => e.preventDefault()}>
             <div className="space-y-4">

@@ -6,12 +6,16 @@ export function login(data: ILogin) {
   return post(`/auth/login`, { data });
 }
 
-export function createUser(data: IUserCreate) {
+export function createUser(data: IUserCreate) {  
   return post(`/auth/register`, { data });
-}
+} 
 
 
 export function updateUser(id: string, data: IUserUpdate) {
   delete data.id;
   return patch(`/auth/update/${id}`, {data})
+}
+
+export function askIfChangeStatusToCoordinator(id: string) {
+  return post(`/auth/change-category/${id}`)
 }
