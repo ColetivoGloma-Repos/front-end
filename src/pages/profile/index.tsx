@@ -9,7 +9,9 @@ import { IUserUpdate } from "../../interfaces/user";
 import { toast } from "react-toastify";
 import { toastMessage } from "../../helpers/toast-message";
 import ProfileVehicle from "../../components/pages/Profile/Edit/VehicleInfo";
-import CooridnatorRequest from "../../components/pages/Profile/Edit/CoordinatorRequest";
+import ToRequireCoordinator from "../../components/pages/Profile/Edit/CoordinatorRequest";
+import ToRequireinitiativeAdministrator from "../../components/pages/Profile/Edit/InitiativeAdministrator";
+import { typeRoles } from "../../interfaces/auth";
 
 export default function ProfileScreen() {
   const { currentUser } = useAuthProvider();
@@ -69,8 +71,14 @@ export default function ProfileScreen() {
             <h2 className="text-2xl font-bold">Perfil do Usuário</h2>
           </div>
          {!currentUser?.roles?.includes('coordinator') && (
-            <CooridnatorRequest onRequest={handleAskIfCanToChangeForCoordinador} />
+            <ToRequireCoordinator onRequest={handleAskIfCanToChangeForCoordinador} />
           )}
+
+         {!(currentUser?.roles ?? []).includes('coordinator') && (
+            <ToRequireinitiativeAdministrator
+          onRequest={handleAskIfCanToChangeForCoordinador}
+          />
+        )}
 
           <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={(e) => e.preventDefault()}>
             <div className="space-y-4">

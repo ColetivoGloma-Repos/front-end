@@ -9,3 +9,11 @@ export async function listAllCoordinator(params: ISearchDemandPoint) {
 export async function changeStatusCoordinator(data: IChangeStatus) {
     return patch(`/dashboard/coordinators`, { data })
 }
+
+export async function listInitiative(params: ISearchDemandPoint) {
+    return get(`/dashboard/admins-initiative`,  { params })
+}
+
+export async function changeStatusToAdminInitiative(data: IChangeStatus) {
+    return patch(`/dashboard/admin-initiative`, { data })
+}
