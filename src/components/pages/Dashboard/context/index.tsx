@@ -3,7 +3,6 @@ import { IContextProvider, IDashboardProvider } from "./interface";
 import { ISearchShelter, IShelter } from "../../../../interfaces/shelter";
 import { listShelters } from "../../../../services/shelter.service";
 
-// Defina o contexto
 export const DashboardContext = React.createContext<IDashboardProvider>(
   {} as IDashboardProvider
 );

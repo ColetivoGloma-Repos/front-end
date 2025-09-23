@@ -59,7 +59,7 @@ function SignUpScreen() {
           <div className="card shrink-0 w-full max-w-md shadow-2xl bg-base-100 rounded-lg">
             <div className="card-body">
               <h1 className="text-4xl pb-5 text-center font-semibold">Cadastro</h1>
-
+               
               <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
                 <Input
                   label="Nome: "
