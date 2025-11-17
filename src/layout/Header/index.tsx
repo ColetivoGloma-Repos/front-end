@@ -6,9 +6,10 @@ import { IoMdNotifications } from "react-icons/io";
 
 interface IHeaderProps {
   openSidebar: () => void;
+  openNotification: () => void;
 }
 
-export function Header({ openSidebar }: IHeaderProps) {
+export function Header({ openSidebar, openNotification }: IHeaderProps) {
   const navigate = useNavigate();
   const { currentUser } = useAuthProvider();
 
@@ -37,7 +38,7 @@ export function Header({ openSidebar }: IHeaderProps) {
           <div className="flex justify-end items-center">
             {currentUser ? (
               <>
-               <div className="p-8">
+               <div className="p-8" onClick={openNotification}>
                   <IoMdNotifications size={30} />
                </div>
               <div className="flex justify-center" onClick={openSidebar}>
