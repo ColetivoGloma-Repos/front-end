@@ -38,7 +38,7 @@ export function Header({ openSidebar, openNotification }: IHeaderProps) {
           <div className="flex justify-end items-center">
             {currentUser ? (
               <>
-               <div className="p-8" onClick={openNotification}>
+               <div className="p-8 cursor-pointer " onClick={openNotification}>
                   <IoMdNotifications size={30} />
                </div>
               <div className="flex justify-center" onClick={openSidebar}>

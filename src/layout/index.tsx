@@ -14,7 +14,6 @@ export function Layout() {
     <div className="relative flex flex-col min-h-screen">
       <Header openSidebar={() => setOpenSidebar(true)} openNotification={() => setOpenNotifications(true)} />
       <Sidebar open={openSidebar} close={() => setOpenSidebar(false)} />
-
       <Notification open={openNotifications} close={() => setOpenNotifications(false)} />
   
      <main className="flex-1 overflow-x-hidden px-4">
