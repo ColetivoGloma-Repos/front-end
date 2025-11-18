@@ -3,7 +3,7 @@ import { BsChevronLeft } from "react-icons/bs";
 import { useAuthProvider } from "../../context/Auth";
 import { getNotifications } from "../../services/notification.service";
 import { getCookie } from "../../services/cookie.service";
-import { INotification, notificationsMock } from "../../interfaces/notification";
+import { INotification } from "../../interfaces/notification";
 
 
 interface INotificationProps {
