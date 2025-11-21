@@ -2,12 +2,14 @@ import { useAuthProvider } from "../../context/Auth";
 import { Avatar, Button, Image, Link } from "../../components/common";
 import logo from "../../assets/img/logo.png";
 import { useNavigate } from "react-router-dom";
+import { IoMdNotifications } from "react-icons/io";
 
 interface IHeaderProps {
   openSidebar: () => void;
+  openNotification: () => void;
 }
 
-export function Header({ openSidebar }: IHeaderProps) {
+export function Header({ openSidebar, openNotification }: IHeaderProps) {
   const navigate = useNavigate();
   const { currentUser } = useAuthProvider();
 
@@ -26,7 +28,7 @@ export function Header({ openSidebar }: IHeaderProps) {
         <div className="grid grid-cols-2 h-full">
           <Link href="/" className="inline-flex gap-3 hover:opacity-100">
             <div className={`flex justify-center h-full size-12`}>
-              <Image alt="logo" src={logo} className="w-full object-contain" />
+              <Image alt="logo" src={logo} className="w-full object-contain" /> 
             </div>
             <p className="hidden self-center text-2xl font-semibold text-green-600 sm:flex">
               Coletivo Gloma
@@ -35,9 +37,16 @@ export function Header({ openSidebar }: IHeaderProps) {
 
           <div className="flex justify-end items-center">
             {currentUser ? (
+              <>
+               <div className="p-8 cursor-pointer " onClick={openNotification}>
+                  <IoMdNotifications size={30} />
+               </div>
               <div className="flex justify-center" onClick={openSidebar}>
                 <Avatar src={currentUser?.url || logo} className="cursor-pointer size-[40px]" />
               </div>
+            
+               </>
+              
             ) : (
               <div className="flex justify-center gap-2">
                 <Button
