@@ -36,7 +36,7 @@ export function Collapse({
         {clonedBtnCollapse}
 
         {!buttonArrow?.removeButton && (
-        ( <BsChevronDown
+          <BsChevronDown
             size={16}
             className={`
               absolute right-0 mr-3 top-1/2 
@@ -45,8 +45,8 @@ export function Collapse({
               ${buttonArrow?.className}
             `}
             onClick={handleClick}
-          /> ) as JSX.Element
-      )}
+          />
+        )}
       </div>
 
       <div
