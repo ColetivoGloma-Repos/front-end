@@ -11,7 +11,6 @@ import { toastMessage } from "../../helpers/toast-message";
 import ProfileVehicle from "../../components/pages/Profile/Edit/VehicleInfo";
 import ToRequireCoordinator from "../../components/pages/Profile/Edit/CoordinatorRequest";
 import ToRequireinitiativeAdministrator from "../../components/pages/Profile/Edit/InitiativeAdministrator";
-import { typeRoles } from "../../interfaces/auth";
 
 export default function ProfileScreen() {
   const { currentUser } = useAuthProvider();
@@ -59,6 +58,19 @@ export default function ProfileScreen() {
     
   };
 
+ const isAdminInitiativeConfirmed =
+  user
+    ? user.roles.includes("initiative-administrator") &&
+      user.isAdminInitiative
+    : false
+
+  const isWaingToBecomeAdminInitiative =  user
+    ? user.roles.includes("initiative-administrator") &&
+      user.isAdminInitiative === false
+    : false
+
+  const isCordinadoConfirmed = user ? user.roles.includes("coordinator") : false  
+
   return (
     <section className="profile-section p-5 flex h-full min-h-screen">
       {user ? (
@@ -70,17 +82,26 @@ export default function ProfileScreen() {
             />
             <h2 className="text-2xl font-bold">Perfil do Usuário</h2>
           </div>
-         {!currentUser?.roles?.includes('coordinator') && (
+
+         {!isCordinadoConfirmed && (
             <ToRequireCoordinator onRequest={handleAskIfCanToChangeForCoordinador} />
           )}
+          
+          {isAdminInitiativeConfirmed && (
+              <ToRequireinitiativeAdministrator
+            onRequest={handleAskIfCanToChangeForCoordinador}
+            />
+          )}
 
-         {currentUser?.roles.includes('coordinator') && (
-            <ToRequireinitiativeAdministrator
-          onRequest={handleAskIfCanToChangeForCoordinador}
-          />
-        )}
+          {isWaingToBecomeAdminInitiative && (
+            <strong className="block text-center">
+              Requisição em avaliação, aguarde retorno da administração
+            </strong>
 
-          <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={(e) => e.preventDefault()}>
+
+          )}
+
+         <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={(e) => e.preventDefault()}>
             <div className="space-y-4">
               <ProfilePersonalInfo
                 currentUser={user}
