@@ -6,6 +6,8 @@ import { Layout } from "../layout";
 
 import LoginPointScreen from "../pages/auth/login";
 import SignUpScreen from "../pages/auth/register";
+import ForgotPasswordScreen from "../pages/auth/forgot-password";
+import ResetPasswordScreen from "../pages/auth/reset-password";
 import SheltersScreen from "../pages/shelters";
 import CoordinatorsScreen from "../pages/shelters/id";
 import DistribuitionPointsScreen from "../pages/distribuition-points";
@@ -25,6 +27,10 @@ export function RoutesPage() {
           <Route element={<LoginPointScreen />} path="/auth/login"></Route>
           <Route element={<SignUpScreen />} path="/auth/register"></Route>
         </Route>
+
+        {/* Rotas públicas de recuperação de senha */}
+        <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
+        <Route path="/reset-password" element={<ResetPasswordScreen />} />
 
         <Route element={<Layout />}>
           <Route path="/" element={<DistribuitionPointsScreen />} />

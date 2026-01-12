@@ -19,3 +19,11 @@ export function updateUser(id: string, data: IUserUpdate) {
 export function askIfChangeStatusToCoordinator(id: string) {
   return post(`/auth/change-category/${id}`)
 }
+
+export function forgotPassword(email: string) {
+  return post(`/auth/forgot-password`, { data: { email } });
+}
+
+export function resetPasswordWithToken(token: string, newPassword: string) {
+  return post(`/auth/reset-password-with-token`, { data: { token, newPassword } });
+}
