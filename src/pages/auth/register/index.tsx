@@ -108,7 +108,7 @@ function SignUpScreen() {
                 href={settings.support}
                 className="link text-blue-500 hover:text-blue-600 underline w-full text-center mt-4"
               >
-                suporte
+                Suporte
               </Link>
             </div>
           </div>
