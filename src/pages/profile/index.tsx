@@ -11,11 +11,9 @@ import { toastMessage } from "../../helpers/toast-message";
 import ProfileVehicle from "../../components/pages/Profile/Edit/VehicleInfo";
 import ToRequireCoordinator from "../../components/pages/Profile/Edit/CoordinatorRequest";
 import ToRequireinitiativeAdministrator from "../../components/pages/Profile/Edit/InitiativeAdministrator";
-import { typeRoles } from "../../interfaces/auth";
 
 export default function ProfileScreen() {
   const { currentUser } = useAuthProvider();
-  const [isEditing, setIsEditing] = React.useState(false);
   const [user, setUser] = React.useState(currentUser);
   const [request, setRequesting] = React.useState(false);
 
@@ -26,21 +24,23 @@ export default function ProfileScreen() {
   }, [currentUser]);
 
   const handleEditToggle = async () => {
-    setIsEditing(!isEditing);
-    if (isEditing) {
-      try {
-        setRequesting(true);
+    setRequesting(true);
+    if (!request) {        
         if (request) {
           toast.warn("Carregando...");
         }
+      try {        
         const updatedUser = await updateUser(currentUser!.id, user as IUserUpdate);
         await setUser(updatedUser);
         toast.success("Usuário atualizado com sucesso");
       } catch (error) {
         console.log(error);
         toast.error(toastMessage.INTERNAL_SERVER_ERROR);
+      }finally {
+        setRequesting(false)
       }
     }
+    
   };
 
    const handleAskIfCanToChangeForCoordinador = async () => {     
@@ -55,8 +55,7 @@ export default function ProfileScreen() {
       } catch (error) {
         console.log(error);
         toast.error(toastMessage.INTERNAL_SERVER_ERROR);
-      }
-    
+      }    
   };
 
   return (
@@ -84,7 +83,6 @@ export default function ProfileScreen() {
             <div className="space-y-4">
               <ProfilePersonalInfo
                 currentUser={user}
-                isEditing={isEditing}
                 setUser={setUser}
               />
             </div>
@@ -92,14 +90,12 @@ export default function ProfileScreen() {
             <div className="space-y-4">
               <ProfileAddress
                 address={user.address}
-                isEditing={isEditing}
                 setUser={setUser}
               />
 
               <ProfileVehicle
                 hasVehicle={user?.hasVehicle}
                 vehicleType={user?.vehicleType}
-                isEditing={isEditing}
                 setUser={setUser}
               />
               </div>
@@ -109,7 +105,7 @@ export default function ProfileScreen() {
                 type="button"
                 onClick={handleEditToggle}
                 className="btn btn-primary"
-                text={isEditing ? "Salvar" : "Editar"}
+                text={request ? "Enviando" : "Salvar"}
               />
             </div>
           </form>

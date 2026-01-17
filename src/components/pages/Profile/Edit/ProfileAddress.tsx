@@ -2,11 +2,10 @@ import React from "react";
 
 type Props = {
   address: any;
-  isEditing: boolean;
   setUser: React.Dispatch<React.SetStateAction<any>>;
 };
 
-export default function ProfileAddress({ address, isEditing, setUser }: Props) {
+export default function ProfileAddress({ address, setUser }: Props) {
   const handleChange = (field: string, value: string) => {
     setUser((prev: any) => ({
       ...prev,
@@ -31,7 +30,6 @@ export default function ProfileAddress({ address, isEditing, setUser }: Props) {
             type="text"
             value={address?.logradouro || ""}
             className="input input-bordered"
-            readOnly={!isEditing}
             onChange={(e) => handleChange("logradouro", e.target.value)}
           />
         </div>
@@ -44,7 +42,6 @@ export default function ProfileAddress({ address, isEditing, setUser }: Props) {
             type="text"
             value={address?.numero || ""}
             className="input input-bordered"
-            readOnly={!isEditing}
             onChange={(e) => handleChange("numero", e.target.value)}
           />
         </div>
@@ -57,7 +54,6 @@ export default function ProfileAddress({ address, isEditing, setUser }: Props) {
             type="text"
             value={address?.bairro || ""}
             className="input input-bordered"
-            readOnly={!isEditing}
             onChange={(e) => handleChange("bairro", e.target.value)}
           />
         </div>
@@ -70,7 +66,6 @@ export default function ProfileAddress({ address, isEditing, setUser }: Props) {
             type="text"
             value={address?.municipio || ""}
             className="input input-bordered"
-            readOnly={!isEditing}
             onChange={(e) => handleChange("municipio", e.target.value)}
           />
         </div>
@@ -83,7 +78,6 @@ export default function ProfileAddress({ address, isEditing, setUser }: Props) {
             type="text"
             value={address?.estado?.toUpperCase() || ""}
             className="input input-bordered"
-            readOnly={!isEditing}
             onChange={(e) => handleChange("estado", e.target.value.toUpperCase())}
           />
         </div>
@@ -96,7 +90,6 @@ export default function ProfileAddress({ address, isEditing, setUser }: Props) {
             type="text"
             value={address?.cep || ""}
             className="input input-bordered"
-            readOnly={!isEditing}
             onChange={(e) => handleChange("cep", e.target.value)}
           />
         </div>
@@ -109,7 +102,6 @@ export default function ProfileAddress({ address, isEditing, setUser }: Props) {
             type="text"
             value={address?.complemento || ""}
             className="input input-bordered"
-            readOnly={!isEditing}
             onChange={(e) => handleChange("complemento", e.target.value)}
           />
         </div>
