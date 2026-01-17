@@ -11,7 +11,6 @@ interface IMethod {
 
 const apiBase = 'https://coral-app-yndk5.ondigitalocean.app/api'
 
-
 async function responseJson(response: Response) {
   if (!response.ok || response.status >= 400) {
     throw await response.clone().json();

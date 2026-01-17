@@ -3,7 +3,6 @@ import React from "react";
 type Props = {
   hasVehicle?: boolean;
   vehicleType?: string;
-  isEditing: boolean;
   setUser: React.Dispatch<React.SetStateAction<any>>;
 };
 
@@ -15,7 +14,7 @@ const vehicleTypes = [
   { name: "other", value: "Outro" },
 ];
 
-export default function ProfileVehicle({ hasVehicle, vehicleType, isEditing, setUser }: Props) {
+export default function ProfileVehicle({ hasVehicle, vehicleType, setUser }: Props) {
   const handleChange = (field: "hasVehicle" | "vehicleType", value: any) => {
     setUser((prev: any) => ({
       ...prev,
@@ -34,7 +33,6 @@ export default function ProfileVehicle({ hasVehicle, vehicleType, isEditing, set
           type="checkbox"
           className="checkbox"
           checked={!!hasVehicle}
-          disabled={!isEditing}
           onChange={(e) => {
             const checked = e.target.checked;
             handleChange("hasVehicle", checked);
@@ -52,7 +50,6 @@ export default function ProfileVehicle({ hasVehicle, vehicleType, isEditing, set
           <select
             className="select select-bordered"
             value={vehicleType || ""}
-            disabled={!isEditing}
             onChange={(e) => handleChange("vehicleType", e.target.value)}
           >
             <option value="">Selecione um tipo</option>

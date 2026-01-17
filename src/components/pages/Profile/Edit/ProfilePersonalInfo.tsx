@@ -2,11 +2,10 @@ import React from "react";
 
 type Props = {
   currentUser: any;
-  isEditing: boolean;
   setUser: React.Dispatch<React.SetStateAction<any>>;
 };
 
-export default function ProfilePersonalInfo({ currentUser, isEditing, setUser }: Props) {
+export default function ProfilePersonalInfo({ currentUser, setUser }: Props) {
   return (
     <>
       <div className="form-control">
@@ -17,7 +16,6 @@ export default function ProfilePersonalInfo({ currentUser, isEditing, setUser }:
           type="text"
           value={currentUser.name || ""}
           className="input input-bordered"
-          readOnly={!isEditing}
           onChange={(e) =>
             setUser((prev: any) => ({ ...prev, name: e.target.value }))
           }
@@ -45,7 +43,6 @@ export default function ProfilePersonalInfo({ currentUser, isEditing, setUser }:
           type="text"
           value={currentUser.phone || ""}
           className="input input-bordered"
-          readOnly={!isEditing}
           onChange={(e) =>
             setUser((prev: any) => ({ ...prev, phone: e.target.value }))
           }
@@ -60,7 +57,6 @@ export default function ProfilePersonalInfo({ currentUser, isEditing, setUser }:
           type="date"
           value={currentUser.birthDate?.split("T")[0] || "2000-01-01"}
           className="input input-bordered"
-          readOnly={!isEditing}
           onChange={(e) =>
             setUser((prev: any) => ({ ...prev, birthDate: e.target.value }))
           }
