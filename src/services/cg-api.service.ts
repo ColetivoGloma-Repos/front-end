@@ -9,7 +9,8 @@ interface IMethod {
   options?: Record<string, any>;
 }
 
-const apiBase = 'https://coral-app-yndk5.ondigitalocean.app/api'
+// const apiBase = 'https://coral-app-yndk5.ondigitalocean.app/api'
+const apiBase = "http://localhost:8080/api";
 
 async function responseJson(response: Response) {
   if (!response.ok || response.status >= 400) {
@@ -29,7 +30,7 @@ export async function request(
   method?: IMethodType,
   body?: { [key: string]: any } | null,
   headers?: { [key: string]: string },
-  options?: { [key: string]: any }
+  options?: { [key: string]: any },
 ) {
   const token = getCookie("token");
 
@@ -68,14 +69,14 @@ function buildUrl(baseUrl: string, params?: { [key: string]: any }): string {
 
 export async function get(
   url: string,
-  { params, headers, options }: Omit<IMethod, "data"> = {}
+  { params, headers, options }: Omit<IMethod, "data"> = {},
 ) {
   return await request(buildUrl(url, params), "GET", null, headers, options);
 }
 
 export async function post(
   url: string,
-  { data, params, headers, options }: IMethod = {}
+  { data, params, headers, options }: IMethod = {},
 ) {
   return await request(buildUrl(url, params), "POST", data, headers, options);
 }
@@ -86,7 +87,7 @@ export async function put(url: string, { data, params, headers, options }: IMeth
 
 export async function patch(
   url: string,
-  { data, params, headers, options }: IMethod = {}
+  { data, params, headers, options }: IMethod = {},
 ) {
   return await request(buildUrl(url, params), "PATCH", data, headers, options);
 }

@@ -13,16 +13,17 @@ interface ISelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   options: IOption[];
   label?: string;
   errors?: any;
+  containerClassName?: string;
   register?: UseFormRegister<FieldValues>;
 }
 
 const Select = React.forwardRef<HTMLSelectElement, ISelectProps>(
-  ({ label, options, errors, required, ...props }, ref) => {
+  ({ label, options, errors, required, containerClassName, ...props }, ref) => {
     const error =
       (props.name && errors && getNestedValue(errors, props.name)?.message) || "";
 
     return (
-      <div className="flex flex-col gap-1">
+      <div className={`flex flex-col gap-1 ${containerClassName || ""}`}>
         {label && (
           <label className={`font-bold`} htmlFor={props.id || ""}>
             {label}
@@ -58,7 +59,7 @@ const Select = React.forwardRef<HTMLSelectElement, ISelectProps>(
         {error && <p className="text-red-600 text-sm text-center">{error}</p>}
       </div>
     );
-  }
+  },
 );
 
 Select.displayName = "Select";

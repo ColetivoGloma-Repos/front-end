@@ -10,14 +10,17 @@ import ForgotPasswordScreen from "../pages/auth/forgot-password";
 import ResetPasswordScreen from "../pages/auth/reset-password";
 import SheltersScreen from "../pages/shelters";
 import CoordinatorsScreen from "../pages/shelters/id";
-import DistribuitionPointsScreen from "../pages/distribuition-points";
-import DistribuitionPointScreen from "../pages/distribuition-points/id";
 import ProfileScreen from "../pages/profile";
 import DemandsPointScreen from "../pages/demand-point";
 import DemandPointScreen from "../pages/demand-point/id";
 import AllCoordinatorsScreen from "../pages/approve-coordinators";
 import { PrivateRoleRoute } from "./Auth/PrivateRoleRoute";
 import { DashboardAdminScreen } from "../pages/dashboard-admin";
+import CreateDistributionPoint from "../pages/distribution-point/pages/create";
+import DetailDistributionPoint from "../pages/distribution-point/pages/detail";
+import ListDistributionPoint from "../pages/distribution-point/pages/list";
+import EditDistributionPoint from "../pages/distribution-point/pages/edit";
+import { DistributionPointProvider } from "../pages/distribution-point/context";
 
 export function RoutesPage() {
   return (
@@ -33,30 +36,29 @@ export function RoutesPage() {
         <Route path="/reset-password" element={<ResetPasswordScreen />} />
 
         <Route element={<Layout />}>
-          <Route path="/" element={<DistribuitionPointsScreen />} />
-          <Route
-            path="/distribuition-points/:id"
-            element={<DistribuitionPointScreen />}
-          />
+          <Route element={<DistributionPointProvider />}>
+            <Route path="/" element={<ListDistributionPoint />} />
+            <Route path="/distribution-point/:id" element={<DetailDistributionPoint />} />
+            <Route
+              path="/distribution-point/create"
+              element={<CreateDistributionPoint />}
+            />
+            <Route
+              path="/distribution-point/:id/edit"
+              element={<EditDistributionPoint />}
+            />
+          </Route>
 
-          <Route
-            path="/demands-point"
-            element={<DemandsPointScreen />}
-          />
-          
-          <Route
-            path="/demand-point/:id"
-            element={<DemandPointScreen />}
-          />
-       
-       
+          <Route path="/demands-point" element={<DemandsPointScreen />} />
+
+          <Route path="/demand-point/:id" element={<DemandPointScreen />} />
+
           <Route element={<PrivateRoute />}>
             <Route path="/shelters" element={<SheltersScreen />} />
             <Route path="/profile" element={<ProfileScreen />} />
             <Route path="/shelters/:id" element={<CoordinatorsScreen />} />
-            
           </Route>
-          <Route element={<PrivateRoleRoute roles={['admin']} />}>
+          <Route element={<PrivateRoleRoute roles={["admin"]} />}>
             <Route path="/coordinators" element={<AllCoordinatorsScreen />} />
             <Route path="/dashboard-admin" element={<DashboardAdminScreen />} />
           </Route>
