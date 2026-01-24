@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   IoMdClose,
   IoMdCheckmark,
@@ -24,10 +24,28 @@ interface IRequestedProductCardProps {
   userDonatedAmount?: number;
   onDonate: (amount: number) => void;
   onCancelDonation: () => void;
-  onConfirmDelivery?: () => void;
   onEdit: (updatedRequestedProduct: IUpdateRequestedProduct) => void;
   onDelete: () => void;
 }
+
+const DefaultButton = ({
+  type,
+  ...props
+}: {
+  onClick: () => void;
+  text: React.ReactNode;
+  type: "red" | "blue";
+  disabled: boolean;
+}) => {
+  const baseClasses = "btn-xs btn-ghost btn-square";
+
+  const styleClasses =
+    type === "red"
+      ? "text-error !bg-error/15 hover:!bg-error/30 !size-9"
+      : "text-info !bg-info/15 hover:!bg-info/30 !size-9";
+
+  return <Button type="button" className={`${baseClasses} ${styleClasses}`} {...props} />;
+};
 
 export function RequestedProductCard({
   requestedProduct,
@@ -36,17 +54,20 @@ export function RequestedProductCard({
   userDonatedAmount = 0,
   onDonate,
   onCancelDonation,
-  onConfirmDelivery,
   onEdit,
   onDelete,
 }: IRequestedProductCardProps) {
-  const [donateAmount, setDonateAmount] = useState<string>("");
-  const [isEditing, setIsEditing] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [editForm, setEditForm] = useState({
+  const [donateAmount, setDonateAmount] = React.useState<string>("");
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
+  const [editForm, setEditForm] = React.useState({
     productName: requestedProduct.product.name,
     requestedQuantity: requestedProduct.requestedQuantity,
   });
+
+  const [loadingAction, setLoadingAction] = React.useState<
+    null | "donate" | "cancel" | "edit" | "delete" | "confirm"
+  >(null);
 
   const product = requestedProduct.product;
 
@@ -75,23 +96,52 @@ export function RequestedProductCard({
     (donatedButNotDelivered / safeTarget) * 100,
   );
 
-  const handleDonateSubmit = (e: React.FormEvent) => {
+  const isLoadingDonate = loadingAction === "donate";
+  const isLoadingCancel = loadingAction === "cancel";
+  const isLoadingEdit = loadingAction === "edit";
+  const isLoadingDelete = loadingAction === "delete";
+
+  const handleDonate = async (e: React.FormEvent) => {
     e.preventDefault();
     const amount = parseFloat(donateAmount);
     if (!isNaN(amount) && amount > 0) {
-      onDonate(amount);
-      setDonateAmount("");
+      setLoadingAction("donate");
+      try {
+        await Promise.resolve(onDonate(amount));
+        setDonateAmount("");
+      } finally {
+        setLoadingAction(null);
+      }
     }
   };
 
-  const handleEditSubmit = () => {
-    onEdit(editForm);
-    setIsEditing(false);
+  const handleCancelDonation = async () => {
+    setLoadingAction("cancel");
+    try {
+      await Promise.resolve(onCancelDonation());
+    } finally {
+      setLoadingAction(null);
+    }
   };
 
-  const handleDeleteConfirm = () => {
-    onDelete();
-    setShowDeleteConfirm(false);
+  const handleEdit = async () => {
+    setLoadingAction("edit");
+    try {
+      await Promise.resolve(onEdit(editForm));
+      setIsEditing(false);
+    } finally {
+      setLoadingAction(null);
+    }
+  };
+
+  const handleDelete = async () => {
+    setLoadingAction("delete");
+    try {
+      await Promise.resolve(onDelete());
+      setShowDeleteConfirm(false);
+    } finally {
+      setLoadingAction(null);
+    }
   };
 
   const style = (status: RequestedProductStatus) => {
@@ -118,6 +168,10 @@ export function RequestedProductCard({
     }
   };
 
+  const donateDisabled = isLoadingDonate || isLoadingDelete || isLoadingEdit;
+  const cancelDisabled = isLoadingCancel || isLoadingDelete || isLoadingEdit;
+  const adminButtonsDisabled = isLoadingDelete || isLoadingEdit;
+
   if (isEditing) {
     return (
       <div className="card rounded-2xl bg-base-100 shadow-sm border border-primary/20">
@@ -134,6 +188,7 @@ export function RequestedProductCard({
             onChange={(e) => setEditForm({ ...editForm, productName: e.target.value })}
             placeholder="Nome do produto"
             className="input-sm"
+            disabled={isLoadingEdit}
           />
 
           <div className="flex items-center gap-2 mt-2">
@@ -146,6 +201,7 @@ export function RequestedProductCard({
                   requestedQuantity: parseFloat((e.target as HTMLInputElement).value),
                 })
               }
+              disabled={isLoadingEdit}
               placeholder="Meta"
               className="input-sm w-full"
               containerClassName="w-full"
@@ -156,17 +212,17 @@ export function RequestedProductCard({
           </div>
 
           <div className="card-actions justify-end mt-4">
-            <Button
-              type="button"
+            <DefaultButton
+              disabled={isLoadingEdit}
               onClick={() => setIsEditing(false)}
-              className="btn-xs btn-ghost btn-square text-error !bg-error/15 hover:!bg-error/30 !size-9"
               text={<IoMdClose size={18} />}
+              type="red"
             />
-            <Button
-              type="button"
-              onClick={handleEditSubmit}
-              className="btn-xs btn-ghost btn-square text-info !bg-info/15 hover:!bg-info/30 !size-9"
+            <DefaultButton
+              disabled={isLoadingEdit}
+              onClick={handleEdit}
               text={<IoMdCheckmark size={18} />}
+              type="blue"
             />
           </div>
         </div>
@@ -195,17 +251,17 @@ export function RequestedProductCard({
 
             {isAdmin && (
               <div className="flex gap-2">
-                <Button
-                  type="button"
+                <DefaultButton
+                  disabled={adminButtonsDisabled}
                   onClick={() => setIsEditing(true)}
-                  className="btn-xs btn-ghost btn-square text-info !bg-info/15 hover:!bg-info/30 !size-9"
                   text={<IoMdCreate size={16} />}
+                  type="blue"
                 />
-                <Button
-                  type="button"
+                <DefaultButton
+                  disabled={adminButtonsDisabled}
                   onClick={() => setShowDeleteConfirm(true)}
-                  className="btn-xs btn-ghost btn-square text-error !bg-error/15 hover:!bg-error/30 !size-9"
                   text={<IoMdTrash size={16} />}
+                  type="red"
                 />
               </div>
             )}
@@ -223,12 +279,13 @@ export function RequestedProductCard({
           </div>
 
           {!isAdmin && !isLocked && isLoggedIn && (
-            <form onSubmit={handleDonateSubmit} className="flex gap-2">
+            <form onSubmit={handleDonate} className="flex gap-2">
               <Input
                 type="number"
                 min="0.01"
                 step="0.01"
                 max={remaining}
+                disabled={donateDisabled}
                 value={donateAmount}
                 onChange={(e) => setDonateAmount((e.target as HTMLInputElement).value)}
                 placeholder={`Max: ${remaining}`}
@@ -236,9 +293,10 @@ export function RequestedProductCard({
                 containerClassName="flex-1"
               />
               <Button
+                disabled={donateDisabled}
                 type="submit"
                 className="btn-primary btn-sm text-white"
-                text="Doar"
+                text={isLoadingDonate ? "Doando..." : "Doar"}
               />
             </form>
           )}
@@ -253,15 +311,17 @@ export function RequestedProductCard({
           {!isAdmin && userDonatedAmount > 0 && (
             <div className="mt-3 pt-3 border-t border-base-200 flex justify-between items-center">
               <span className="text-xs text-success font-semibold flex items-center gap-1">
-                <IoMdCheckmark size={12} /> Sua doação: {userDonatedAmount} {product.unit}
+                <IoMdCheckmark size={12} /> Em espera para entrega: {userDonatedAmount}{" "}
+                {product.unit}
               </span>
 
               <Button
                 type="button"
-                onClick={onCancelDonation}
+                onClick={handleCancelDonation}
                 className="btn-xs h-8 px-3 border-none text-error bg-error/15 hover:bg-error/20 no-underline"
                 prefix={<IoMdUndo size={12} className="mr-1" />}
-                text="Cancelar doação"
+                text={isLoadingCancel ? "Cancelando..." : "Cancelar doação"}
+                disabled={cancelDisabled}
               />
             </div>
           )}
@@ -272,16 +332,6 @@ export function RequestedProductCard({
               <span className="text-xs">
                 Meta de doações atingida, aguardando confirmação de entrega.
               </span>
-
-              {isAdmin && onConfirmDelivery && (
-                <Button
-                  type="button"
-                  onClick={onConfirmDelivery}
-                  className="btn-sm btn-success text-white w-full mt-2"
-                  prefix={<IoMdCube size={16} />}
-                  text="Confirmar Entrega"
-                />
-              )}
             </div>
           )}
 
@@ -290,15 +340,6 @@ export function RequestedProductCard({
               <span className="font-bold flex items-center gap-1">
                 <IoMdCheckmark size={16} /> Entrega Confirmada! Obrigado.
               </span>
-
-              {!isAdmin && userDonatedAmount > 0 && (
-                <Button
-                  type="button"
-                  onClick={onCancelDonation}
-                  className="btn-xs btn-link text-error no-underline mt-1"
-                  text="(Cancelar minha doação)"
-                />
-              )}
             </div>
           )}
         </div>
@@ -322,14 +363,16 @@ export function RequestedProductCard({
               <Button
                 type="button"
                 className="btn"
+                disabled={isLoadingDelete}
                 onClick={() => setShowDeleteConfirm(false)}
                 text="Cancelar"
               />
               <Button
                 type="button"
+                disabled={isLoadingDelete}
                 className="btn btn-error text-white"
-                onClick={handleDeleteConfirm}
-                text="Excluir Solicitação"
+                onClick={handleDelete}
+                text={isLoadingDelete ? "Excluindo..." : "Excluir Solicitação"}
               />
             </div>
           </div>

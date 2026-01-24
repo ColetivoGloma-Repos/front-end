@@ -153,6 +153,7 @@ export default function DetailDistributionPoint() {
   };
 
   const handleDonate = async (requestedProductId: string, quantity: number) => {
+    await new Promise<void>((resolve) => setTimeout(resolve, 3000));
     const donationResponse = await createDonation({
       requestedProductId,
       quantity,
@@ -435,9 +436,6 @@ export default function DetailDistributionPoint() {
                   userDonatedAmount={donations[requestedProduct.id]}
                   onDonate={(amount) => handleDonate(requestedProduct.id, amount)}
                   onCancelDonation={() => handleCancelDonation(requestedProduct.id)}
-                  onConfirmDelivery={() =>
-                    handleAdminConfirmDelivery(distributionPoint.id, requestedProduct.id)
-                  }
                   onEdit={(updates) =>
                     handleAdminUpdateProduct(requestedProduct.id, updates)
                   }
