@@ -25,7 +25,7 @@ import {
 } from "../../../interfaces/distribution-point";
 import { useAuthProvider } from "../../../context/Auth";
 import useParams from "../../../hooks/useParams";
-import { Button } from "../../../components/common";
+import { Button, Input, Select } from "../../../components/common";
 
 type DashboardTab = "pending" | "history";
 type FlattenedDonation = {
@@ -239,46 +239,42 @@ export default function ManageDistributionPoint() {
       <div className="card rounded-2xl bg-base-100 shadow-sm mb-4 border border-base-200">
         <div className="card-body p-4 flex flex-col md:flex-row gap-4 items-end">
           <div className="form-control w-full md:w-1/3">
-            <label className="label py-1">
-              <span className="label-text text-xs font-bold uppercase text-base-content/50">
-                Buscar
-              </span>
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Nome do produto, doador ou email..."
-                className="input input-bordered input-sm w-full pl-9"
-                value={params?.q || ""}
-                onChange={(e) => handleParams({ q: e.target.value || undefined })}
-              />
-              <IoSearch className="w-4 h-4 absolute left-3 top-2.5 opacity-50" />
-            </div>
+            <Input
+              label="Buscar"
+              type="text"
+              placeholder="Nome do produto, doador ou email..."
+              containerClassName=""
+              className="input-sm w-full pl-9 max-w-none h-9 !rounded-md"
+              value={params?.q || ""}
+              onChange={(e) =>
+                handleParams({
+                  q: (e.target as HTMLInputElement).value || undefined,
+                })
+              }
+              prefix={<IoSearch size={16} />}
+            />
           </div>
 
           <div className="form-control w-full md:w-1/4">
-            <label className="label py-1">
-              <span className="label-text text-xs font-bold uppercase text-base-content/50">
-                Ponto
-              </span>
-            </label>
-            <div className="relative">
-              <select
-                className="select select-bordered select-sm w-full pl-9"
-                value={params?.distributionPointId || ""}
-                onChange={(e) =>
-                  handleParams({ distributionPointId: e.target.value || undefined })
-                }
-              >
-                <option value="">Todos os pontos</option>
-                {distributionPoints.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.title}
-                  </option>
-                ))}
-              </select>
-              <IoPin className="w-4 h-4 absolute left-3 top-2.5 opacity-50" />
-            </div>
+            <Select
+              label="Ponto"
+              options={[
+                { label: "Todos os pontos", value: "" },
+                ...distributionPoints.map((p) => ({
+                  label: p.title,
+                  value: p.id,
+                })),
+              ]}
+              containerClassName=""
+              className="select-sm w-full pl-9 max-w-none h-9 !rounded-md"
+              value={params?.distributionPointId || ""}
+              onChange={(e) =>
+                handleParams({
+                  distributionPointId: (e.target as HTMLSelectElement).value || undefined,
+                })
+              }
+              prefix={<IoPin size={16} />}
+            />
           </div>
 
           <div className="flex-1 text-right">
@@ -423,18 +419,22 @@ export default function ManageDistributionPoint() {
                     <span className="text-xs text-base-content/60">
                       Linhas por página:
                     </span>
-                    <select
-                      className="select select-bordered select-xs h-8 rounded-md"
-                      value={limit}
+                    <Select
+                      options={[
+                        { label: "5", value: "5" },
+                        { label: "10", value: "10" },
+                        { label: "20", value: "20" },
+                        { label: "50", value: "50" },
+                      ]}
+                      className="select-xs h-8 max-w-none !rounded-md"
+                      value={String(limit)}
                       onChange={(e) =>
-                        handleParams({ limit: e.target.value, offset: "0" })
+                        handleParams({
+                          limit: (e.target as HTMLSelectElement).value,
+                          offset: "0",
+                        })
                       }
-                    >
-                      <option value="5">5</option>
-                      <option value="10">10</option>
-                      <option value="20">20</option>
-                      <option value="50">50</option>
-                    </select>
+                    />
                   </div>
 
                   <div className="join rounded-md">
