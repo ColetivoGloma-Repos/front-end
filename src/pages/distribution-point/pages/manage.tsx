@@ -14,6 +14,8 @@ import {
 } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import {
+  cancelDonation,
+  confirmDeliveryDonation,
   listDistributionPoints,
   listDonations,
 } from "../../../services/distribution-point";
@@ -26,6 +28,8 @@ import {
 import { useAuthProvider } from "../../../context/Auth";
 import useParams from "../../../hooks/useParams";
 import { Button, Input, Select } from "../../../components/common";
+import { useDistributionPointProvider } from "../context";
+import { toast } from "react-toastify";
 
 type DashboardTab = "pending" | "history";
 type FlattenedDonation = {
@@ -74,6 +78,7 @@ const ActionButton = ({
 export default function ManageDistributionPoint() {
   const navigation = useNavigate();
   const { currentUser } = useAuthProvider();
+  const { isAdmin } = useDistributionPointProvider();
 
   const [params, setParams] = useParams<IQueryDonations & { tab?: DashboardTab }>(
     "donations",
@@ -88,6 +93,7 @@ export default function ManageDistributionPoint() {
   const [distributionPoints, setDistributionPoints] = React.useState<
     IDistributionPoint[]
   >([]);
+  const [requesting, setRequesting] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     if (currentUser) {
@@ -121,6 +127,7 @@ export default function ManageDistributionPoint() {
       setData(response);
     } catch (error) {
       console.error("Error fetching donations:", error);
+      toast.error("Erro ao buscar doações. Tente novamente mais tarde.");
     }
   };
 
@@ -137,10 +144,16 @@ export default function ManageDistributionPoint() {
   };
 
   const handleParams = (newParams: Partial<IQueryDonations>) => {
-    setParams((prev) => ({
-      ...prev,
-      ...newParams,
-    }));
+    setParams((prev) => {
+      const rawOffset = parseInt(newParams.offset ?? prev.offset ?? "0", 10);
+      const safeOffset = Math.max(0, rawOffset).toString();
+
+      return {
+        ...prev,
+        ...newParams,
+        offset: safeOffset,
+      };
+    });
   };
 
   const handleTabChange = (newTab: DashboardTab) => {
@@ -149,6 +162,34 @@ export default function ManageDistributionPoint() {
       tab: newTab,
       offset: "0",
     });
+  };
+
+  const handleConfirmDeliveryDonation = async (donationId: string) => {
+    setRequesting(true);
+
+    try {
+      await confirmDeliveryDonation(donationId);
+      await fetchDonations(params);
+    } catch (error) {
+      console.error("Error confirming delivery:", error);
+      toast.error("Erro ao confirmar a entrega. Tente novamente mais tarde.");
+    } finally {
+      setRequesting(false);
+    }
+  };
+
+  const handleCancelDonation = async (donationId: string) => {
+    setRequesting(true);
+
+    try {
+      await cancelDonation(donationId);
+      await fetchDonations(params);
+    } catch (error) {
+      console.error("Error canceling donation:", error);
+      toast.error("Erro ao cancelar a doação. Tente novamente mais tarde.");
+    } finally {
+      setRequesting(false);
+    }
   };
 
   const navigateToList = () => {
@@ -211,28 +252,36 @@ export default function ManageDistributionPoint() {
           </h2>
         </div>
 
-        <div className="join rounded-md">
-          <button
-            className={`join-item btn btn-sm ${
+        <div className="join">
+          <Button
+            type="button"
+            text={
+              <>
+                <IoTime size={16} /> Pendentes
+              </>
+            }
+            className={`join-item btn-sm h-8 !rounded-tl-md !rounded-bl-md ${
               dashboardTab === "pending"
                 ? "btn-primary text-white"
                 : "btn-ghost bg-base-100"
             }`}
             onClick={() => handleTabChange("pending")}
-          >
-            <IoTime size={16} /> Pendentes
-          </button>
+          />
 
-          <button
-            className={`join-item btn btn-sm ${
+          <Button
+            type="button"
+            text={
+              <>
+                <IoRefresh size={16} /> Histórico
+              </>
+            }
+            className={`join-item btn-sm h-8 !rounded-tr-md !rounded-br-md ${
               dashboardTab === "history"
                 ? "btn-primary text-white"
                 : "btn-ghost bg-base-100"
             }`}
             onClick={() => handleTabChange("history")}
-          >
-            <IoRefresh size={16} /> Histórico
-          </button>
+          />
         </div>
       </div>
 
@@ -244,7 +293,7 @@ export default function ManageDistributionPoint() {
               type="text"
               placeholder="Nome do produto, doador ou email..."
               containerClassName=""
-              className="input-sm w-full pl-9 max-w-none h-9 !rounded-md"
+              className="input-sm w-full max-w-none h-9 !rounded-md"
               value={params?.q || ""}
               onChange={(e) =>
                 handleParams({
@@ -266,7 +315,7 @@ export default function ManageDistributionPoint() {
                 })),
               ]}
               containerClassName=""
-              className="select-sm w-full pl-9 max-w-none h-9 !rounded-md"
+              className="select-sm w-full max-w-none h-9 !rounded-md"
               value={params?.distributionPointId || ""}
               onChange={(e) =>
                 handleParams({
@@ -278,13 +327,13 @@ export default function ManageDistributionPoint() {
           </div>
 
           <div className="flex-1 text-right">
-            <button
+            <Button
+              type="button"
+              text="Limpar Filtros"
+              className="btn-ghost btn-xs opacity-50 hover:opacity-100 h-9 !rounded-md"
               onClick={() => setParams({ tab: dashboardTab })}
-              className="btn btn-ghost btn-xs opacity-50 hover:opacity-100"
               disabled={!params?.q && !params?.distributionPointId}
-            >
-              Limpar Filtros
-            </button>
+            />
           </div>
         </div>
       </div>
@@ -309,54 +358,56 @@ export default function ManageDistributionPoint() {
                       <th>Quantidade</th>
                       <th>Data</th>
                       <th className="text-center">Status</th>
-                      {dashboardTab === "pending" && (
+                      {isAdmin && dashboardTab === "pending" && (
                         <th className="text-right">Ações</th>
                       )}
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredDonations.map((d) => (
-                      <tr key={d.id} className="hover">
+                    {filteredDonations.map((donation) => (
+                      <tr key={donation.id} className="hover">
                         <td>
                           <div className="flex items-center gap-3">
                             <div className="avatar placeholder">
                               <div className="bg-neutral text-neutral-content rounded-full w-8">
                                 <span className="text-xs">
-                                  {d.userName?.charAt(0) || "A"}
+                                  {donation.userName?.charAt(0) || "A"}
                                 </span>
                               </div>
                             </div>
                             <div>
                               <div className="font-bold text-sm">
-                                {d.userName || "Anônimo"}
+                                {donation.userName || "Anônimo"}
                               </div>
                               <div className="text-xs opacity-50">
-                                {d.userEmail || "Sem email"}
+                                {donation.userEmail || "Sem email"}
                               </div>
                             </div>
                           </div>
                         </td>
 
                         <td>
-                          <div className="font-medium text-sm">{d.productName}</div>
+                          <div className="font-medium text-sm">
+                            {donation.productName}
+                          </div>
                           <div
                             className="text-xs opacity-50 truncate max-w-[200px]"
-                            title={d.distributionPointName}
+                            title={donation.distributionPointName}
                           >
-                            {d.distributionPointName}
+                            {donation.distributionPointName}
                           </div>
                         </td>
 
                         <td className="font-mono text-sm">
-                          {d.quantity}{" "}
-                          <span className="text-xs opacity-70">{d.unit}</span>
+                          {donation.quantity}{" "}
+                          <span className="text-xs opacity-70">{donation.unit}</span>
                         </td>
 
                         <td className="text-sm opacity-70">
-                          {new Date(d.timestamp).toLocaleDateString()}
+                          {new Date(donation.timestamp).toLocaleDateString()}
                           <br />
                           <span className="text-xs opacity-50">
-                            {new Date(d.timestamp).toLocaleTimeString([], {
+                            {new Date(donation.timestamp).toLocaleTimeString([], {
                               hour: "2-digit",
                               minute: "2-digit",
                             })}
@@ -364,35 +415,35 @@ export default function ManageDistributionPoint() {
                         </td>
 
                         <td className="text-center">
-                          {d.status === DonationStatus.ACTIVE && (
-                            <div className="badge badge-warning gap-1">
+                          {donation.status === DonationStatus.ACTIVE && (
+                            <div className="badge badge-warning gap-1 rounded-md">
                               <IoTime size={10} /> Pendente
                             </div>
                           )}
-                          {d.status === DonationStatus.DELIVERED && (
-                            <div className="badge badge-success text-white gap-1">
+                          {donation.status === DonationStatus.DELIVERED && (
+                            <div className="badge badge-success text-white gap-1 rounded-md">
                               <IoCheckmark size={10} /> Entregue
                             </div>
                           )}
-                          {d.status === DonationStatus.CANCELED && (
-                            <div className="badge badge-error text-white gap-1">
+                          {donation.status === DonationStatus.CANCELED && (
+                            <div className="badge badge-error text-white gap-1 rounded-md">
                               <IoClose size={10} /> Cancelado
                             </div>
                           )}
                         </td>
 
-                        {dashboardTab === "pending" && (
+                        {isAdmin && dashboardTab === "pending" && (
                           <td className="text-right">
                             <div className="flex justify-end gap-2">
                               <ActionButton
-                                onClick={() => {}}
+                                onClick={() => handleCancelDonation(donation.id)}
                                 type="reject"
-                                disabled={false}
+                                disabled={requesting}
                               />
                               <ActionButton
-                                onClick={() => {}}
+                                onClick={() => handleConfirmDeliveryDonation(donation.id)}
                                 type="approve"
-                                disabled={false}
+                                disabled={requesting}
                               />
                             </div>
                           </td>
@@ -438,23 +489,27 @@ export default function ManageDistributionPoint() {
                   </div>
 
                   <div className="join rounded-md">
-                    <button
-                      className="join-item btn btn-sm"
+                    <Button
+                      type="button"
+                      text={<IoChevronBack size={16} />}
+                      className="join-item btn-sm h-8 !rounded-tl-md !rounded-bl-md"
                       disabled={currentPage === 1}
                       onClick={() => handleParams({ offset: String(offset - limit) })}
-                    >
-                      <IoChevronBack size={16} />
-                    </button>
-                    <button className="join-item btn btn-sm no-animation pointer-events-none">
-                      Página {currentPage} de {totalPages}
-                    </button>
-                    <button
-                      className="join-item btn btn-sm"
+                    />
+
+                    <Button
+                      type="button"
+                      text={`Página ${currentPage} de ${totalPages}`}
+                      className="join-item btn-sm no-animation pointer-events-none h-8"
+                    />
+
+                    <Button
+                      type="button"
+                      text={<IoChevronForward size={16} />}
+                      className="join-item btn-sm h-8 !rounded-tr-md !rounded-br-md"
                       disabled={currentPage === totalPages}
                       onClick={() => handleParams({ offset: String(offset + limit) })}
-                    >
-                      <IoChevronForward size={16} />
-                    </button>
+                    />
                   </div>
                 </div>
               </div>

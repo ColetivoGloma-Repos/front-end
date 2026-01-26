@@ -65,6 +65,14 @@ export function createDonation(data: ICreateDonation): Promise<IDonation> {
   });
 }
 
+export function cancelDonation(id: string): Promise<IDonation> {
+  return del(`/distribution-point/donation/${id}`);
+}
+
+export function confirmDeliveryDonation(id: string): Promise<IDonation> {
+  return patch(`/distribution-point/donation/${id}/delivered`);
+}
+
 export function cancelAllDonation(requestedProductId: string): Promise<IDonation> {
   return del(`/distribution-point/requested-products/${requestedProductId}/donations`);
 }

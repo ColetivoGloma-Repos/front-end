@@ -17,6 +17,7 @@ import {
 import { Button } from "../../../components/common/Button";
 import { Input } from "../../../components/common/Input";
 
+type LoadingActionType = null | "donate" | "cancel" | "edit" | "delete" | "confirm";
 interface IRequestedProductCardProps {
   requestedProduct: IRequestedProduct;
   isAdmin: boolean;
@@ -65,9 +66,7 @@ export function RequestedProductCard({
     requestedQuantity: requestedProduct.requestedQuantity,
   });
 
-  const [loadingAction, setLoadingAction] = React.useState<
-    null | "donate" | "cancel" | "edit" | "delete" | "confirm"
-  >(null);
+  const [loadingAction, setLoadingAction] = React.useState<LoadingActionType>(null);
 
   const product = requestedProduct.product;
 

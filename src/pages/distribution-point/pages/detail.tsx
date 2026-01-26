@@ -149,12 +149,12 @@ export default function DetailDistributionPoint() {
   };
 
   const handleDonate = async (requestedProductId: string, quantity: number) => {
-    await new Promise<void>((resolve) => setTimeout(resolve, 3000));
     const donationResponse = await createDonation({
       requestedProductId,
       quantity,
     }).catch((error) => {
       console.error(error);
+      toast.error("Erro ao realizar a doação. Tente novamente mais tarde.");
       return null;
     });
 
@@ -176,6 +176,7 @@ export default function DetailDistributionPoint() {
       .then(() => true)
       .catch((error) => {
         console.error(error);
+        toast.error("Erro ao cancelar a doação. Tente novamente mais tarde.");
         return false;
       });
 
@@ -215,6 +216,7 @@ export default function DetailDistributionPoint() {
       }));
     } catch (error) {
       console.error(error);
+      toast.error("Erro ao deletar o produto solicitado. Tente novamente mais tarde.");
     }
   };
 
@@ -238,6 +240,7 @@ export default function DetailDistributionPoint() {
       });
     } catch (error) {
       console.error(error);
+      toast.error("Erro ao adicionar o produto solicitado. Tente novamente mais tarde.");
     }
   };
 
