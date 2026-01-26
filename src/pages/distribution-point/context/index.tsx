@@ -19,12 +19,12 @@ export function DistributionPointProvider() {
     IDistributionPoint[]
   >([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const [error, setError] = React.useState<Error | null>(null);
-  const [pagination, setPagination] = React.useState({
-    limit: 10,
-    offset: 0,
-    params: {},
-  });
+  // const [error, setError] = React.useState<Error | null>(null);
+  // const [pagination, setPagination] = React.useState({
+  //   limit: 10,
+  //   offset: 0,
+  //   params: {},
+  // });
 
   const onListDistributionPoints = async (params?: IQueryDistributionPoints) => {
     setIsLoading(true);
@@ -32,17 +32,32 @@ export function DistributionPointProvider() {
     try {
       const data = await listDistributionPoints(params);
       setDistributionPoints(data.items);
-      setPagination({
-        limit: data.limit,
-        offset: data.page * data.limit,
-        params: params || {},
-      });
+      // setPagination({
+      //   limit: data.limit,
+      //   offset: data.page * data.limit,
+      //   params: params || {},
+      // });
     } catch (error) {
       console.error("Error fetching distribution points:", error);
-      setError(error as Error);
+      // setError(error as Error);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const saveOrSetDistributionPoint = (
+    distributionPoint: IDistributionPoint,
+    distributionPointId?: string,
+  ) => {
+    setDistributionPoints((prevDistributionPoints) => {
+      if (distributionPointId) {
+        return prevDistributionPoints.map((dp) =>
+          dp.id === distributionPointId ? distributionPoint : dp,
+        );
+      } else {
+        return [distributionPoint, ...prevDistributionPoints];
+      }
+    });
   };
 
   return (
@@ -50,9 +65,10 @@ export function DistributionPointProvider() {
       value={{
         distributionPoints,
         isLoading,
-        isAdmin: currentUser?.role === "admin",
+        isAdmin: true,
         isLoggedIn: currentUser != null,
         onListDistributionPoints,
+        saveOrSetDistributionPoint,
       }}
     >
       <Outlet />

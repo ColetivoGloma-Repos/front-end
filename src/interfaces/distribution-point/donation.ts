@@ -15,12 +15,20 @@ export interface IDonation {
   id: string;
   userId: string;
   requestedProductId: string;
-  pointId: string;
+  distributionPointId: string;
   quantity: number;
   status: DonationStatus;
   createdAt: string;
   updatedAt: string;
   user: IUserSummary;
+  requestedProduct: {
+    id: string;
+    product: {
+      id: string;
+      name: string;
+      unit: string;
+    };
+  };
 }
 
 export interface ICreateDonation {

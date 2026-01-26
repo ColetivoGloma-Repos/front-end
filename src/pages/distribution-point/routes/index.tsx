@@ -1,0 +1,20 @@
+import React from "react";
+import { Route } from "react-router-dom";
+import { DistributionPointProvider } from "../context";
+import DetailDistributionPoint from "../pages/detail";
+import ListDistributionPoint from "../pages/list";
+import CreateDistributionPoint from "../pages/create";
+import EditDistributionPoint from "../pages/edit";
+import ManageDistributionPoint from "../pages/manage";
+
+export function distributionPointRoutes() {
+  return (
+    <Route element={<DistributionPointProvider />}>
+      <Route path="/" element={<ListDistributionPoint />} />
+      <Route path="/distribution-point/:id" element={<DetailDistributionPoint />} />
+      <Route path="/distribution-point/create" element={<CreateDistributionPoint />} />
+      <Route path="/distribution-point/:id/edit" element={<EditDistributionPoint />} />
+      <Route path="/distribution-point/manage" element={<ManageDistributionPoint />} />
+    </Route>
+  );
+}

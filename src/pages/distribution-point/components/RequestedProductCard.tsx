@@ -71,9 +71,9 @@ export function RequestedProductCard({
 
   const product = requestedProduct.product;
 
-  const deliveredQuantity = Number(requestedProduct.deliveredQuantity ?? 0);
-  const donatedQuantity = Number(requestedProduct.donatedQuantity ?? 0);
-  const requestedQuantity = Number(requestedProduct.requestedQuantity ?? 0);
+  const deliveredQuantity = requestedProduct.deliveredQuantity;
+  const donatedQuantity = requestedProduct.donatedQuantity;
+  const requestedQuantity = requestedProduct.requestedQuantity;
 
   const remaining = Math.max(0, requestedQuantity - donatedQuantity);
 

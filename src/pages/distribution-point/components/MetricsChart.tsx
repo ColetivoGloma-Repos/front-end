@@ -9,6 +9,7 @@ import {
   IRequestedProduct,
   RequestedProductStatus,
 } from "../../../interfaces/distribution-point";
+import React from "react";
 
 interface IMetricsChartProps {
   requestedProducts: IRequestedProduct[];
@@ -27,24 +28,28 @@ export function MetricsChart({ requestedProducts }: IMetricsChartProps) {
     }
   };
 
-  const data = requestedProducts.map((requestedProduct) => {
-    const fill = style(requestedProduct.status).color;
+  const data = React.useMemo(() => {
+    const data = requestedProducts.map((requestedProduct) => {
+      const fill = style(requestedProduct.status).color;
 
-    const product = requestedProduct.product;
+      const product = requestedProduct.product;
 
-    return {
-      name: product.name,
-      uv: Math.min(
-        100,
-        (requestedProduct.donatedQuantity / requestedProduct.requestedQuantity) * 100,
-      ),
-      fill: fill,
-      status: requestedProduct.status,
-      actual: `${requestedProduct.donatedQuantity} / ${requestedProduct.requestedQuantity} ${product.unit}`,
-    };
-  });
+      return {
+        name: product.name,
+        uv: Math.min(
+          100,
+          (requestedProduct.donatedQuantity / requestedProduct.requestedQuantity) * 100,
+        ),
+        fill: fill,
+        status: requestedProduct.status,
+        actual: `${requestedProduct.donatedQuantity} / ${requestedProduct.requestedQuantity} ${product.unit}`,
+      };
+    });
 
-  data.sort((a, b) => b.uv - a.uv);
+    data.sort((a, b) => b.uv - a.uv);
+
+    return data;
+  }, [requestedProducts]);
 
   return (
     <div className="card rounded-2xl bg-base-100 shadow-xl h-80">

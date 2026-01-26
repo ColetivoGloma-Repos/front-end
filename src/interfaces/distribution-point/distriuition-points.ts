@@ -1,6 +1,6 @@
 import { IQueryRequest } from "../default";
 import { IAddress, ICreateAddress } from "../address";
-import { ICreateRequestedProduct } from "./point-requested-product";
+import { ICreateProductRequestedProduct } from "./point-requested-product";
 
 export enum DistributionPointStatus {
   PENDING = "PENDING",
@@ -27,10 +27,8 @@ export interface ICreateDistributionPoint {
   title: string;
   description?: string | null;
   phone: string;
-  ownerId: string;
-  status?: DistributionPointStatus;
   address: ICreateAddress;
-  requestedProducts: ICreateRequestedProduct[];
+  requestedProducts: ICreateProductRequestedProduct[];
 }
 
 export type IUpdateDistributionPoint = Partial<

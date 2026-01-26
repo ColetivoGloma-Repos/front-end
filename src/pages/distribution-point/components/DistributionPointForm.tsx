@@ -2,12 +2,9 @@ import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
 import {
   IoMdArrowBack,
-  IoMdCall,
   IoMdPin,
-  IoMdImage,
   IoMdBulb,
   IoMdAdd,
   IoMdTrash,
@@ -15,43 +12,27 @@ import {
 } from "react-icons/io";
 import { Input, Select, Textarea } from "../../../components/common";
 import { UnitType } from "../../../interfaces/products";
+import { toast } from "react-toastify";
+import {
+  ICreateDistributionPoint,
+  IDistributionPoint,
+} from "../../../interfaces/distribution-point";
+import {
+  createDistributionPoint,
+  updateDistributionPoint,
+} from "../../../services/distribution-point";
 
 interface IDistributionPointFormProps {
   isEditMode: boolean;
+  data?: IDistributionPoint;
+  navigationCallback?: () => void;
+  saveOrEditCallback?: (data: IDistributionPoint, distributionPointId?: string) => void;
 }
-
-type DistributionPointFormValues = {
-  name: string;
-  phone: string;
-  imageUrl: string;
-  description: string;
-  address: {
-    cep: string;
-    pais: string;
-    estado: string;
-    municipio: string;
-    bairro: string;
-    logradouro: string;
-    numero: string;
-    complemento: string;
-  };
-  products: Array<{
-    name: string;
-    targetAmount: number;
-    unit: UnitType;
-  }>;
-};
 
 function buildSchema(isEditMode: boolean) {
   const base = z.object({
-    name: z.string().trim().min(1, "Nome do ponto é obrigatório"),
+    title: z.string().trim().min(1, "Nome do ponto é obrigatório"),
     phone: z.string().trim().min(1, "Telefone é obrigatório"),
-    imageUrl: z
-      .string()
-      .trim()
-      .optional()
-      .transform((v) => v ?? "")
-      .refine((v) => v === "" || /^https?:\/\/.+/i.test(v), "URL inválida"),
     description: z.string().trim().min(1, "Descrição é obrigatória"),
     address: z.object({
       cep: z
@@ -76,31 +57,33 @@ function buildSchema(isEditMode: boolean) {
         .optional()
         .transform((v) => v ?? ""),
     }),
-    products: z.array(
+    requestedProducts: z.array(
       z.object({
         name: z.string().trim().min(1, "Nome do produto é obrigatório"),
-        targetAmount: z.coerce
+        requestedQuantity: z.coerce
           .number({
             invalid_type_error: "Qtd deve ser um número",
             required_error: "Qtd é obrigatória",
           })
           .positive("Qtd deve ser maior que zero"),
-        unit: z.nativeEnum(UnitType),
+        unit: z.nativeEnum(UnitType).optional(),
       }),
     ),
   });
 
   if (isEditMode) {
     return base.extend({
-      products: base.shape.products.optional().transform((v) => v ?? []),
+      requestedProducts: base.shape.requestedProducts
+        .optional()
+        .transform((v) => v ?? []),
     });
   }
 
   return base.superRefine((val, ctx) => {
-    if (!val.products || val.products.length === 0) {
+    if (!val.requestedProducts || val.requestedProducts.length === 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ["products"],
+        path: ["requestedProducts"],
         message: "Adicione pelo menos 1 produto",
       });
     }
@@ -108,39 +91,34 @@ function buildSchema(isEditMode: boolean) {
 }
 
 export function DistributionPointForm({
+  data,
   isEditMode = false,
+  saveOrEditCallback,
+  navigationCallback,
 }: IDistributionPointFormProps) {
   const [isGeneratingAI, setIsGeneratingAI] = React.useState(false);
-
-  const setIsEditingPoint = (value: boolean) => {
-    void value;
-  };
-
-  const setIsCreating = (value: boolean) => {
-    void value;
-  };
+  const [imageUrl, setImageUrl] = React.useState("");
 
   const schema = React.useMemo(() => buildSchema(isEditMode), [isEditMode]);
 
-  const defaultValues: DistributionPointFormValues = React.useMemo(
+  const defaultValues: ICreateDistributionPoint = React.useMemo(
     () => ({
-      name: "",
-      phone: "",
-      imageUrl: "",
-      description: "",
+      title: data?.title || "",
+      description: data?.description || "",
+      phone: data?.phone || "",
       address: {
-        cep: "",
-        pais: "Brasil",
-        estado: "",
-        municipio: "",
-        bairro: "",
-        logradouro: "",
-        numero: "",
-        complemento: "",
+        cep: data?.address.cep || "",
+        pais: data?.address.pais || "Brasil",
+        estado: data?.address.estado || "",
+        municipio: data?.address.municipio || "",
+        bairro: data?.address.bairro || "",
+        logradouro: data?.address.logradouro || "",
+        numero: data?.address.numero || "",
+        complemento: data?.address.complemento || "",
       },
-      products: [],
+      requestedProducts: [],
     }),
-    [],
+    [data],
   );
 
   const {
@@ -151,7 +129,7 @@ export function DistributionPointForm({
     getValues,
     formState: { errors, isSubmitting },
     watch,
-  } = useForm<DistributionPointFormValues>({
+  } = useForm<ICreateDistributionPoint>({
     resolver: zodResolver(schema),
     defaultValues,
     mode: "onSubmit",
@@ -159,7 +137,7 @@ export function DistributionPointForm({
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "products",
+    name: "requestedProducts",
   });
 
   const unitOptions = React.useMemo(
@@ -171,9 +149,9 @@ export function DistributionPointForm({
     [],
   );
 
-  const watchedName = watch("name");
+  const watchedTitle = watch("title");
   const watchedLogradouro = watch("address.logradouro");
-  const watchedProducts = watch("products");
+  const watchedRequestedProducts = watch("requestedProducts");
 
   const generateSuggestions = async () => {
     const description = getValues("description");
@@ -182,40 +160,62 @@ export function DistributionPointForm({
     setIsGeneratingAI(true);
     try {
       await new Promise((r) => setTimeout(r, 600));
-      append({ name: "Água mineral", targetAmount: 20, unit: UnitType.UN });
-      append({ name: "Cesta básica", targetAmount: 10, unit: UnitType.UN });
+      append({ name: "Água mineral", requestedQuantity: 20, unit: UnitType.UN });
+      append({ name: "Cesta básica", requestedQuantity: 10, unit: UnitType.UN });
     } finally {
       setIsGeneratingAI(false);
     }
   };
 
-  const handleCreatePoint = async (values: DistributionPointFormValues) => {
-    void values;
+  const handleCreatePoint = async (values: ICreateDistributionPoint) => {
+    try {
+      const response = await createDistributionPoint(values);
+      if (saveOrEditCallback) {
+        saveOrEditCallback(response);
+      }
+      navigationCallback?.();
+    } catch (error) {
+      console.error("Erro ao criar ponto de distribuição:", error);
+      toast.error("Erro ao criar ponto de distribuição. Tente novamente mais tarde.");
+    }
   };
 
-  const handleSaveEdit = async (values: DistributionPointFormValues) => {
-    void values;
+  const handleSaveEdit = async (values: ICreateDistributionPoint) => {
+    if (!data?.id) return;
+    const id = data.id;
+
+    try {
+      const response = await updateDistributionPoint(id, values);
+      if (saveOrEditCallback) {
+        saveOrEditCallback(response, id);
+      }
+      navigationCallback?.();
+    } catch (error) {
+      console.error("Erro ao salvar alterações:", error);
+      toast.error("Erro ao salvar alterações. Tente novamente mais tarde.");
+    }
   };
 
-  const onSubmit = async (values: DistributionPointFormValues) => {
+  const onSubmit = async (values: ICreateDistributionPoint) => {
     if (isEditMode) {
       await handleSaveEdit(values);
       return;
     }
+
     await handleCreatePoint(values);
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
+    <div className="py-8">
       <button
-        onClick={() => (isEditMode ? setIsEditingPoint(false) : setIsCreating(false))}
-        className="btn btn-ghost btn-sm mb-6"
+        onClick={navigationCallback}
+        className="btn rounded-lg btn-ghost btn-sm mb-6 pl-0"
         type="button"
       >
-        <IoMdArrowBack size={20} className="mr-2" /> Voltar
+        <IoMdArrowBack size={20} className="mx-2" /> Voltar
       </button>
 
-      <div className="card bg-base-100 shadow-xl">
+      <div className="card rounded-2xl bg-base-100 shadow-xl">
         <div className="card-body">
           <h2 className="card-title text-2xl mb-6">
             {isEditMode ? "Editar Ponto de Distribuição" : "Novo Ponto de Distribuição"}
@@ -229,23 +229,17 @@ export function DistributionPointForm({
                   type="text"
                   placeholder="Ex: Centro Comunitário Norte"
                   className="w-full"
-                  errors={errors as any}
+                  errors={errors}
                   required
-                  {...register("name")}
+                  {...register("title")}
                 />
 
                 <Input
-                  label={
-                    (
-                      <span className="flex items-center gap-2">
-                        <IoMdCall size={14} /> Telefone de Contato
-                      </span>
-                    ) as any
-                  }
+                  label="Telefone de Contato"
                   type="text"
                   placeholder="(00) 00000-0000"
                   className="w-full"
-                  errors={errors as any}
+                  errors={errors}
                   required
                   {...register("phone")}
                 />
@@ -264,7 +258,7 @@ export function DistributionPointForm({
                     type="text"
                     placeholder="40000-000"
                     className="input-sm w-full"
-                    errors={errors as any}
+                    errors={errors}
                     {...register("address.cep")}
                   />
 
@@ -272,7 +266,7 @@ export function DistributionPointForm({
                     label="País"
                     type="text"
                     className="input-sm w-full"
-                    errors={errors as any}
+                    errors={errors}
                     required
                     {...register("address.pais")}
                   />
@@ -282,14 +276,14 @@ export function DistributionPointForm({
                     type="text"
                     placeholder="BA"
                     className="input-sm w-full"
-                    errors={errors as any}
+                    errors={errors}
                     required
                     maxLength={2}
                     {...register("address.estado", {
-                      onChange: (e) =>
+                      onChange: (event) =>
                         setValue(
                           "address.estado",
-                          String(e.target.value || "").toUpperCase(),
+                          String(event.target.value || "").toUpperCase(),
                         ),
                     })}
                   />
@@ -301,7 +295,7 @@ export function DistributionPointForm({
                     type="text"
                     placeholder="Salvador"
                     className="input-sm w-full"
-                    errors={errors as any}
+                    errors={errors}
                     required
                     {...register("address.municipio")}
                   />
@@ -311,7 +305,7 @@ export function DistributionPointForm({
                     type="text"
                     placeholder="Centro"
                     className="input-sm w-full"
-                    errors={errors as any}
+                    errors={errors}
                     required
                     {...register("address.bairro")}
                   />
@@ -322,7 +316,7 @@ export function DistributionPointForm({
                   type="text"
                   placeholder="Rua Exemplo"
                   className="input-sm w-full"
-                  errors={errors as any}
+                  errors={errors}
                   required
                   {...register("address.logradouro")}
                 />
@@ -333,7 +327,7 @@ export function DistributionPointForm({
                     type="text"
                     placeholder="123"
                     className="input-sm w-full"
-                    errors={errors as any}
+                    errors={errors}
                     required
                     {...register("address.numero")}
                   />
@@ -344,7 +338,7 @@ export function DistributionPointForm({
                       type="text"
                       placeholder="Apto 101"
                       className="input-sm w-full"
-                      errors={errors as any}
+                      errors={errors}
                       {...register("address.complemento")}
                     />
                   </div>
@@ -352,25 +346,20 @@ export function DistributionPointForm({
               </div>
 
               <Input
-                label={
-                  (
-                    <span className="flex items-center gap-2">
-                      <IoMdImage size={16} /> Imagem do Local (URL)
-                    </span>
-                  ) as any
-                }
+                label="Imagem do Local (URL)"
                 type="text"
                 placeholder="https://exemplo.com/foto.jpg"
                 className="w-full"
-                errors={errors as any}
-                {...register("imageUrl")}
+                errors={errors}
+                value={imageUrl}
+                onChange={(e: any) => setImageUrl(String(e?.target?.value ?? ""))}
               />
 
               <Textarea
                 label="Descrição e Necessidades"
                 placeholder="Descreva a situação e o que é necessário..."
                 className="textarea textarea-bordered h-24"
-                errors={errors as any}
+                errors={errors}
                 required
                 {...register("description")}
               />
@@ -399,7 +388,7 @@ export function DistributionPointForm({
                   <button
                     type="button"
                     onClick={() =>
-                      append({ name: "", targetAmount: 1, unit: UnitType.UNIT })
+                      append({ name: "", requestedQuantity: 1, unit: UnitType.UN })
                     }
                     className="btn btn-sm btn-outline btn-primary"
                   >
@@ -414,20 +403,20 @@ export function DistributionPointForm({
                     </p>
                   )}
 
-                  {(errors as any)?.products?.message && (
+                  {(errors as any)?.requestedProducts?.message && (
                     <p className="text-error text-sm text-center">
-                      {(errors as any)?.products?.message as string}
+                      {(errors as any)?.requestedProducts?.message as string}
                     </p>
                   )}
 
                   {fields.map((field, idx) => (
-                    <div key={field.id} className="flex gap-2 items-center">
+                    <div key={(field as any).id} className="flex gap-2 items-center">
                       <div className="flex-1">
                         <Input
                           placeholder="Nome"
                           className="input-sm w-full"
-                          errors={errors as any}
-                          {...register(`products.${idx}.name` as const)}
+                          errors={errors}
+                          {...register(`requestedProducts.${idx}.name` as const)}
                         />
                       </div>
 
@@ -436,8 +425,10 @@ export function DistributionPointForm({
                           type="number"
                           placeholder="Qtd"
                           className="input-sm w-full"
-                          errors={errors as any}
-                          {...register(`products.${idx}.targetAmount` as const)}
+                          errors={errors}
+                          {...register(
+                            `requestedProducts.${idx}.requestedQuantity` as const,
+                          )}
                         />
                       </div>
 
@@ -445,8 +436,8 @@ export function DistributionPointForm({
                         <Select
                           className="select-sm w-full"
                           options={unitOptions}
-                          errors={errors as any}
-                          {...register(`products.${idx}.unit` as const)}
+                          errors={errors}
+                          {...register(`requestedProducts.${idx}.unit` as const)}
                         />
                       </div>
 
@@ -467,12 +458,13 @@ export function DistributionPointForm({
               <button
                 type="submit"
                 disabled={
-                  !watchedName ||
+                  !watchedTitle ||
                   !watchedLogradouro ||
                   isSubmitting ||
-                  (!isEditMode && (!watchedProducts || watchedProducts.length === 0))
+                  (!isEditMode &&
+                    (!watchedRequestedProducts || watchedRequestedProducts.length === 0))
                 }
-                className="btn btn-primary w-full text-white"
+                className="btn btn-primary rounded-lg w-full text-white"
               >
                 <IoMdSave size={20} className="mr-2" />
                 {isEditMode ? "Salvar Alterações" : "Criar Ponto de Distribuição"}

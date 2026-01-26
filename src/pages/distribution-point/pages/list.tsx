@@ -11,11 +11,27 @@ export default function ListDistributionPoint() {
     useDistributionPointProvider();
 
   React.useEffect(() => {
+    let mounted = false;
+    if (mounted) return;
+
     onListDistributionPoints();
+
+    return () => {
+      mounted = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleNavigateToDistributionPoint = (id: string) => {
+  const navigateToDetail = (id: string) => {
     navigation(`/distribution-point/${id}`);
+  };
+
+  const navigateToCreate = () => {
+    navigation(`/distribution-point/create`);
+  };
+
+  const navigateToManage = () => {
+    navigation(`/distribution-point/manage`);
   };
 
   return (
@@ -28,10 +44,17 @@ export default function ListDistributionPoint() {
           </p>
         </div>
         {isAdmin && isLoggedIn && (
-          <button className="btn btn-primary text-white">
-            <IoMdAdd size={20} />
-            Novo Ponto
-          </button>
+          <div className="flex gap-2">
+            <button className="btn btn-primary text-white" onClick={navigateToCreate}>
+              <IoMdAdd size={20} />
+              Novo Ponto
+            </button>
+
+            <button className="btn btn-primary text-white" onClick={navigateToManage}>
+              <IoMdAdd size={20} />
+              Gerenciar Pontos
+            </button>
+          </div>
         )}
       </div>
 
@@ -46,7 +69,7 @@ export default function ListDistributionPoint() {
           return (
             <div
               key={distributionPoint.id}
-              onClick={() => handleNavigateToDistributionPoint(distributionPoint.id)}
+              onClick={() => navigateToDetail(distributionPoint.id)}
               className="card rounded-2xl bg-base-100 shadow-xl hover:shadow-2xl transition-all cursor-pointer group overflow-hidden"
             >
               <figure className="h-40 relative">

@@ -14,7 +14,9 @@ import {
   ICreateRequestedProduct,
 } from "../interfaces/distribution-point";
 
-export function createDistributionPoint(data: ICreateDistributionPoint) {
+export function createDistributionPoint(
+  data: ICreateDistributionPoint,
+): Promise<IDistributionPoint> {
   return post(`/distribution-point`, { data });
 }
 
@@ -24,7 +26,16 @@ export function listDistributionPoints(
   return get(`/distribution-point`, { params });
 }
 
-export function updateDistributionPoint(id: string, data: ICreateDistributionPoint) {
+export function listMyDistributionPoints(
+  params?: IQueryDistributionPoints,
+): Promise<IListDistributionPoints> {
+  return get(`/distribution-point/my`, { params });
+}
+
+export function updateDistributionPoint(
+  id: string,
+  data: ICreateDistributionPoint,
+): Promise<IDistributionPoint> {
   return patch(`/distribution-point/${id}`, { data });
 }
 

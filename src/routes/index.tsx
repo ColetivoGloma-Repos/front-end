@@ -16,11 +16,7 @@ import DemandPointScreen from "../pages/demand-point/id";
 import AllCoordinatorsScreen from "../pages/approve-coordinators";
 import { PrivateRoleRoute } from "./Auth/PrivateRoleRoute";
 import { DashboardAdminScreen } from "../pages/dashboard-admin";
-import CreateDistributionPoint from "../pages/distribution-point/pages/create";
-import DetailDistributionPoint from "../pages/distribution-point/pages/detail";
-import ListDistributionPoint from "../pages/distribution-point/pages/list";
-import EditDistributionPoint from "../pages/distribution-point/pages/edit";
-import { DistributionPointProvider } from "../pages/distribution-point/context";
+import { distributionPointRoutes } from "../pages/distribution-point/routes";
 
 export function RoutesPage() {
   return (
@@ -36,18 +32,7 @@ export function RoutesPage() {
         <Route path="/reset-password" element={<ResetPasswordScreen />} />
 
         <Route element={<Layout />}>
-          <Route element={<DistributionPointProvider />}>
-            <Route path="/" element={<ListDistributionPoint />} />
-            <Route path="/distribution-point/:id" element={<DetailDistributionPoint />} />
-            <Route
-              path="/distribution-point/create"
-              element={<CreateDistributionPoint />}
-            />
-            <Route
-              path="/distribution-point/:id/edit"
-              element={<EditDistributionPoint />}
-            />
-          </Route>
+          {distributionPointRoutes()}
 
           <Route path="/demands-point" element={<DemandsPointScreen />} />
 

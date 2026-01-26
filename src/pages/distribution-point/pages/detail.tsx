@@ -29,6 +29,7 @@ import {
 } from "../../../services/distribution-point";
 import { DonationStatus } from "../../../interfaces/distribution-point";
 import { useAuthProvider } from "../../../context/Auth";
+import { toast } from "react-toastify";
 
 const addProductSchema = z.object({
   name: z.string().trim().min(1, "Nome do produto é obrigatório"),
@@ -67,24 +68,19 @@ export default function DetailDistributionPoint() {
     });
 
   React.useEffect(() => {
-    void onPageLoad();
+    onDistributionPointLoad();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, currentUser?.id]);
-
-  const onPageLoad = async () => {
-    await Promise.all([
-      onDistributionPointLoad(),
-      onRequestedProductsLoad(),
-      onDonationsLoad(),
-    ]);
-  };
 
   const onDistributionPointLoad = async () => {
     try {
       const data = await listOneDistributionPoint(id || "");
       setState((prev) => ({ ...prev, distributionPoint: data }));
+
+      await Promise.all([onRequestedProductsLoad(), onDonationsLoad()]);
     } catch (error) {
       console.error(error);
+      toast.error("Erro ao carregar informações do ponto de distribuição.");
     }
   };
 
@@ -196,11 +192,6 @@ export default function DetailDistributionPoint() {
     await fetchRequestedProduct(requestedProductId);
   };
 
-  const handleAdminConfirmDelivery = (pointId: string, requestedProductId: string) => {
-    void pointId;
-    void requestedProductId;
-  };
-
   const handleAdminUpdateProduct = async (
     requestedProductId: string,
     updates: IUpdateRequestedProduct,
@@ -288,7 +279,7 @@ export default function DetailDistributionPoint() {
         onClick={navigateToList}
         className="btn rounded-lg btn-ghost btn-sm mb-6 pl-0"
       >
-        <IoMdArrowBack size={20} className="mx-2" /> Voltar para lista
+        <IoMdArrowBack size={20} className="mx-2" /> Voltar
       </button>
 
       {hasImages && (
