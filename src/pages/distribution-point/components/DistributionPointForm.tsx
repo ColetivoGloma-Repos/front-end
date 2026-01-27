@@ -2,15 +2,8 @@ import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  IoMdArrowBack,
-  IoMdPin,
-  IoMdBulb,
-  IoMdAdd,
-  IoMdTrash,
-  IoMdSave,
-} from "react-icons/io";
-import { Input, Select, Textarea } from "../../../components/common";
+import { IoMdArrowBack, IoMdPin, IoMdAdd, IoMdTrash, IoMdSave } from "react-icons/io";
+import { Button, Input, Select, Textarea } from "../../../components/common";
 import { UnitType } from "../../../interfaces/products";
 import { toast } from "react-toastify";
 import {
@@ -96,8 +89,9 @@ export function DistributionPointForm({
   saveOrEditCallback,
   navigationCallback,
 }: IDistributionPointFormProps) {
-  const [isGeneratingAI, setIsGeneratingAI] = React.useState(false);
   const [imageUrl, setImageUrl] = React.useState("");
+
+  const [requesting, setRequesting] = React.useState(false);
 
   const schema = React.useMemo(() => buildSchema(isEditMode), [isEditMode]);
 
@@ -126,7 +120,6 @@ export function DistributionPointForm({
     control,
     handleSubmit,
     setValue,
-    getValues,
     formState: { errors, isSubmitting },
     watch,
   } = useForm<ICreateDistributionPoint>({
@@ -153,30 +146,21 @@ export function DistributionPointForm({
   const watchedLogradouro = watch("address.logradouro");
   const watchedRequestedProducts = watch("requestedProducts");
 
-  const generateSuggestions = async () => {
-    const description = getValues("description");
-    if (!description) return;
-
-    setIsGeneratingAI(true);
-    try {
-      await new Promise((r) => setTimeout(r, 600));
-      append({ name: "Água mineral", requestedQuantity: 20, unit: UnitType.UN });
-      append({ name: "Cesta básica", requestedQuantity: 10, unit: UnitType.UN });
-    } finally {
-      setIsGeneratingAI(false);
-    }
-  };
-
   const handleCreatePoint = async (values: ICreateDistributionPoint) => {
+    setRequesting(true);
+
     try {
       const response = await createDistributionPoint(values);
       if (saveOrEditCallback) {
-        saveOrEditCallback(response);
+        await Promise.resolve(saveOrEditCallback(response));
       }
+      toast.success("Ponto de distribuição criado com sucesso!");
       navigationCallback?.();
     } catch (error) {
       console.error("Erro ao criar ponto de distribuição:", error);
       toast.error("Erro ao criar ponto de distribuição. Tente novamente mais tarde.");
+    } finally {
+      setRequesting(false);
     }
   };
 
@@ -184,15 +168,20 @@ export function DistributionPointForm({
     if (!data?.id) return;
     const id = data.id;
 
+    setRequesting(true);
+
     try {
       const response = await updateDistributionPoint(id, values);
       if (saveOrEditCallback) {
-        saveOrEditCallback(response, id);
+        await Promise.resolve(saveOrEditCallback(response, id));
       }
+      toast.success("Alterações salvas com sucesso!");
       navigationCallback?.();
     } catch (error) {
       console.error("Erro ao salvar alterações:", error);
       toast.error("Erro ao salvar alterações. Tente novamente mais tarde.");
+    } finally {
+      setRequesting(false);
     }
   };
 
@@ -257,7 +246,7 @@ export function DistributionPointForm({
                     label="CEP"
                     type="text"
                     placeholder="40000-000"
-                    className="input-sm w-full"
+                    className="input-sm w-full bg-white"
                     errors={errors}
                     {...register("address.cep")}
                   />
@@ -265,7 +254,7 @@ export function DistributionPointForm({
                   <Input
                     label="País"
                     type="text"
-                    className="input-sm w-full"
+                    className="input-sm w-full bg-white"
                     errors={errors}
                     required
                     {...register("address.pais")}
@@ -275,7 +264,7 @@ export function DistributionPointForm({
                     label="Estado (UF)"
                     type="text"
                     placeholder="BA"
-                    className="input-sm w-full"
+                    className="input-sm w-full bg-white"
                     errors={errors}
                     required
                     maxLength={2}
@@ -294,7 +283,7 @@ export function DistributionPointForm({
                     label="Município"
                     type="text"
                     placeholder="Salvador"
-                    className="input-sm w-full"
+                    className="input-sm w-full bg-white"
                     errors={errors}
                     required
                     {...register("address.municipio")}
@@ -304,7 +293,7 @@ export function DistributionPointForm({
                     label="Bairro"
                     type="text"
                     placeholder="Centro"
-                    className="input-sm w-full"
+                    className="input-sm w-full bg-white"
                     errors={errors}
                     required
                     {...register("address.bairro")}
@@ -315,7 +304,7 @@ export function DistributionPointForm({
                   label="Logradouro"
                   type="text"
                   placeholder="Rua Exemplo"
-                  className="input-sm w-full"
+                  className="input-sm w-full bg-white"
                   errors={errors}
                   required
                   {...register("address.logradouro")}
@@ -326,7 +315,7 @@ export function DistributionPointForm({
                     label="Número"
                     type="text"
                     placeholder="123"
-                    className="input-sm w-full"
+                    className="input-sm w-full bg-white"
                     errors={errors}
                     required
                     {...register("address.numero")}
@@ -337,7 +326,7 @@ export function DistributionPointForm({
                       label="Complemento"
                       type="text"
                       placeholder="Apto 101"
-                      className="input-sm w-full"
+                      className="input-sm w-full bg-white"
                       errors={errors}
                       {...register("address.complemento")}
                     />
@@ -363,22 +352,6 @@ export function DistributionPointForm({
                 required
                 {...register("description")}
               />
-
-              {process.env.API_KEY && (
-                <div className="flex justify-end">
-                  <button
-                    type="button"
-                    onClick={generateSuggestions}
-                    disabled={isGeneratingAI || !watch("description")}
-                    className="text-primary font-medium flex items-center hover:underline disabled:opacity-50"
-                  >
-                    <IoMdBulb size={16} className="mr-1" />
-                    {isGeneratingAI
-                      ? "Gerando sugestões com IA..."
-                      : "Sugerir produtos com IA"}
-                  </button>
-                </div>
-              )}
             </div>
 
             {!isEditMode && (
@@ -455,20 +428,26 @@ export function DistributionPointForm({
             )}
 
             <div className="card-actions">
-              <button
+              <Button
                 type="submit"
                 disabled={
                   !watchedTitle ||
                   !watchedLogradouro ||
                   isSubmitting ||
+                  requesting ||
                   (!isEditMode &&
                     (!watchedRequestedProducts || watchedRequestedProducts.length === 0))
                 }
-                className="btn btn-primary rounded-lg w-full text-white"
-              >
-                <IoMdSave size={20} className="mr-2" />
-                {isEditMode ? "Salvar Alterações" : "Criar Ponto de Distribuição"}
-              </button>
+                className="btn-primary w-full text-white !rounded-lg"
+                prefix={
+                  requesting ? (
+                    <span className="loading loading-spinner"></span>
+                  ) : (
+                    <IoMdSave size={20} />
+                  )
+                }
+                text={isEditMode ? "Salvar Alterações" : "Criar Ponto de Distribuição"}
+              />
             </div>
           </form>
         </div>
