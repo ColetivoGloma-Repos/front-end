@@ -3,6 +3,7 @@ import { IoMdAdd, IoMdPin } from "react-icons/io";
 import { formatAddress } from "../../../utils";
 import { useDistributionPointProvider } from "../context";
 import { useNavigate } from "react-router-dom";
+import { Button } from "../../../components/common";
 
 export default function ListDistributionPoint() {
   const navigation = useNavigate();
@@ -45,15 +46,21 @@ export default function ListDistributionPoint() {
         </div>
         {isAdmin && isLoggedIn && (
           <div className="flex gap-2">
-            <button className="btn btn-primary text-white" onClick={navigateToCreate}>
-              <IoMdAdd size={20} />
-              Novo Ponto
-            </button>
-
-            <button className="btn btn-primary text-white" onClick={navigateToManage}>
-              <IoMdAdd size={20} />
-              Gerenciar Pontos
-            </button>
+            <Button
+              className="btn btn-primary text-white !rounded-lg hover:!bg-blue-800"
+              onClick={navigateToCreate}
+              text={
+                <>
+                  <IoMdAdd size={20} />
+                  Novo Ponto
+                </>
+              }
+            />
+            <Button
+              className="btn btn-primary text-white !rounded-lg hover:!bg-blue-800"
+              onClick={navigateToManage}
+              text="Gerenciar Doações"
+            />
           </div>
         )}
       </div>

@@ -16,6 +16,7 @@ import {
 } from "../../../interfaces/distribution-point/point-requested-product";
 import { Button } from "../../../components/common/Button";
 import { Input } from "../../../components/common/Input";
+import { ActionButton } from "./ActionButton";
 
 type LoadingActionType = null | "donate" | "cancel" | "edit" | "delete" | "confirm";
 interface IRequestedProductCardProps {
@@ -28,25 +29,6 @@ interface IRequestedProductCardProps {
   onEdit: (updatedRequestedProduct: IUpdateRequestedProduct) => void;
   onDelete: () => void;
 }
-
-const DefaultButton = ({
-  type,
-  ...props
-}: {
-  onClick: () => void;
-  text: React.ReactNode;
-  type: "red" | "blue";
-  disabled: boolean;
-}) => {
-  const baseClasses = "btn-xs btn-ghost btn-square";
-
-  const styleClasses =
-    type === "red"
-      ? "text-error !bg-error/15 hover:!bg-error/30 !size-9"
-      : "text-info !bg-info/15 hover:!bg-info/30 !size-9";
-
-  return <Button type="button" className={`${baseClasses} ${styleClasses}`} {...props} />;
-};
 
 export function RequestedProductCard({
   requestedProduct,
@@ -211,16 +193,18 @@ export function RequestedProductCard({
           </div>
 
           <div className="card-actions justify-end mt-4">
-            <DefaultButton
+            <ActionButton
               disabled={isLoadingEdit}
               onClick={() => setIsEditing(false)}
-              text={<IoMdClose size={18} />}
+              icon={<IoMdClose size={18} />}
+              className="rounded-lg"
               type="red"
             />
-            <DefaultButton
+            <ActionButton
               disabled={isLoadingEdit}
               onClick={handleEdit}
-              text={<IoMdCheckmark size={18} />}
+              icon={<IoMdCheckmark size={18} />}
+              className="rounded-lg"
               type="blue"
             />
           </div>
@@ -250,16 +234,18 @@ export function RequestedProductCard({
 
             {isAdmin && (
               <div className="flex gap-2">
-                <DefaultButton
+                <ActionButton
                   disabled={adminButtonsDisabled}
                   onClick={() => setIsEditing(true)}
-                  text={<IoMdCreate size={16} />}
+                  icon={<IoMdCreate size={16} />}
+                  className="rounded-lg"
                   type="blue"
                 />
-                <DefaultButton
+                <ActionButton
                   disabled={adminButtonsDisabled}
                   onClick={() => setShowDeleteConfirm(true)}
-                  text={<IoMdTrash size={16} />}
+                  icon={<IoMdTrash size={16} />}
+                  className="rounded-lg"
                   type="red"
                 />
               </div>

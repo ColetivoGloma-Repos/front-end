@@ -14,6 +14,7 @@ import {
   createDistributionPoint,
   updateDistributionPoint,
 } from "../../../services/distribution-point";
+import { ActionButton } from "./ActionButton";
 
 interface IDistributionPointFormProps {
   isEditMode: boolean;
@@ -358,15 +359,17 @@ export function DistributionPointForm({
               <div className="mb-8">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="font-bold">Produtos Solicitados</h3>
-                  <button
-                    type="button"
+                  <Button
+                    className="btn btn-sm btn-outline btn-primary hover:!bg-blue-800 h-8 !rounded-md !text-white"
                     onClick={() =>
                       append({ name: "", requestedQuantity: 1, unit: UnitType.UN })
                     }
-                    className="btn btn-sm btn-outline btn-primary"
-                  >
-                    <IoMdAdd size={18} className="mr-1" /> Adicionar Item
-                  </button>
+                    text={
+                      <>
+                        <IoMdAdd size={18} className="mr-1" /> Adicionar Item
+                      </>
+                    }
+                  />
                 </div>
 
                 <div className="space-y-3 bg-base-200 p-4 rounded-lg">
@@ -387,7 +390,7 @@ export function DistributionPointForm({
                       <div className="flex-1">
                         <Input
                           placeholder="Nome"
-                          className="input-sm w-full"
+                          className="input-sm w-full h-9 bg-white"
                           errors={errors}
                           {...register(`requestedProducts.${idx}.name` as const)}
                         />
@@ -397,7 +400,7 @@ export function DistributionPointForm({
                         <Input
                           type="number"
                           placeholder="Qtd"
-                          className="input-sm w-full"
+                          className="input-sm w-full h-9 bg-white"
                           errors={errors}
                           {...register(
                             `requestedProducts.${idx}.requestedQuantity` as const,
@@ -407,20 +410,19 @@ export function DistributionPointForm({
 
                       <div className="w-24">
                         <Select
-                          className="select-sm w-full"
+                          className="select-sm w-full h-9 bg-white"
                           options={unitOptions}
                           errors={errors}
                           {...register(`requestedProducts.${idx}.unit` as const)}
                         />
                       </div>
 
-                      <button
-                        type="button"
+                      <ActionButton
+                        type="red"
+                        className="rounded-lg size-9"
                         onClick={() => remove(idx)}
-                        className="btn btn-square btn-sm btn-ghost text-error"
-                      >
-                        <IoMdTrash size={18} />
-                      </button>
+                        icon={<IoMdTrash size={18} />}
+                      />
                     </div>
                   ))}
                 </div>

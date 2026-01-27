@@ -30,6 +30,7 @@ import useParams from "../../../hooks/useParams";
 import { Button, Input, Select } from "../../../components/common";
 import { useDistributionPointProvider } from "../context";
 import { toast } from "react-toastify";
+import { ActionButton } from "../components";
 
 type DashboardTab = "pending" | "history";
 type FlattenedDonation = {
@@ -47,32 +48,6 @@ type FlattenedDonation = {
   productName: string;
   unit: string;
   timestamp: number;
-};
-
-const ActionButton = ({
-  type,
-  ...props
-}: {
-  onClick: () => void;
-  type: "approve" | "reject";
-  disabled: boolean;
-}) => {
-  const baseClasses = "btn btn-sm btn-circle btn-ghost !rounded-full";
-  const Icon = type === "reject" ? IoClose : IoCheckmark;
-
-  const styleClasses =
-    type === "reject"
-      ? "text-error !bg-error/15 hover:!bg-error/30 !size-8"
-      : "text-success !bg-success/15 hover:!bg-success/30 !size-8";
-
-  return (
-    <Button
-      type="button"
-      text={<Icon size={18} />}
-      className={`${baseClasses} ${styleClasses}`}
-      {...props}
-    />
-  );
 };
 
 export default function ManageDistributionPoint() {
@@ -303,7 +278,7 @@ export default function ManageDistributionPoint() {
             className={`join-item btn-sm h-8 !rounded-tl-md !rounded-bl-md ${
               dashboardTab === "pending"
                 ? "btn-primary text-white"
-                : "btn-ghost bg-base-100"
+                : "btn-ghost bg-base-100 hover:bg-base-200"
             }`}
             onClick={() => handleTabChange("pending")}
           />
@@ -318,7 +293,7 @@ export default function ManageDistributionPoint() {
             className={`join-item btn-sm h-8 !rounded-tr-md !rounded-br-md ${
               dashboardTab === "history"
                 ? "btn-primary text-white"
-                : "btn-ghost bg-base-100"
+                : "btn-ghost bg-base-100 hover:bg-base-200"
             }`}
             onClick={() => handleTabChange("history")}
           />
@@ -518,12 +493,16 @@ export default function ManageDistributionPoint() {
                             <div className="flex justify-end gap-2">
                               <ActionButton
                                 onClick={() => handleCancelDonation(donation.id)}
-                                type="reject"
+                                type="red"
+                                className="!rounded-full"
+                                icon={<IoClose size={20} />}
                                 disabled={requesting}
                               />
                               <ActionButton
                                 onClick={() => handleConfirmDeliveryDonation(donation.id)}
-                                type="approve"
+                                type="green"
+                                className="!rounded-full"
+                                icon={<IoCheckmark size={20} />}
                                 disabled={requesting}
                               />
                             </div>
