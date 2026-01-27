@@ -80,14 +80,13 @@ export default function ManageDistributionPoint() {
   const { currentUser } = useAuthProvider();
   const { isAdmin } = useDistributionPointProvider();
 
-  const [params, setParams] = useParams<IQueryDonations & { tab?: DashboardTab }>(
-    "donations",
-    {
-      tab: "pending",
-      limit: "10",
-      offset: "0",
-    },
-  );
+  const [params, setParams] = useParams<
+    IQueryDonations & { tab?: DashboardTab; excludeStatus?: DonationStatus }
+  >("donations", {
+    tab: "pending",
+    limit: "10",
+    offset: "0",
+  });
 
   const [data, setData] = React.useState<IListDonations>();
   const [distributionPoints, setDistributionPoints] = React.useState<
@@ -95,25 +94,59 @@ export default function ManageDistributionPoint() {
   >([]);
   const [requesting, setRequesting] = React.useState<boolean>(false);
 
-  React.useEffect(() => {
-    if (currentUser) {
-      const query: IQueryDonations & { tab?: DashboardTab } = {
-        ...params,
-        status:
-          params.tab === "pending" ? DonationStatus.ACTIVE : DonationStatus.DELIVERED,
+  const dashboardTab = params.tab ?? "pending";
+
+  const buildQuery = React.useCallback(
+    (
+      p: (IQueryDonations & { tab?: DashboardTab }) & { excludeStatus?: DonationStatus },
+    ): IQueryDonations & { excludeStatus?: DonationStatus } => {
+      const query: (IQueryDonations & { tab?: DashboardTab }) & {
+        excludeStatus?: DonationStatus;
+      } = {
+        ...p,
       };
+
+      if (query.tab === "pending") {
+        query.status = DonationStatus.ACTIVE;
+        delete query.excludeStatus;
+      } else {
+        const hasHistoryStatus =
+          query.status === DonationStatus.DELIVERED ||
+          query.status === DonationStatus.CANCELED;
+
+        if (!hasHistoryStatus) {
+          delete query.status;
+          query.excludeStatus = DonationStatus.ACTIVE;
+        } else {
+          delete query.excludeStatus;
+        }
+      }
 
       delete query.tab;
 
+      if (!query.q) delete query.q;
+      if (!query.distributionPointId) delete query.distributionPointId;
+      if (!query.requestedProductId) delete query.requestedProductId;
+
+      return query as IQueryDonations & { excludeStatus?: DonationStatus };
+    },
+    [],
+  );
+
+  React.useEffect(() => {
+    if (currentUser) {
+      const query = buildQuery(params);
       fetchDonations(query);
     }
-  }, [params, currentUser]);
+  }, [params, currentUser, buildQuery]);
 
   React.useEffect(() => {
     let mounted = false;
     if (mounted) return;
 
-    fetchDistributionPoints();
+    if (currentUser) {
+      fetchDistributionPoints();
+    }
 
     return () => {
       mounted = true;
@@ -121,7 +154,7 @@ export default function ManageDistributionPoint() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser]);
 
-  const fetchDonations = async (_params?: IQueryDonations) => {
+  const fetchDonations = async (_params?: any) => {
     try {
       const response = await listDonations(_params);
       setData(response);
@@ -143,7 +176,9 @@ export default function ManageDistributionPoint() {
     }
   };
 
-  const handleParams = (newParams: Partial<IQueryDonations>) => {
+  const handleParams = (
+    newParams: Partial<IQueryDonations & { excludeStatus?: DonationStatus }>,
+  ) => {
     setParams((prev) => {
       const rawOffset = parseInt(newParams.offset ?? prev.offset ?? "0", 10);
       const safeOffset = Math.max(0, rawOffset).toString();
@@ -157,11 +192,13 @@ export default function ManageDistributionPoint() {
   };
 
   const handleTabChange = (newTab: DashboardTab) => {
-    setParams({
-      ...params,
+    setParams((prev) => ({
+      ...prev,
       tab: newTab,
       offset: "0",
-    });
+      status: newTab === "history" ? undefined : prev.status,
+      excludeStatus: undefined,
+    }));
   };
 
   const handleConfirmDeliveryDonation = async (donationId: string) => {
@@ -169,7 +206,9 @@ export default function ManageDistributionPoint() {
 
     try {
       await confirmDeliveryDonation(donationId);
-      await fetchDonations(params);
+
+      const query = buildQuery(params);
+      await fetchDonations(query);
     } catch (error) {
       console.error("Error confirming delivery:", error);
       toast.error("Erro ao confirmar a entrega. Tente novamente mais tarde.");
@@ -183,7 +222,9 @@ export default function ManageDistributionPoint() {
 
     try {
       await cancelDonation(donationId);
-      await fetchDonations(params);
+
+      const query = buildQuery(params);
+      await fetchDonations(query);
     } catch (error) {
       console.error("Error canceling donation:", error);
       toast.error("Erro ao cancelar a doação. Tente novamente mais tarde.");
@@ -196,7 +237,6 @@ export default function ManageDistributionPoint() {
     navigation(`/`);
   };
 
-  const dashboardTab = params.tab ?? "pending";
   const limit = Number(params.limit ?? 10);
   const offset = Number(params.offset ?? 0);
   const currentPage = data?.page ?? 1;
@@ -298,6 +338,7 @@ export default function ManageDistributionPoint() {
               onChange={(e) =>
                 handleParams({
                   q: (e.target as HTMLInputElement).value || undefined,
+                  offset: "0",
                 })
               }
               prefix={<IoSearch size={16} />}
@@ -320,19 +361,59 @@ export default function ManageDistributionPoint() {
               onChange={(e) =>
                 handleParams({
                   distributionPointId: (e.target as HTMLSelectElement).value || undefined,
+                  offset: "0",
                 })
               }
               prefix={<IoPin size={16} />}
             />
           </div>
 
+          {dashboardTab === "history" && (
+            <div className="form-control w-full md:w-1/4">
+              <Select
+                label="Status"
+                options={[
+                  { label: "Todos", value: "" },
+                  { label: "Entregues", value: DonationStatus.DELIVERED },
+                  { label: "Canceladas", value: DonationStatus.CANCELED },
+                ]}
+                containerClassName=""
+                className="select-sm w-full max-w-none h-9 !rounded-md"
+                value={
+                  params?.status === DonationStatus.DELIVERED ||
+                  params?.status === DonationStatus.CANCELED
+                    ? params.status
+                    : ""
+                }
+                onChange={(e) => {
+                  const value = (e.target as HTMLSelectElement).value;
+                  handleParams({
+                    status: value ? (value as DonationStatus) : undefined,
+                    offset: "0",
+                  });
+                }}
+                prefix={<IoFilter size={16} />}
+              />
+            </div>
+          )}
+
           <div className="flex-1 text-right">
             <Button
               type="button"
               text="Limpar Filtros"
               className="btn-ghost btn-xs opacity-50 hover:opacity-100 h-9 !rounded-md"
-              onClick={() => setParams({ tab: dashboardTab })}
-              disabled={!params?.q && !params?.distributionPointId}
+              onClick={() =>
+                setParams((prev) => ({
+                  tab: prev.tab ?? dashboardTab,
+                  limit: prev.limit ?? "10",
+                  offset: "0",
+                }))
+              }
+              disabled={
+                !params?.q &&
+                !params?.distributionPointId &&
+                !(dashboardTab === "history" && params?.status)
+              }
             />
           </div>
         </div>
@@ -472,6 +553,7 @@ export default function ManageDistributionPoint() {
                     </span>
                     <Select
                       options={[
+                        { label: "1", value: "1" },
                         { label: "5", value: "5" },
                         { label: "10", value: "10" },
                         { label: "20", value: "20" },
