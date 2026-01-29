@@ -29,7 +29,14 @@ export default function EditDistributionPoint() {
   };
 
   React.useEffect(() => {
+    let mounted = false;
+    if (mounted) return;
+
     onPageLoad();
+
+    return () => {
+      mounted = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

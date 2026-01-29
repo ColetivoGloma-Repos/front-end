@@ -68,7 +68,14 @@ export default function DetailDistributionPoint() {
     });
 
   React.useEffect(() => {
+    let mounted = false;
+    if (mounted) return;
+
     onDistributionPointLoad();
+
+    return () => {
+      mounted = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, currentUser?.id]);
 
