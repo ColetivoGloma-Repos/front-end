@@ -7,6 +7,7 @@ import {
 import { listDistributionPoints } from "../../../services/distribution-point";
 import { Outlet } from "react-router-dom";
 import { useAuthProvider } from "../../../context/Auth";
+import { toast } from "react-toastify";
 
 const DistributionPointContext = React.createContext<IDistributionPointProvider>(
   {} as IDistributionPointProvider,
@@ -37,9 +38,11 @@ export function DistributionPointProvider() {
       //   offset: data.page * data.limit,
       //   params: params || {},
       // });
-    } catch (error) {
-      console.error("Error fetching distribution points:", error);
-      setError(error as Error);
+    } catch (e) {
+      const error = e as Error;
+      console.error(error);
+
+      toast.error(error.message || "Erro ao carregar pontos de distribuição.");
     } finally {
       setIsLoading(false);
     }

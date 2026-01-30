@@ -1,8 +1,7 @@
 import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IoMdArrowBack, IoMdPin, IoMdAdd, IoMdTrash, IoMdSave } from "react-icons/io";
+import { IoMdPin, IoMdAdd, IoMdTrash, IoMdSave } from "react-icons/io";
 import { Button, Input, Select, Textarea } from "../../../components/common";
 import { UnitType } from "../../../interfaces/products";
 import { toast } from "react-toastify";
@@ -15,73 +14,14 @@ import {
   updateDistributionPoint,
 } from "../../../services/distribution-point";
 import { ActionButton } from "./ActionButton";
+import { ReturnButton } from "./ReturnButton";
+import { upsertDistributionPointSchema } from "../validations";
 
 interface IDistributionPointFormProps {
   isEditMode: boolean;
   data?: IDistributionPoint;
   navigationCallback?: () => void;
   saveOrEditCallback?: (data: IDistributionPoint, distributionPointId?: string) => void;
-}
-
-function buildSchema(isEditMode: boolean) {
-  const base = z.object({
-    title: z.string().trim().min(1, "Nome do ponto é obrigatório"),
-    phone: z.string().trim().min(1, "Telefone é obrigatório"),
-    description: z.string().trim().min(1, "Descrição é obrigatória"),
-    address: z.object({
-      cep: z
-        .string()
-        .trim()
-        .optional()
-        .transform((v) => v ?? ""),
-      pais: z.string().trim().min(1, "País é obrigatório"),
-      estado: z
-        .string()
-        .trim()
-        .min(2, "UF inválida")
-        .max(2, "UF inválida")
-        .transform((v) => v.toUpperCase()),
-      municipio: z.string().trim().min(1, "Município é obrigatório"),
-      bairro: z.string().trim().min(1, "Bairro é obrigatório"),
-      logradouro: z.string().trim().min(1, "Logradouro é obrigatório"),
-      numero: z.string().trim().min(1, "Número é obrigatório"),
-      complemento: z
-        .string()
-        .trim()
-        .optional()
-        .transform((v) => v ?? ""),
-    }),
-    requestedProducts: z.array(
-      z.object({
-        name: z.string().trim().min(1, "Nome do produto é obrigatório"),
-        requestedQuantity: z.coerce
-          .number({
-            invalid_type_error: "Qtd deve ser um número",
-            required_error: "Qtd é obrigatória",
-          })
-          .positive("Qtd deve ser maior que zero"),
-        unit: z.nativeEnum(UnitType).optional(),
-      }),
-    ),
-  });
-
-  if (isEditMode) {
-    return base.extend({
-      requestedProducts: base.shape.requestedProducts
-        .optional()
-        .transform((v) => v ?? []),
-    });
-  }
-
-  return base.superRefine((val, ctx) => {
-    if (!val.requestedProducts || val.requestedProducts.length === 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["requestedProducts"],
-        message: "Adicione pelo menos 1 produto",
-      });
-    }
-  });
 }
 
 export function DistributionPointForm({
@@ -94,7 +34,10 @@ export function DistributionPointForm({
 
   const [requesting, setRequesting] = React.useState(false);
 
-  const schema = React.useMemo(() => buildSchema(isEditMode), [isEditMode]);
+  const schema = React.useMemo(
+    () => upsertDistributionPointSchema(isEditMode),
+    [isEditMode],
+  );
 
   const defaultValues: ICreateDistributionPoint = React.useMemo(
     () => ({
@@ -157,9 +100,14 @@ export function DistributionPointForm({
       }
       toast.success("Ponto de distribuição criado com sucesso!");
       navigationCallback?.();
-    } catch (error) {
-      console.error("Erro ao criar ponto de distribuição:", error);
-      toast.error("Erro ao criar ponto de distribuição. Tente novamente mais tarde.");
+    } catch (e) {
+      const error = e as Error & { statusCode: number };
+      console.error(error);
+
+      toast.error(
+        error.message ||
+          "Erro ao criar ponto de distribuição. Tente novamente mais tarde.",
+      );
     } finally {
       setRequesting(false);
     }
@@ -178,9 +126,13 @@ export function DistributionPointForm({
       }
       toast.success("Alterações salvas com sucesso!");
       navigationCallback?.();
-    } catch (error) {
-      console.error("Erro ao salvar alterações:", error);
-      toast.error("Erro ao salvar alterações. Tente novamente mais tarde.");
+    } catch (e) {
+      const error = e as Error & { statusCode: number };
+      console.error(error);
+
+      toast.error(
+        error.message || "Erro ao salvar alterações. Tente novamente mais tarde.",
+      );
     } finally {
       setRequesting(false);
     }
@@ -197,13 +149,7 @@ export function DistributionPointForm({
 
   return (
     <div className="py-8">
-      <button
-        onClick={navigationCallback}
-        className="btn rounded-lg btn-ghost btn-sm mb-6 pl-0"
-        type="button"
-      >
-        <IoMdArrowBack size={20} className="mx-2" /> Voltar
-      </button>
+      <ReturnButton onClick={navigationCallback} className="mb-6" />
 
       <div className="card rounded-2xl bg-base-100 shadow-xl">
         <div className="card-body">

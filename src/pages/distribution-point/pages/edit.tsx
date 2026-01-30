@@ -22,9 +22,11 @@ export default function EditDistributionPoint() {
     try {
       const response = await listOneDistributionPoint(id);
       setDistributionPoint(response);
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       console.error(error);
-      toast.error("Erro ao carregar ponto de distribuição.");
+
+      toast.error(error.message || "Erro ao carregar ponto de distribuição.");
     }
   };
 

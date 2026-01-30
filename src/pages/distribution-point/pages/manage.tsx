@@ -139,9 +139,11 @@ export default function ManageDistributionPoint() {
     try {
       const response = await listDonations(_params);
       setData(response);
-    } catch (error) {
-      console.error("Error fetching donations:", error);
-      toast.error("Erro ao buscar doações. Tente novamente mais tarde.");
+    } catch (e) {
+      const error = e as Error;
+      console.error(error);
+
+      toast.error(error.message || "Erro ao buscar doações. Tente novamente mais tarde.");
     }
   };
 
@@ -149,9 +151,14 @@ export default function ManageDistributionPoint() {
     try {
       const response = await listRequestedProducts(_params);
       setRequestedProducts(response);
-    } catch (error) {
-      console.error("Error fetching donations:", error);
-      toast.error("Erro ao buscar solicitações de produtos. Tente novamente mais tarde.");
+    } catch (e) {
+      const error = e as Error;
+      console.error(error);
+
+      toast.error(
+        error.message ||
+          "Erro ao buscar solicitações de produtos. Tente novamente mais tarde.",
+      );
     }
   };
 
@@ -189,9 +196,13 @@ export default function ManageDistributionPoint() {
 
       const query = buildQuery(params);
       await fetchDonations(query);
-    } catch (error) {
-      console.error("Error confirming delivery:", error);
-      toast.error("Erro ao confirmar a entrega. Tente novamente mais tarde.");
+    } catch (e) {
+      const error = e as Error;
+      console.error(error);
+
+      toast.error(
+        error.message || "Erro ao confirmar a entrega. Tente novamente mais tarde.",
+      );
     } finally {
       setRequesting(false);
     }
@@ -205,9 +216,13 @@ export default function ManageDistributionPoint() {
 
       const query = buildQuery(params);
       await fetchDonations(query);
-    } catch (error) {
-      console.error("Error canceling donation:", error);
-      toast.error("Erro ao cancelar a doação. Tente novamente mais tarde.");
+    } catch (e) {
+      const error = e as Error;
+      console.error(error);
+
+      toast.error(
+        error.message || "Erro ao cancelar a doação. Tente novamente mais tarde.",
+      );
     } finally {
       setRequesting(false);
     }
@@ -233,9 +248,14 @@ export default function ManageDistributionPoint() {
 
       const query = buildQuery(params);
       await fetchRequestedProducts(query);
-    } catch (error) {
-      console.error("Error canceling requested product:", error);
-      toast.error("Erro ao cancelar solicitação do produto. Tente novamente mais tarde.");
+    } catch (e) {
+      const error = e as Error;
+      console.error(error);
+
+      toast.error(
+        error.message ||
+          "Erro ao cancelar solicitação do produto. Tente novamente mais tarde.",
+      );
     } finally {
       setRequesting(false);
     }
@@ -249,10 +269,13 @@ export default function ManageDistributionPoint() {
 
       const query = buildQuery(params);
       await fetchRequestedProducts(query);
-    } catch (error) {
-      console.error("Error confirming delivery requested product:", error);
+    } catch (e) {
+      const error = e as Error;
+      console.error(error);
+
       toast.error(
-        "Erro ao confirmar solicitação do produto. Tente novamente mais tarde.",
+        error.message ||
+          "Erro ao confirmar solicitação do produto. Tente novamente mais tarde.",
       );
     } finally {
       setRequesting(false);

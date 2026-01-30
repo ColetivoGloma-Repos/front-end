@@ -7,10 +7,14 @@ import {
   RequestedProductStatus,
 } from "../../../interfaces/distribution-point/point-requested-product";
 import { formatAddress } from "../../../utils";
-import { LocationMap, MetricsChart, RequestedProductCard } from "../components";
-import { IoMdArrowBack, IoMdCreate, IoMdCall, IoMdAdd } from "react-icons/io";
+import {
+  LocationMap,
+  MetricsChart,
+  RequestedProductCard,
+  ReturnButton,
+} from "../components";
+import { IoMdCreate, IoMdCall, IoMdAdd } from "react-icons/io";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input, Select } from "../../../components/common";
 import { UnitType } from "../../../interfaces/products";
@@ -30,23 +34,13 @@ import {
 import { DonationStatus } from "../../../interfaces/distribution-point";
 import { useAuthProvider } from "../../../context/Auth";
 import { toast } from "react-toastify";
+import { upsertRequestedProductSchema } from "../validations/upsert-requested-product";
 
-const addProductSchema = z.object({
-  name: z.string().trim().min(1, "Nome do produto é obrigatório"),
-  requestedQuantity: z.coerce
-    .number({
-      invalid_type_error: "Qtd deve ser um número",
-      required_error: "Qtd é obrigatória",
-    })
-    .int("Qtd deve ser um número inteiro")
-    .positive("Qtd deve ser maior que zero"),
-  unit: z.enum(["UN", "KG", "G", "L", "ML"], {
-    required_error: "Unidade é obrigatória",
-    invalid_type_error: "Unidade inválida",
-  }),
-});
-
-type AddProductFormValues = z.infer<typeof addProductSchema>;
+interface IAddProductFormValues {
+  name: string;
+  requestedQuantity: number;
+  unit: UnitType;
+}
 
 interface IState {
   distributionPoint?: IDistributionPoint;
@@ -82,12 +76,19 @@ export default function DetailDistributionPoint() {
   const onDistributionPointLoad = async () => {
     try {
       const data = await listOneDistributionPoint(id || "");
-      setState((prev) => ({ ...prev, distributionPoint: data }));
+      setState((prev) => ({
+        ...prev,
+        distributionPoint: data,
+      }));
 
       await Promise.all([onRequestedProductsLoad(), onDonationsLoad()]);
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       console.error(error);
-      toast.error("Erro ao carregar informações do ponto de distribuição.");
+
+      toast.error(
+        error.message || "Erro ao carregar informações do ponto de distribuição.",
+      );
     }
   };
 
@@ -161,9 +162,13 @@ export default function DetailDistributionPoint() {
     const donationResponse = await createDonation({
       requestedProductId,
       quantity,
-    }).catch((error) => {
+    }).catch((e) => {
+      const error = e as Error;
       console.error(error);
-      toast.error("Erro ao realizar a doação. Tente novamente mais tarde.");
+
+      toast.error(
+        error.message || "Erro ao realizar a doação. Tente novamente mais tarde.",
+      );
       return null;
     });
 
@@ -183,9 +188,13 @@ export default function DetailDistributionPoint() {
   const handleCancelDonation = async (requestedProductId: string) => {
     const donationResponse = await cancelAllDonation(requestedProductId || "")
       .then(() => true)
-      .catch((error) => {
+      .catch((e) => {
+        const error = e as Error;
         console.error(error);
-        toast.error("Erro ao cancelar a doação. Tente novamente mais tarde.");
+
+        toast.error(
+          error.message || "Erro ao cancelar a doação. Tente novamente mais tarde.",
+        );
         return false;
       });
 
@@ -223,15 +232,20 @@ export default function DetailDistributionPoint() {
           (product) => product.id !== requestedProductId,
         ),
       }));
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       console.error(error);
-      toast.error("Erro ao deletar o produto solicitado. Tente novamente mais tarde.");
+
+      toast.error(
+        error.message ||
+          "Erro ao deletar o produto solicitado. Tente novamente mais tarde.",
+      );
     }
   };
 
   const handleAdminAddProductToExisting = async (
     distributionPointId: string,
-    payload: AddProductFormValues,
+    payload: IAddProductFormValues,
   ) => {
     try {
       const requestedProducts = await createRequestedProduct({
@@ -247,9 +261,20 @@ export default function DetailDistributionPoint() {
         requestedQuantity: 1,
         unit: UnitType.UN,
       });
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error & { statusCode: number };
       console.error(error);
-      toast.error("Erro ao adicionar o produto solicitado. Tente novamente mais tarde.");
+
+      const status = error.statusCode;
+      if (status === 409) {
+        toast.error("Já existe um produto solicitado com esse nome.");
+        return;
+      }
+
+      toast.error(
+        error.message ||
+          "Erro ao adicionar o produto solicitado. Tente novamente mais tarde.",
+      );
     }
   };
 
@@ -259,8 +284,8 @@ export default function DetailDistributionPoint() {
     reset,
     formState: { errors, isSubmitting },
     watch,
-  } = useForm<AddProductFormValues>({
-    resolver: zodResolver(addProductSchema),
+  } = useForm<IAddProductFormValues>({
+    resolver: zodResolver(upsertRequestedProductSchema(false)),
     defaultValues: {
       name: "",
       requestedQuantity: 1,
@@ -287,15 +312,15 @@ export default function DetailDistributionPoint() {
 
   return (
     <div className="py-8">
-      <button
-        onClick={navigateToList}
-        className="btn rounded-lg btn-ghost btn-sm mb-6 pl-0"
-      >
-        <IoMdArrowBack size={20} className="mx-2" /> Voltar
-      </button>
+      {!hasImages && <ReturnButton onClick={navigateToList} className="mb-6" />}
 
       {hasImages && (
         <div className="w-full h-64 md:h-80 rounded-xl overflow-hidden shadow-xl mb-8 relative">
+          <ReturnButton
+            onClick={navigateToList}
+            className="ml-2 mt-4 absolute top-0 left-0 z-10 text-white"
+          />
+
           <img
             src={distributionPoint.images![0]}
             alt={distributionPoint.title}
@@ -329,7 +354,7 @@ export default function DetailDistributionPoint() {
                 {isAdmin && isLoggedIn && (
                   <button
                     onClick={navigateToEdit}
-                    className="btn rounded-lg btn-sm btn-ghost text-info bg-info/10 hover:bg-info/20"
+                    className="btn rounded-lg btn-sm btn-ghost text-info bg-info/10 hover:bg-info/20 ml-auto"
                     title="Editar Ponto"
                   >
                     <IoMdCreate size={16} /> Editar Info

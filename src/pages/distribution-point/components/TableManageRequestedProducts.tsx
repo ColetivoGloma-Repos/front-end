@@ -8,7 +8,6 @@ import {
   RequestedProductStatus,
 } from "../../../interfaces/distribution-point";
 import { StatusBadge } from "./StatusBadge";
-import { Button } from "../../../components/common";
 import { ModalRequestedProductAction } from "./ModalRequestedProductAction";
 
 type IActionType = "approve" | "reject";
