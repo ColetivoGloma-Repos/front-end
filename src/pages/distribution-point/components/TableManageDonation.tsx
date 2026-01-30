@@ -170,14 +170,14 @@ export function TableManageDonation({
                           <div className="flex justify-end gap-2">
                             <ActionButton
                               onClick={() => onReviewRequest(donation.id, "reject")}
-                              type="red"
+                              styleType="red"
                               className="!rounded-full"
                               icon={<IoClose size={20} />}
                               disabled={requesting}
                             />
                             <ActionButton
                               onClick={() => onReviewRequest(donation.id, "approve")}
-                              type="green"
+                              styleType="green"
                               className="!rounded-full"
                               icon={<IoCheckmark size={20} />}
                               disabled={requesting}

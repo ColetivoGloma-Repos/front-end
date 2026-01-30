@@ -364,7 +364,7 @@ export function DistributionPointForm({
                       </div>
 
                       <ActionButton
-                        type="red"
+                        styleType="red"
                         className="rounded-lg size-9"
                         onClick={() => remove(idx)}
                         icon={<IoMdTrash size={18} />}

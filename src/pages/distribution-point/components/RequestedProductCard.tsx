@@ -9,6 +9,8 @@ import {
   IoMdCube,
   IoMdWarning,
 } from "react-icons/io";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   IRequestedProduct,
   IUpdateRequestedProduct,
@@ -17,6 +19,7 @@ import {
 import { Button } from "../../../components/common/Button";
 import { Input } from "../../../components/common/Input";
 import { ActionButton } from "./ActionButton";
+import { upsertRequestedProductSchema } from "../validations/upsert-requested-product";
 
 type LoadingActionType = null | "donate" | "cancel" | "edit" | "delete" | "confirm";
 interface IRequestedProductCardProps {
@@ -29,6 +32,11 @@ interface IRequestedProductCardProps {
   onEdit: (updatedRequestedProduct: IUpdateRequestedProduct) => void;
   onDelete: () => void;
 }
+
+type EditRequestedProductForm = {
+  name: string;
+  requestedQuantity: number;
+};
 
 export function RequestedProductCard({
   requestedProduct,
@@ -43,11 +51,6 @@ export function RequestedProductCard({
   const [donateAmount, setDonateAmount] = React.useState<string>("");
   const [isEditing, setIsEditing] = React.useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
-  const [editForm, setEditForm] = React.useState({
-    productName: requestedProduct.product.name,
-    requestedQuantity: requestedProduct.requestedQuantity,
-  });
-
   const [loadingAction, setLoadingAction] = React.useState<LoadingActionType>(null);
 
   const product = requestedProduct.product;
@@ -82,6 +85,21 @@ export function RequestedProductCard({
   const isLoadingEdit = loadingAction === "edit";
   const isLoadingDelete = loadingAction === "delete";
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    clearErrors,
+  } = useForm<EditRequestedProductForm>({
+    resolver: zodResolver(upsertRequestedProductSchema(true, true)),
+    defaultValues: {
+      name: product.name,
+      requestedQuantity: requestedProduct.requestedQuantity,
+    },
+    mode: "onSubmit",
+  });
+
   const handleDonate = async (e: React.FormEvent) => {
     e.preventDefault();
     const amount = parseFloat(donateAmount);
@@ -105,10 +123,18 @@ export function RequestedProductCard({
     }
   };
 
-  const handleEdit = async () => {
+  const onSubmitEdit = async (data: EditRequestedProductForm) => {
     setLoadingAction("edit");
     try {
-      await Promise.resolve(onEdit(editForm));
+      const payload: IUpdateRequestedProduct = {
+        productName: data.name,
+        requestedQuantity: data.requestedQuantity,
+      };
+      await Promise.resolve(onEdit(payload));
+      reset({
+        name: product.name,
+        requestedQuantity: requestedProduct.requestedQuantity,
+      });
       setIsEditing(false);
     } finally {
       setLoadingAction(null);
@@ -123,6 +149,15 @@ export function RequestedProductCard({
     } finally {
       setLoadingAction(null);
     }
+  };
+
+  const handleCancelAction = () => {
+    setIsEditing(false);
+    clearErrors();
+    reset({
+      name: product.name,
+      requestedQuantity: requestedProduct.requestedQuantity,
+    });
   };
 
   const style = (status: RequestedProductStatus) => {
@@ -163,51 +198,51 @@ export function RequestedProductCard({
             </span>
           </label>
 
-          <Input
-            type="text"
-            value={editForm.productName}
-            onChange={(e) => setEditForm({ ...editForm, productName: e.target.value })}
-            placeholder="Nome do produto"
-            className="input-sm"
-            disabled={isLoadingEdit}
-          />
-
-          <div className="flex items-center gap-2 mt-2">
+          <form onSubmit={handleSubmit(onSubmitEdit)}>
             <Input
-              type="number"
-              value={editForm.requestedQuantity}
-              onChange={(e) =>
-                setEditForm({
-                  ...editForm,
-                  requestedQuantity: parseFloat((e.target as HTMLInputElement).value),
-                })
-              }
+              type="text"
+              placeholder="Nome do produto"
+              className="input-sm"
               disabled={isLoadingEdit}
-              placeholder="Meta"
-              className="input-sm w-full"
-              containerClassName="w-full"
+              label={undefined}
+              errors={errors}
+              {...register("name")}
             />
-            <p className="badge badge-ghost size-10 rounded-lg text-black">
-              {product.unit}
-            </p>
-          </div>
 
-          <div className="card-actions justify-end mt-4">
-            <ActionButton
-              disabled={isLoadingEdit}
-              onClick={() => setIsEditing(false)}
-              icon={<IoMdClose size={18} />}
-              className="rounded-lg"
-              type="red"
-            />
-            <ActionButton
-              disabled={isLoadingEdit}
-              onClick={handleEdit}
-              icon={<IoMdCheckmark size={18} />}
-              className="rounded-lg"
-              type="blue"
-            />
-          </div>
+            <div className="flex items-center gap-2 mt-2">
+              <Input
+                type="number"
+                disabled={isLoadingEdit}
+                placeholder="Meta"
+                className="input-sm w-full"
+                containerClassName="w-full"
+                label={undefined}
+                errors={errors}
+                {...register("requestedQuantity", { valueAsNumber: true })}
+              />
+
+              <p className="badge badge-ghost size-10 rounded-lg text-black mb-auto">
+                {product.unit}
+              </p>
+            </div>
+
+            <div className="card-actions justify-end mt-4">
+              <ActionButton
+                disabled={adminButtonsDisabled}
+                onClick={handleCancelAction}
+                icon={<IoMdClose size={18} />}
+                className="rounded-lg"
+                styleType="red"
+              />
+              <ActionButton
+                disabled={adminButtonsDisabled}
+                icon={<IoMdCheckmark size={18} />}
+                className="rounded-lg"
+                styleType="blue"
+                type="submit"
+              />
+            </div>
+          </form>
         </div>
       </div>
     );
@@ -239,14 +274,14 @@ export function RequestedProductCard({
                   onClick={() => setIsEditing(true)}
                   icon={<IoMdCreate size={16} />}
                   className="rounded-lg"
-                  type="blue"
+                  styleType="blue"
                 />
                 <ActionButton
                   disabled={adminButtonsDisabled}
                   onClick={() => setShowDeleteConfirm(true)}
                   icon={<IoMdTrash size={16} />}
                   className="rounded-lg"
-                  type="red"
+                  styleType="red"
                 />
               </div>
             )}
@@ -344,21 +379,24 @@ export function RequestedProductCard({
                 Esta ação não pode ser desfeita e removerá todas as doações associadas.
               </span>
             </p>
-            <div className="modal-action">
-              <Button
+
+            <div className="modal-action flex-col md:flex-row gap-2">
+              <button
                 type="button"
-                className="btn"
+                className="btn btn-ghost btn-sm order-2 rounded-lg md:order-1"
                 disabled={isLoadingDelete}
                 onClick={() => setShowDeleteConfirm(false)}
-                text="Cancelar"
-              />
-              <Button
+              >
+                Cancelar
+              </button>
+              <button
                 type="button"
                 disabled={isLoadingDelete}
-                className="btn btn-error text-white"
+                className="btn btn-sm rounded-lg btn-error text-white"
                 onClick={handleDelete}
-                text={isLoadingDelete ? "Excluindo..." : "Excluir Solicitação"}
-              />
+              >
+                {isLoadingDelete ? "Excluindo..." : "Excluir Solicitação"}
+              </button>
             </div>
           </div>
           <div

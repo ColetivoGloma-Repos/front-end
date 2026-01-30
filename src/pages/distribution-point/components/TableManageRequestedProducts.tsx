@@ -25,6 +25,7 @@ interface ITableManageRequestedProductsProps {
 }
 interface IFlattenedRequestedProducts extends IRequestedProduct {
   timestamp: number;
+  productName: string;
   distributionPointName: string;
 }
 
@@ -68,13 +69,21 @@ export function TableManageRequestedProducts({
       const distributionPoint = distributionPoints.find(
         (p) => p.id === requestedProduct.distributionPointId,
       );
-      const distributionPointName = distributionPoint?.title ?? "Ponto não informado";
+      const distributionPointName = distributionPoint?.title!
+        ? distributionPoint.title
+        : "Ponto não informado";
+
+      const productName = requestedProduct?.product?.name!
+        ? requestedProduct.product.name
+        : "Produto não informado";
+      console.log(productName);
 
       const ts = new Date(requestedProduct.createdAt).getTime();
 
       return {
         timestamp: ts,
         distributionPointName,
+        productName,
         ...requestedProduct,
       };
     });
@@ -106,7 +115,7 @@ export function TableManageRequestedProducts({
                     <tr key={requestedProduct.id} className="hover">
                       <td>
                         <div className="font-bold text-sm">
-                          {requestedProduct.product.name}
+                          {requestedProduct.productName}
                         </div>
                         <div className="text-xs opacity-50 truncate max-w-[200px]">
                           {requestedProduct.distributionPointName}
@@ -176,7 +185,7 @@ export function TableManageRequestedProducts({
                   <div className="flex justify-between items-center">
                     <div>
                       <div className="font-bold text-base">
-                        {requestedProduct.product.name}
+                        {requestedProduct.productName}
                       </div>
                       <div className="text-xs opacity-60 flex items-center gap-1">
                         <IoMap size={10} /> {requestedProduct.distributionPointName}
@@ -234,7 +243,7 @@ export function TableManageRequestedProducts({
           actionType={openModalType}
           onClose={handleCloseModal}
           onSubmit={handleSubmitModal}
-          productName={requestedProduct.product.name}
+          productName={requestedProduct.productName}
           distributionPointName={requestedProduct.distributionPointName}
         />
       )}
