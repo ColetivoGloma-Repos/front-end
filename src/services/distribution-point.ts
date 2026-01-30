@@ -12,6 +12,7 @@ import {
   IRequestedProduct,
   IUpdateRequestedProduct,
   ICreateRequestedProduct,
+  IQueryRequestedProducts,
 } from "../interfaces/distribution-point";
 
 export function createDistributionPoint(
@@ -43,9 +44,11 @@ export function listOneDistributionPoint(id: string): Promise<IDistributionPoint
   return get(`/distribution-point/${id}`);
 }
 
-export function listRequestedProducts(id: string): Promise<IListRequestedProducts> {
+export function listRequestedProducts(
+  params?: IQueryRequestedProducts,
+): Promise<IListRequestedProducts> {
   return get(`/distribution-point/requested-products`, {
-    params: { distributionPointId: id },
+    params,
   });
 }
 
@@ -84,8 +87,16 @@ export function updateRequestedProduct(
   return patch(`/distribution-point/requested-products/${requestedProductId}`, { data });
 }
 
-export function deleteRequestedProduct(requestedProductId: string): Promise<void> {
+export function cancelRequestedProduct(
+  requestedProductId: string,
+): Promise<{ ok: boolean }> {
   return del(`/distribution-point/requested-products/${requestedProductId}`);
+}
+
+export function confirmDeliveryRequestedProduct(
+  requestedProductId: string,
+): Promise<{ ok: boolean }> {
+  return patch(`/distribution-point/requested-products/${requestedProductId}/delivered`);
 }
 
 export function createRequestedProduct(

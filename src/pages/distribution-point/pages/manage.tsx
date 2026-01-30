@@ -3,130 +3,135 @@ import { IoMdArrowBack } from "react-icons/io";
 import {
   IoShieldCheckmark,
   IoTime,
-  IoRefresh,
   IoSearch,
   IoPin,
   IoFilter,
-  IoCheckmark,
-  IoClose,
-  IoChevronBack,
-  IoChevronForward,
+  IoGift,
+  IoListOutline,
 } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import {
   cancelDonation,
+  cancelRequestedProduct,
   confirmDeliveryDonation,
+  confirmDeliveryRequestedProduct,
   listDistributionPoints,
   listDonations,
+  listRequestedProducts,
 } from "../../../services/distribution-point";
 import {
   DonationStatus,
   IDistributionPoint,
   IListDonations,
+  IListRequestedProducts,
   IQueryDonations,
 } from "../../../interfaces/distribution-point";
+import { toast } from "react-toastify";
 import { useAuthProvider } from "../../../context/Auth";
 import useParams from "../../../hooks/useParams";
 import { Button, Input, Select } from "../../../components/common";
-import { useDistributionPointProvider } from "../context";
-import { toast } from "react-toastify";
-import { ActionButton } from "../components";
+import { TableManageDonation } from "../components/TableManageDonation";
+import { TableManageRequestedProducts } from "../components/TableManageRequestedProducts";
+import { IQueryRequest } from "../../../interfaces/default";
 
-type DashboardTab = "pending" | "history";
-type FlattenedDonation = {
-  id: string;
-  userId: string;
-  requestedProductId: string;
-  distributionPointId: string;
-  quantity: number;
-  status: DonationStatus;
-  createdAt: string;
-  updatedAt: string;
-  userName: string;
-  userEmail: string;
-  distributionPointName: string;
-  productName: string;
-  unit: string;
-  timestamp: number;
-};
+type IActionType = "approve" | "reject";
+type DashboardTab = "donations" | "history" | "requests";
+
+interface IQuery extends IQueryRequest {
+  tab?: DashboardTab;
+  excludeStatus?: DonationStatus;
+  distributionPointId?: string;
+  status?: DonationStatus;
+  activeOnly?: boolean;
+}
 
 export default function ManageDistributionPoint() {
   const navigation = useNavigate();
   const { currentUser } = useAuthProvider();
-  const { isAdmin } = useDistributionPointProvider();
 
-  const [params, setParams] = useParams<
-    IQueryDonations & { tab?: DashboardTab; excludeStatus?: DonationStatus }
-  >("donations", {
-    tab: "pending",
+  const [params, setParams] = useParams<IQuery>("donations", {
+    tab: "donations",
     limit: "10",
     offset: "0",
   });
 
   const [data, setData] = React.useState<IListDonations>();
+  const [requestedProducts, setRequestedProducts] =
+    React.useState<IListRequestedProducts>();
   const [distributionPoints, setDistributionPoints] = React.useState<
     IDistributionPoint[]
   >([]);
   const [requesting, setRequesting] = React.useState<boolean>(false);
 
-  const dashboardTab = params.tab ?? "pending";
+  const dashboardTab = params.tab ?? "donations";
 
-  const buildQuery = React.useCallback(
-    (
-      p: (IQueryDonations & { tab?: DashboardTab }) & { excludeStatus?: DonationStatus },
-    ): IQueryDonations & { excludeStatus?: DonationStatus } => {
-      const query: (IQueryDonations & { tab?: DashboardTab }) & {
-        excludeStatus?: DonationStatus;
-      } = {
-        ...p,
-      };
+  const buildQuery = React.useCallback((p: IQuery): Omit<IQuery, "tab"> => {
+    const query: IQuery = {
+      ...p,
+    };
 
-      if (query.tab === "pending") {
-        query.status = DonationStatus.ACTIVE;
-        delete query.excludeStatus;
+    if (query.tab === "donations") {
+      query.status = DonationStatus.ACTIVE;
+      delete query.excludeStatus;
+    } else if (query.tab === "requests") {
+      delete query.status;
+      delete query.excludeStatus;
+      if (query.activeOnly === undefined) query.activeOnly = true;
+    } else {
+      const hasHistoryStatus =
+        query.status === DonationStatus.DELIVERED ||
+        query.status === DonationStatus.CANCELED;
+
+      if (!hasHistoryStatus) {
+        delete query.status;
+        query.excludeStatus = DonationStatus.ACTIVE;
       } else {
-        const hasHistoryStatus =
-          query.status === DonationStatus.DELIVERED ||
-          query.status === DonationStatus.CANCELED;
-
-        if (!hasHistoryStatus) {
-          delete query.status;
-          query.excludeStatus = DonationStatus.ACTIVE;
-        } else {
-          delete query.excludeStatus;
-        }
+        delete query.excludeStatus;
       }
+    }
 
-      delete query.tab;
+    delete query.tab;
 
-      if (!query.q) delete query.q;
-      if (!query.distributionPointId) delete query.distributionPointId;
-      if (!query.requestedProductId) delete query.requestedProductId;
+    if (!query.q) delete query.q;
+    if (!query.distributionPointId) delete query.distributionPointId;
+    if (!query.activeOnly) delete query.activeOnly;
 
-      return query as IQueryDonations & { excludeStatus?: DonationStatus };
-    },
-    [],
-  );
+    return query;
+  }, []);
 
   React.useEffect(() => {
-    if (currentUser) {
-      const query = buildQuery(params);
-      fetchDonations(query);
+    if (!currentUser) return;
+
+    const query = buildQuery(params);
+
+    if (dashboardTab === "requests") {
+      fetchRequestedProducts(query);
+      return;
     }
-  }, [params, currentUser, buildQuery]);
+
+    fetchDonations(query);
+  }, [params, currentUser, buildQuery, dashboardTab]);
 
   React.useEffect(() => {
-    let mounted = false;
-    if (mounted) return;
+    if (!currentUser) return;
 
-    if (currentUser) {
-      fetchDistributionPoints();
-    }
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const response = await listDistributionPoints({
+          ownerId: currentUser?.id,
+          limit: "100",
+        });
+        if (!cancelled) setDistributionPoints(response.items);
+      } catch (error) {
+        console.error("Error fetching distribution points:", error);
+      }
+    })();
 
     return () => {
-      mounted = true;
+      cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser]);
 
   const fetchDonations = async (_params?: any) => {
@@ -139,15 +144,13 @@ export default function ManageDistributionPoint() {
     }
   };
 
-  const fetchDistributionPoints = async () => {
+  const fetchRequestedProducts = async (_params?: any) => {
     try {
-      const response = await listDistributionPoints({
-        ownerId: currentUser?.id,
-        limit: "100",
-      });
-      setDistributionPoints(response.items);
+      const response = await listRequestedProducts(_params);
+      setRequestedProducts(response);
     } catch (error) {
-      console.error("Error fetching distribution points:", error);
+      console.error("Error fetching donations:", error);
+      toast.error("Erro ao buscar solicitações de produtos. Tente novamente mais tarde.");
     }
   };
 
@@ -173,6 +176,7 @@ export default function ManageDistributionPoint() {
       offset: "0",
       status: newTab === "history" ? undefined : prev.status,
       excludeStatus: undefined,
+      activeOnly: newTab === "requests" ? true : undefined,
     }));
   };
 
@@ -208,49 +212,67 @@ export default function ManageDistributionPoint() {
     }
   };
 
+  const handleReviewRequestDonation = async (
+    donationId: string,
+    actionType: IActionType,
+  ) => {
+    if (actionType === "approve") {
+      handleConfirmDeliveryDonation(donationId);
+      return;
+    }
+
+    handleCancelDonation(donationId);
+  };
+
+  const handleCancelAllDonation = async (requestedProductId: string) => {
+    setRequesting(true);
+
+    try {
+      await cancelRequestedProduct(requestedProductId);
+
+      const query = buildQuery(params);
+      await fetchRequestedProducts(query);
+    } catch (error) {
+      console.error("Error canceling requested product:", error);
+      toast.error("Erro ao cancelar solicitação do produto. Tente novamente mais tarde.");
+    } finally {
+      setRequesting(false);
+    }
+  };
+
+  const handleConfirmDeliveryAllDonation = async (requestedProductId: string) => {
+    setRequesting(true);
+
+    try {
+      await confirmDeliveryRequestedProduct(requestedProductId);
+
+      const query = buildQuery(params);
+      await fetchRequestedProducts(query);
+    } catch (error) {
+      console.error("Error confirming delivery requested product:", error);
+      toast.error(
+        "Erro ao confirmar solicitação do produto. Tente novamente mais tarde.",
+      );
+    } finally {
+      setRequesting(false);
+    }
+  };
+
+  const handleReviewRequestRequestedProduct = async (
+    requestedProductId: string,
+    actionType: IActionType,
+  ) => {
+    if (actionType === "approve") {
+      await handleConfirmDeliveryAllDonation(requestedProductId);
+      return;
+    }
+
+    await handleCancelAllDonation(requestedProductId);
+  };
+
   const navigateToList = () => {
     navigation(`/`);
   };
-
-  const limit = Number(params.limit ?? 10);
-  const offset = Number(params.offset ?? 0);
-  const currentPage = data?.page ?? 1;
-  const totalItems = data?.total ?? 0;
-  const totalPages = data?.pages ?? 1;
-
-  const filteredDonations: FlattenedDonation[] = React.useMemo(() => {
-    const donations = data?.items ?? [];
-
-    return donations.map((donation) => {
-      const distributionPoint = distributionPoints.find(
-        (p) => p.id === donation.distributionPointId,
-      );
-      const distributionPointName = distributionPoint?.title ?? "Ponto não informado";
-
-      const product = donation.requestedProduct.product;
-      const productName = product?.name ?? "Produto não informado";
-      const unit = product?.unit ?? "un";
-
-      const ts = new Date(donation.createdAt).getTime();
-
-      return {
-        id: donation.id,
-        userId: donation.userId,
-        requestedProductId: donation.requestedProductId,
-        distributionPointId: donation.distributionPointId,
-        quantity: donation.quantity,
-        status: donation.status,
-        createdAt: donation.createdAt,
-        updatedAt: donation.updatedAt,
-        userName: donation.user?.name ?? "Anônimo",
-        userEmail: donation.user?.email ?? "Sem email",
-        distributionPointName,
-        productName,
-        unit,
-        timestamp: ts,
-      };
-    });
-  }, [data, distributionPoints]);
 
   return (
     <div className="py-8">
@@ -272,22 +294,37 @@ export default function ManageDistributionPoint() {
             type="button"
             text={
               <>
-                <IoTime size={16} /> Pendentes
+                <IoGift size={16} /> Gerir Doações
               </>
             }
             className={`join-item btn-sm h-8 !rounded-tl-md !rounded-bl-md ${
-              dashboardTab === "pending"
+              dashboardTab === "donations"
                 ? "btn-primary text-white"
                 : "btn-ghost bg-base-100 hover:bg-base-200"
             }`}
-            onClick={() => handleTabChange("pending")}
+            onClick={() => handleTabChange("donations")}
           />
 
           <Button
             type="button"
             text={
               <>
-                <IoRefresh size={16} /> Histórico
+                <IoListOutline size={16} /> Gerir Solicitações
+              </>
+            }
+            className={`join-item btn-sm h-8 ${
+              dashboardTab === "requests"
+                ? "btn-primary text-white"
+                : "btn-ghost bg-base-100 hover:bg-base-200"
+            }`}
+            onClick={() => handleTabChange("requests")}
+          />
+
+          <Button
+            type="button"
+            text={
+              <>
+                <IoTime size={16} /> Histórico
               </>
             }
             className={`join-item btn-sm h-8 !rounded-tr-md !rounded-br-md ${
@@ -298,6 +335,35 @@ export default function ManageDistributionPoint() {
             onClick={() => handleTabChange("history")}
           />
         </div>
+      </div>
+
+      <div className="mb-4">
+        <h3 className="text-lg font-bold text-base-content/80 flex items-center gap-2">
+          {dashboardTab === "donations" && (
+            <>
+              <IoGift className="text-primary" size={20} /> Fila de Aprovação de Doações
+            </>
+          )}
+          {dashboardTab === "requests" && (
+            <>
+              <IoListOutline className="text-primary" size={20} /> Gestão de Metas e
+              Solicitações
+            </>
+          )}
+          {dashboardTab === "history" && (
+            <>
+              <IoTime className="text-primary" size={20} /> Histórico Completo de Doações
+            </>
+          )}
+        </h3>
+        <p className="text-xs text-base-content/60">
+          {dashboardTab === "donations" &&
+            "Aprove ou rejeite doações individuais feitas por usuários."}
+          {dashboardTab === "requests" &&
+            "Monitore o progresso, feche ou cancele pedidos de produtos feitos pelos pontos."}
+          {dashboardTab === "history" &&
+            "Visualize todas as doações passadas (aprovadas e rejeitadas)."}
+        </p>
       </div>
 
       <div className="card rounded-2xl bg-base-100 shadow-sm mb-4 border border-base-200">
@@ -373,10 +439,9 @@ export default function ManageDistributionPoint() {
           )}
 
           <div className="flex-1 text-right">
-            <Button
+            <button
               type="button"
-              text="Limpar Filtros"
-              className="btn-ghost btn-xs opacity-50 hover:opacity-100 h-9 !rounded-md"
+              className="btn btn-ghost btn-sm order-2 rounded-lg md:order-1"
               onClick={() =>
                 setParams((prev) => ({
                   tab: prev.tab ?? dashboardTab,
@@ -389,195 +454,41 @@ export default function ManageDistributionPoint() {
                 !params?.distributionPointId &&
                 !(dashboardTab === "history" && params?.status)
               }
-            />
+            >
+              Limpar Filtros
+            </button>
           </div>
         </div>
       </div>
 
-      <div className="card rounded-2xl bg-base-100 shadow-xl border-t-4 border-primary overflow-hidden">
-        <div className="card-body p-0">
-          {filteredDonations.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 opacity-50">
-              <IoFilter size={48} className="mb-4 text-base-content/30" />
-              <p className="font-medium">
-                Nenhuma doação encontrada com os filtros atuais.
-              </p>
-            </div>
-          ) : (
-            <>
-              <div className="overflow-x-auto min-h-[400px]">
-                <table className="table w-full">
-                  <thead>
-                    <tr className="bg-base-200/50 text-base-content/70">
-                      <th>Doador</th>
-                      <th>Produto / Ponto</th>
-                      <th>Quantidade</th>
-                      <th>Data</th>
-                      <th className="text-center">Status</th>
-                      {isAdmin && dashboardTab === "pending" && (
-                        <th className="text-right">Ações</th>
-                      )}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredDonations.map((donation) => (
-                      <tr key={donation.id} className="hover">
-                        <td>
-                          <div className="flex items-center gap-3">
-                            <div className="avatar placeholder">
-                              <div className="bg-neutral text-neutral-content rounded-full w-8">
-                                <span className="text-xs">
-                                  {donation.userName?.charAt(0) || "A"}
-                                </span>
-                              </div>
-                            </div>
-                            <div>
-                              <div className="font-bold text-sm">
-                                {donation.userName || "Anônimo"}
-                              </div>
-                              <div className="text-xs opacity-50">
-                                {donation.userEmail || "Sem email"}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-
-                        <td>
-                          <div className="font-medium text-sm">
-                            {donation.productName}
-                          </div>
-                          <div
-                            className="text-xs opacity-50 truncate max-w-[200px]"
-                            title={donation.distributionPointName}
-                          >
-                            {donation.distributionPointName}
-                          </div>
-                        </td>
-
-                        <td className="font-mono text-sm">
-                          {donation.quantity}{" "}
-                          <span className="text-xs opacity-70">{donation.unit}</span>
-                        </td>
-
-                        <td className="text-sm opacity-70">
-                          {new Date(donation.timestamp).toLocaleDateString()}
-                          <br />
-                          <span className="text-xs opacity-50">
-                            {new Date(donation.timestamp).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </span>
-                        </td>
-
-                        <td className="text-center">
-                          {donation.status === DonationStatus.ACTIVE && (
-                            <div className="badge badge-warning gap-1 rounded-md">
-                              <IoTime size={10} /> Pendente
-                            </div>
-                          )}
-                          {donation.status === DonationStatus.DELIVERED && (
-                            <div className="badge badge-success text-white gap-1 rounded-md">
-                              <IoCheckmark size={10} /> Entregue
-                            </div>
-                          )}
-                          {donation.status === DonationStatus.CANCELED && (
-                            <div className="badge badge-error text-white gap-1 rounded-md">
-                              <IoClose size={10} /> Cancelado
-                            </div>
-                          )}
-                        </td>
-
-                        {isAdmin && dashboardTab === "pending" && (
-                          <td className="text-right">
-                            <div className="flex justify-end gap-2">
-                              <ActionButton
-                                onClick={() => handleCancelDonation(donation.id)}
-                                type="red"
-                                className="!rounded-full"
-                                icon={<IoClose size={20} />}
-                                disabled={requesting}
-                              />
-                              <ActionButton
-                                onClick={() => handleConfirmDeliveryDonation(donation.id)}
-                                type="green"
-                                className="!rounded-full"
-                                icon={<IoCheckmark size={20} />}
-                                disabled={requesting}
-                              />
-                            </div>
-                          </td>
-                        )}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="p-4 border-t border-base-200 flex flex-col md:flex-row justify-between items-center gap-4 bg-base-100">
-                <div className="text-sm text-base-content/60">
-                  Mostrando{" "}
-                  <span className="font-medium text-base-content">{offset + 1}</span> -{" "}
-                  <span className="font-medium text-base-content">
-                    {Math.min(offset + limit, totalItems)}
-                  </span>{" "}
-                  de <span className="font-medium text-base-content">{totalItems}</span>{" "}
-                  resultados
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-base-content/60">
-                      Linhas por página:
-                    </span>
-                    <Select
-                      options={[
-                        { label: "1", value: "1" },
-                        { label: "5", value: "5" },
-                        { label: "10", value: "10" },
-                        { label: "20", value: "20" },
-                        { label: "50", value: "50" },
-                      ]}
-                      className="select-xs h-8 max-w-none !rounded-md"
-                      value={String(limit)}
-                      onChange={(e) =>
-                        handleParams({
-                          limit: (e.target as HTMLSelectElement).value,
-                          offset: "0",
-                        })
-                      }
-                    />
-                  </div>
-
-                  <div className="join rounded-md">
-                    <Button
-                      type="button"
-                      text={<IoChevronBack size={16} />}
-                      className="join-item btn-sm h-8 !rounded-tl-md !rounded-bl-md"
-                      disabled={currentPage === 1}
-                      onClick={() => handleParams({ offset: String(offset - limit) })}
-                    />
-
-                    <Button
-                      type="button"
-                      text={`Página ${currentPage} de ${totalPages}`}
-                      className="join-item btn-sm no-animation pointer-events-none h-8"
-                    />
-
-                    <Button
-                      type="button"
-                      text={<IoChevronForward size={16} />}
-                      className="join-item btn-sm h-8 !rounded-tr-md !rounded-br-md"
-                      disabled={currentPage === totalPages}
-                      onClick={() => handleParams({ offset: String(offset + limit) })}
-                    />
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-      </div>
+      {dashboardTab === "requests" ? (
+        <TableManageRequestedProducts
+          data={requestedProducts?.items || []}
+          distributionPoints={distributionPoints}
+          onParams={handleParams}
+          onReviewRequest={handleReviewRequestRequestedProduct}
+          params={{
+            limit: Number(params.limit || "10"),
+            offset: Number(params.offset || "0"),
+            total: requestedProducts?.total || 0,
+          }}
+          requesting={requesting}
+        />
+      ) : (
+        <TableManageDonation
+          data={data?.items || []}
+          distributionPoints={distributionPoints}
+          onParams={handleParams}
+          onReviewRequest={handleReviewRequestDonation}
+          params={{
+            limit: Number(params.limit || "10"),
+            offset: Number(params.offset || "0"),
+            tab: params.tab || "donations",
+            total: data?.total || 0,
+          }}
+          requesting={requesting}
+        />
+      )}
     </div>
   );
 }

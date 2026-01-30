@@ -19,7 +19,7 @@ export function DistributionPointProvider() {
     IDistributionPoint[]
   >([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  // const [error, setError] = React.useState<Error | null>(null);
+  const [error, setError] = React.useState<Error>();
   // const [pagination, setPagination] = React.useState({
   //   limit: 10,
   //   offset: 0,
@@ -39,7 +39,7 @@ export function DistributionPointProvider() {
       // });
     } catch (error) {
       console.error("Error fetching distribution points:", error);
-      // setError(error as Error);
+      setError(error as Error);
     } finally {
       setIsLoading(false);
     }
@@ -63,6 +63,7 @@ export function DistributionPointProvider() {
   return (
     <DistributionPointContext.Provider
       value={{
+        error,
         distributionPoints,
         isLoading,
         isAdmin: true,

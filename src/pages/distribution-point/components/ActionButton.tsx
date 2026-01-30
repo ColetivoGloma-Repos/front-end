@@ -1,5 +1,3 @@
-import { Button } from "../../../components/common";
-
 export function ActionButton({
   type = "blue",
   ...props

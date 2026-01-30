@@ -20,7 +20,7 @@ import {
   cancelAllDonation,
   createDonation,
   createRequestedProduct,
-  deleteRequestedProduct,
+  cancelRequestedProduct,
   listDonations,
   listOneDistributionPoint,
   listRequestedProduct,
@@ -93,7 +93,9 @@ export default function DetailDistributionPoint() {
 
   const onRequestedProductsLoad = async () => {
     try {
-      const requestedProducts = await listRequestedProducts(id || "");
+      const requestedProducts = await listRequestedProducts({
+        distributionPointId: id,
+      });
       setState((prev) => ({ ...prev, requestedProducts: requestedProducts.items || [] }));
     } catch (error) {
       console.error(error);
@@ -214,7 +216,7 @@ export default function DetailDistributionPoint() {
 
   const handleAdminDeleteProduct = async (requestedProductId: string) => {
     try {
-      await deleteRequestedProduct(requestedProductId);
+      await cancelRequestedProduct(requestedProductId);
       setState((prev) => ({
         ...prev,
         requestedProducts: prev.requestedProducts.filter(

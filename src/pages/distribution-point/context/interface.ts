@@ -7,6 +7,7 @@ export interface IDistributionPointProvider {
   distributionPoints: IDistributionPoint[];
   isLoading: boolean;
   isAdmin: boolean;
+  error?: Error;
   isLoggedIn: boolean;
   onListDistributionPoints: (params?: IQueryDistributionPoints) => Promise<void>;
   saveOrSetDistributionPoint: (
