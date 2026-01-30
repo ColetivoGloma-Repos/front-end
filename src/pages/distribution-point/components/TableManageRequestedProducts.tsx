@@ -120,7 +120,7 @@ export function TableManageRequestedProducts({
                             value={requestedProduct.donatedQuantity}
                             max={requestedProduct.requestedQuantity}
                           />
-                          <span className="text-[10px] font-mono opacity-70">
+                          <span className="text-[10px] font-mono opacity-70 leading-3">
                             {requestedProduct.donatedQuantity} /{" "}
                             {requestedProduct.requestedQuantity}{" "}
                             {requestedProduct.product.unit}
@@ -142,26 +142,24 @@ export function TableManageRequestedProducts({
                       </td>
                       <td className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Button
+                          <button
                             onClick={() => handleActionType("reject", requestedProduct)}
-                            className="btn btn-sm btn-outline btn-error gap-1"
-                            text={<IoTrashOutline size={14} />}
+                            className="btn btn-sm btn-outline btn-error gap-1 rounded-lg size-9 p-0"
                             disabled={requesting}
-                          />
-                          <Button
+                          >
+                            <IoTrashOutline size={14} />
+                          </button>
+                          <button
                             onClick={() =>
                               requestedProduct.status === RequestedProductStatus.FULL
                                 ? onReviewRequest(requestedProduct.id, "approve")
                                 : handleActionType("approve", requestedProduct)
                             }
-                            className="btn btn-sm btn-success text-white gap-1"
-                            text={
-                              <>
-                                <IoCubeOutline size={14} /> Confirmar
-                              </>
-                            }
+                            className="btn btn-sm btn-success text-white gap-1 rounded-lg h-9"
                             disabled={requesting}
-                          />
+                          >
+                            <IoCubeOutline size={14} /> Confirmar
+                          </button>
                         </div>
                       </td>
                     </tr>

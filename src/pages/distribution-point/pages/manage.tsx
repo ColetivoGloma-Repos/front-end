@@ -33,6 +33,7 @@ import { Button, Input, Select } from "../../../components/common";
 import { TableManageDonation } from "../components/TableManageDonation";
 import { TableManageRequestedProducts } from "../components/TableManageRequestedProducts";
 import { IQueryRequest } from "../../../interfaces/default";
+import { ReturnButton } from "../components";
 
 type IActionType = "approve" | "reject";
 type DashboardTab = "donations" | "history" | "requests";
@@ -76,7 +77,7 @@ export default function ManageDistributionPoint() {
     } else if (query.tab === "requests") {
       delete query.status;
       delete query.excludeStatus;
-      if (query.activeOnly === undefined) query.activeOnly = true;
+      query.activeOnly = true;
     } else {
       const hasHistoryStatus =
         query.status === DonationStatus.DELIVERED ||
@@ -274,16 +275,42 @@ export default function ManageDistributionPoint() {
     navigation(`/`);
   };
 
+  const description = {
+    donations: {
+      title: (
+        <>
+          <IoGift className="text-primary" size={20} /> Fila de Aprovação de Doações
+        </>
+      ),
+      description: "Aprove ou rejeite doações individuais feitas por usuários.",
+    },
+    requests: {
+      title: (
+        <>
+          <IoListOutline className="text-primary" size={20} /> Gestão de Metas e
+          Solicitações
+        </>
+      ),
+      description:
+        "Monitore o progresso, feche ou cancele pedidos de produtos feitos pelos pontos.",
+    },
+    history: {
+      title: (
+        <>
+          <IoTime className="text-primary" size={20} /> Histórico Completo de Doações
+        </>
+      ),
+      description: "Visualize todas as doações passadas (aprovadas e rejeitadas).",
+    },
+  };
+  const descriptionStyle = description[dashboardTab];
+
   return (
     <div className="py-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div className="flex items-center gap-2">
-          <button
-            onClick={navigateToList}
-            className="btn rounded-lg btn-ghost btn-sm pl-0"
-          >
-            <IoMdArrowBack size={20} className="mx-2" /> Voltar
-          </button>
+          <ReturnButton onClick={() => navigateToList()} />
+
           <h2 className="text-3xl font-bold text-base-content flex items-center gap-2">
             <IoShieldCheckmark className="text-primary" size={32} /> Gestão de Doações
           </h2>
@@ -339,31 +366,9 @@ export default function ManageDistributionPoint() {
 
       <div className="mb-4">
         <h3 className="text-lg font-bold text-base-content/80 flex items-center gap-2">
-          {dashboardTab === "donations" && (
-            <>
-              <IoGift className="text-primary" size={20} /> Fila de Aprovação de Doações
-            </>
-          )}
-          {dashboardTab === "requests" && (
-            <>
-              <IoListOutline className="text-primary" size={20} /> Gestão de Metas e
-              Solicitações
-            </>
-          )}
-          {dashboardTab === "history" && (
-            <>
-              <IoTime className="text-primary" size={20} /> Histórico Completo de Doações
-            </>
-          )}
+          {descriptionStyle.title}
         </h3>
-        <p className="text-xs text-base-content/60">
-          {dashboardTab === "donations" &&
-            "Aprove ou rejeite doações individuais feitas por usuários."}
-          {dashboardTab === "requests" &&
-            "Monitore o progresso, feche ou cancele pedidos de produtos feitos pelos pontos."}
-          {dashboardTab === "history" &&
-            "Visualize todas as doações passadas (aprovadas e rejeitadas)."}
-        </p>
+        <p className="text-xs text-base-content/60">{descriptionStyle.description}</p>
       </div>
 
       <div className="card rounded-2xl bg-base-100 shadow-sm mb-4 border border-base-200">

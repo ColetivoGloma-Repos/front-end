@@ -3,3 +3,8 @@ export * from "./ActionButton";
 export * from "./MetricsChart";
 export * from "./RequestedProductCard";
 export * from "./StatusBadge";
+export * from "./TableManageDonation";
+export * from "./DistributionPointForm";
+export * from "./ModalRequestedProductAction";
+export * from "./ReturnButton";
+export * from "./TablePagination";
