@@ -140,7 +140,7 @@ export function RequestedProductCard({
       setIsEditing(false);
     } catch (e) {
       const error = e as Error & { statusCode: number };
-      console.log(error);
+      console.error(error);
 
       if (error.statusCode === 400) {
         setError("requestedQuantity", { message: error.message });

@@ -76,7 +76,6 @@ export function TableManageRequestedProducts({
       const productName = requestedProduct?.product?.name!
         ? requestedProduct.product.name
         : "Produto não informado";
-      console.log(productName);
 
       const ts = new Date(requestedProduct.createdAt).getTime();
 

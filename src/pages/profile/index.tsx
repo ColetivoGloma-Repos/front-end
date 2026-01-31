@@ -25,37 +25,36 @@ export default function ProfileScreen() {
 
   const handleEditToggle = async () => {
     setRequesting(true);
-    if (!request) {        
-        if (request) {
-          toast.warn("Carregando...");
-        }
-      try {        
+    if (!request) {
+      if (request) {
+        toast.warn("Carregando...");
+      }
+      try {
         const updatedUser = await updateUser(currentUser!.id, user as IUserUpdate);
         await setUser(updatedUser);
         toast.success("Usuário atualizado com sucesso");
       } catch (error) {
-        console.log(error);
+        console.error(error);
         toast.error(toastMessage.INTERNAL_SERVER_ERROR);
-      }finally {
-        setRequesting(false)
+      } finally {
+        setRequesting(false);
       }
     }
-    
   };
 
-   const handleAskIfCanToChangeForCoordinador = async () => {     
-      try {
-        setRequesting(true);
-        if (request) {
-          toast.warn("Carregando...");
-        }
-        const updatedUser = await askIfChangeStatusToCoordinator(currentUser!.id);
-        await setUser(updatedUser);
-        toast.success("Usuário atualizado com sucesso");
-      } catch (error) {
-        console.log(error);
-        toast.error(toastMessage.INTERNAL_SERVER_ERROR);
-      }    
+  const handleAskIfCanToChangeForCoordinador = async () => {
+    try {
+      setRequesting(true);
+      if (request) {
+        toast.warn("Carregando...");
+      }
+      const updatedUser = await askIfChangeStatusToCoordinator(currentUser!.id);
+      await setUser(updatedUser);
+      toast.success("Usuário atualizado com sucesso");
+    } catch (error) {
+      console.error(error);
+      toast.error(toastMessage.INTERNAL_SERVER_ERROR);
+    }
   };
 
   return (
@@ -63,42 +62,36 @@ export default function ProfileScreen() {
       {user ? (
         <div className="w-full max-w-4xl mx-auto bg-base-100 shadow-xl p-5 border-2 rounded-lg">
           <div className="flex flex-col items-center mb-6">
-            <Avatar
-              src={user.url || ""}
-              className="mb-4 w-24 h-24 rounded-full"
-            />
+            <Avatar src={user.url || ""} className="mb-4 w-24 h-24 rounded-full" />
             <h2 className="text-2xl font-bold">Perfil do Usuário</h2>
           </div>
-         {!currentUser?.roles?.includes('coordinator') && (
+          {!currentUser?.roles?.includes("coordinator") && (
             <ToRequireCoordinator onRequest={handleAskIfCanToChangeForCoordinador} />
           )}
 
-         {currentUser?.roles.includes('coordinator') && (
+          {currentUser?.roles.includes("coordinator") && (
             <ToRequireinitiativeAdministrator
-          onRequest={handleAskIfCanToChangeForCoordinador}
-          />
-        )}
+              onRequest={handleAskIfCanToChangeForCoordinador}
+            />
+          )}
 
-          <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={(e) => e.preventDefault()}>
+          <form
+            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+            onSubmit={(e) => e.preventDefault()}
+          >
             <div className="space-y-4">
-              <ProfilePersonalInfo
-                currentUser={user}
-                setUser={setUser}
-              />
+              <ProfilePersonalInfo currentUser={user} setUser={setUser} />
             </div>
 
             <div className="space-y-4">
-              <ProfileAddress
-                address={user.address}
-                setUser={setUser}
-              />
+              <ProfileAddress address={user.address} setUser={setUser} />
 
               <ProfileVehicle
                 hasVehicle={user?.hasVehicle}
                 vehicleType={user?.vehicleType}
                 setUser={setUser}
               />
-              </div>
+            </div>
 
             <div className="md:col-span-2 flex justify-end mt-4">
               <Button

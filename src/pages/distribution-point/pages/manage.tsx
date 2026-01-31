@@ -1,5 +1,4 @@
 import React from "react";
-import { IoMdArrowBack } from "react-icons/io";
 import {
   IoShieldCheckmark,
   IoTime,
@@ -34,6 +33,7 @@ import { TableManageDonation } from "../components/TableManageDonation";
 import { TableManageRequestedProducts } from "../components/TableManageRequestedProducts";
 import { IQueryRequest } from "../../../interfaces/default";
 import { ReturnButton } from "../components";
+import { RequestedProductStatus } from "../../../interfaces/distribution-point/point-requested-product";
 
 type IActionType = "approve" | "reject";
 type DashboardTab = "donations" | "history" | "requests";
@@ -44,6 +44,7 @@ interface IQuery extends IQueryRequest {
   distributionPointId?: string;
   status?: DonationStatus;
   activeOnly?: boolean;
+  requestedStatus?: RequestedProductStatus;
 }
 
 export default function ManageDistributionPoint() {
@@ -74,14 +75,26 @@ export default function ManageDistributionPoint() {
     if (query.tab === "donations") {
       query.status = DonationStatus.ACTIVE;
       delete query.excludeStatus;
+      delete query.activeOnly;
+      delete query.requestedStatus;
     } else if (query.tab === "requests") {
       delete query.status;
       delete query.excludeStatus;
       query.activeOnly = true;
+
+      if (
+        query.requestedStatus !== RequestedProductStatus.OPEN &&
+        query.requestedStatus !== RequestedProductStatus.FULL
+      ) {
+        delete query.requestedStatus;
+      }
     } else {
       const hasHistoryStatus =
         query.status === DonationStatus.DELIVERED ||
         query.status === DonationStatus.CANCELED;
+
+      delete query.activeOnly;
+      delete query.requestedStatus;
 
       if (!hasHistoryStatus) {
         delete query.status;
@@ -96,6 +109,7 @@ export default function ManageDistributionPoint() {
     if (!query.q) delete query.q;
     if (!query.distributionPointId) delete query.distributionPointId;
     if (!query.activeOnly) delete query.activeOnly;
+    if (!query.requestedStatus) delete query.requestedStatus;
 
     return query;
   }, []);
@@ -106,7 +120,9 @@ export default function ManageDistributionPoint() {
     const query = buildQuery(params);
 
     if (dashboardTab === "requests") {
-      fetchRequestedProducts(query);
+      const status = query.requestedStatus;
+      if (query.requestedStatus) delete query.requestedStatus;
+      fetchRequestedProducts(status ? { ...query, status } : query);
       return;
     }
 
@@ -148,6 +164,7 @@ export default function ManageDistributionPoint() {
   };
 
   const fetchRequestedProducts = async (_params?: any) => {
+    console.log(_params);
     try {
       const response = await listRequestedProducts(_params);
       setRequestedProducts(response);
@@ -163,15 +180,15 @@ export default function ManageDistributionPoint() {
   };
 
   const handleParams = (
-    newParams: Partial<IQueryDonations & { excludeStatus?: DonationStatus }>,
+    newParams: Partial<IQueryDonations & { excludeStatus?: DonationStatus } & IQuery>,
   ) => {
     setParams((prev) => {
-      const rawOffset = parseInt(newParams.offset ?? prev.offset ?? "0", 10);
+      const rawOffset = parseInt((newParams as any).offset ?? prev.offset ?? "0", 10);
       const safeOffset = Math.max(0, rawOffset).toString();
 
       return {
         ...prev,
-        ...newParams,
+        ...(newParams as any),
         offset: safeOffset,
       };
     });
@@ -185,6 +202,7 @@ export default function ManageDistributionPoint() {
       status: newTab === "history" ? undefined : prev.status,
       excludeStatus: undefined,
       activeOnly: newTab === "requests" ? true : undefined,
+      requestedStatus: undefined,
     }));
   };
 
@@ -437,6 +455,37 @@ export default function ManageDistributionPoint() {
             />
           </div>
 
+          {dashboardTab === "requests" && (
+            <div className="form-control w-full md:w-1/4">
+              <Select
+                label="Status"
+                options={[
+                  { label: "Todos", value: "" },
+                  { label: "Abertas", value: RequestedProductStatus.OPEN },
+                  { label: "Meta atingida", value: RequestedProductStatus.FULL },
+                ]}
+                containerClassName=""
+                className="select-sm w-full max-w-none h-9 !rounded-md"
+                value={
+                  params?.requestedStatus === RequestedProductStatus.OPEN ||
+                  params?.requestedStatus === RequestedProductStatus.FULL
+                    ? params.requestedStatus
+                    : ""
+                }
+                onChange={(e) => {
+                  const value = (e.target as HTMLSelectElement).value;
+                  handleParams({
+                    requestedStatus: value
+                      ? (value as RequestedProductStatus)
+                      : undefined,
+                    offset: "0",
+                  });
+                }}
+                prefix={<IoFilter size={16} />}
+              />
+            </div>
+          )}
+
           {dashboardTab === "history" && (
             <div className="form-control w-full md:w-1/4">
               <Select
@@ -480,7 +529,8 @@ export default function ManageDistributionPoint() {
               disabled={
                 !params?.q &&
                 !params?.distributionPointId &&
-                !(dashboardTab === "history" && params?.status)
+                !(dashboardTab === "history" && params?.status) &&
+                !(dashboardTab === "requests" && params?.requestedStatus)
               }
             >
               Limpar Filtros
