@@ -16,6 +16,7 @@ import {
 import { ActionButton } from "./ActionButton";
 import { ReturnButton } from "./ReturnButton";
 import { upsertDistributionPointSchema } from "../validations";
+import { getNestedValue } from "../../../utils";
 
 interface IDistributionPointFormProps {
   isEditMode: boolean;
@@ -306,6 +307,7 @@ export function DistributionPointForm({
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="font-bold">Produtos Solicitados</h3>
                   <Button
+                    type="button"
                     className="btn btn-sm btn-outline btn-primary hover:!bg-blue-800 h-8 !rounded-md !text-white"
                     onClick={() =>
                       append({ name: "", requestedQuantity: 1, unit: UnitType.UN })
@@ -325,52 +327,79 @@ export function DistributionPointForm({
                     </p>
                   )}
 
-                  {(errors as any)?.requestedProducts?.message && (
+                  {errors?.requestedProducts?.message && (
                     <p className="text-error text-sm text-center">
-                      {(errors as any)?.requestedProducts?.message as string}
+                      {errors?.requestedProducts?.message as string}
                     </p>
                   )}
 
-                  {fields.map((field, idx) => (
-                    <div key={(field as any).id} className="flex gap-2 items-center">
-                      <div className="flex-1">
-                        <Input
-                          placeholder="Nome"
-                          className="input-sm w-full h-9 bg-white"
-                          errors={errors}
-                          {...register(`requestedProducts.${idx}.name` as const)}
-                        />
-                      </div>
+                  {fields.map((field, idx) => {
+                    const nameError =
+                      (errors &&
+                        getNestedValue(errors, `requestedProducts.${idx}.name`)
+                          ?.message) ||
+                      "";
 
-                      <div className="w-24">
-                        <Input
-                          type="number"
-                          placeholder="Qtd"
-                          className="input-sm w-full h-9 bg-white"
-                          errors={errors}
-                          {...register(
-                            `requestedProducts.${idx}.requestedQuantity` as const,
-                          )}
-                        />
-                      </div>
+                    const qtyError =
+                      (errors &&
+                        getNestedValue(
+                          errors,
+                          `requestedProducts.${idx}.requestedQuantity`,
+                        )?.message) ||
+                      "";
 
-                      <div className="w-24">
-                        <Select
-                          className="select-sm w-full h-9 bg-white"
-                          options={unitOptions}
-                          errors={errors}
-                          {...register(`requestedProducts.${idx}.unit` as const)}
-                        />
-                      </div>
+                    const unitError =
+                      (errors &&
+                        getNestedValue(errors, `requestedProducts.${idx}.unit`)
+                          ?.message) ||
+                      "";
 
-                      <ActionButton
-                        styleType="red"
-                        className="rounded-lg size-9"
-                        onClick={() => remove(idx)}
-                        icon={<IoMdTrash size={18} />}
-                      />
-                    </div>
-                  ))}
+                    const rowError = (nameError || qtyError || unitError) as string;
+
+                    return (
+                      <div key={field.id} className="flex flex-col gap-2">
+                        <div className="flex gap-2 items-center">
+                          <div className="flex-1">
+                            <Input
+                              placeholder="Nome"
+                              className={`input-sm w-full h-9 bg-white ${nameError && "input-error"}`}
+                              {...register(`requestedProducts.${idx}.name` as const)}
+                            />
+                          </div>
+
+                          <div className="w-24">
+                            <Input
+                              type="number"
+                              placeholder="Qtd"
+                              className={`input-sm w-full h-9 bg-white ${qtyError && "input-error"}`}
+                              {...register(
+                                `requestedProducts.${idx}.requestedQuantity` as const,
+                              )}
+                            />
+                          </div>
+
+                          <div className="w-24">
+                            <Select
+                              className={`select-sm w-full h-9 bg-white ${unitError && "input-error"}`}
+                              options={unitOptions}
+                              {...register(`requestedProducts.${idx}.unit` as const)}
+                            />
+                          </div>
+
+                          <ActionButton
+                            styleType="red"
+                            className="rounded-lg size-9"
+                            onClick={() => remove(idx)}
+                            icon={<IoMdTrash size={18} />}
+                          />
+                        </div>
+
+                        {rowError && (
+                          <p className="text-error text-sm text-center">{rowError}</p>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}

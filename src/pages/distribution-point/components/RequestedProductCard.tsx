@@ -90,6 +90,7 @@ export function RequestedProductCard({
     handleSubmit,
     formState: { errors },
     reset,
+    setError,
     clearErrors,
   } = useForm<EditRequestedProductForm>({
     resolver: zodResolver(upsertRequestedProductSchema(true, true)),
@@ -125,6 +126,7 @@ export function RequestedProductCard({
 
   const onSubmitEdit = async (data: EditRequestedProductForm) => {
     setLoadingAction("edit");
+
     try {
       const payload: IUpdateRequestedProduct = {
         productName: data.name,
@@ -136,6 +138,13 @@ export function RequestedProductCard({
         requestedQuantity: requestedProduct.requestedQuantity,
       });
       setIsEditing(false);
+    } catch (e) {
+      const error = e as Error & { statusCode: number };
+      console.log(error);
+
+      if (error.statusCode === 400) {
+        setError("requestedQuantity", { message: error.message });
+      }
     } finally {
       setLoadingAction(null);
     }

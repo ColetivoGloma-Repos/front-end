@@ -215,12 +215,19 @@ export default function DetailDistributionPoint() {
     requestedProductId: string,
     updates: IUpdateRequestedProduct,
   ) => {
-    await updateRequestedProduct(requestedProductId, updates).catch((error) => {
-      console.error(error);
+    let capturedError: Error | null = null;
+
+    await updateRequestedProduct(requestedProductId, updates).catch((err) => {
+      console.error("Error no Update Requested Product", err);
+      capturedError = err as Error;
       return null;
     });
 
     await fetchRequestedProduct(requestedProductId);
+
+    if (capturedError) {
+      throw capturedError;
+    }
   };
 
   const handleAdminDeleteProduct = async (requestedProductId: string) => {
