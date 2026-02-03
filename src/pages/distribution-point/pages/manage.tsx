@@ -15,7 +15,7 @@ import {
   confirmDeliveryDonation,
   confirmDeliveryRequestedProduct,
   listDistributionPoints,
-  listDonations,
+  listAllDonations,
   listRequestedProducts,
 } from "../../../services/distribution-point";
 import {
@@ -153,7 +153,7 @@ export default function ManageDistributionPoint() {
 
   const fetchDonations = async (_params?: any) => {
     try {
-      const response = await listDonations(_params);
+      const response = await listAllDonations(_params);
       setData(response);
     } catch (e) {
       const error = e as Error;
@@ -164,7 +164,6 @@ export default function ManageDistributionPoint() {
   };
 
   const fetchRequestedProducts = async (_params?: any) => {
-    console.log(_params);
     try {
       const response = await listRequestedProducts(_params);
       setRequestedProducts(response);

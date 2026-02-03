@@ -19,25 +19,28 @@ export function DistributionPointProvider() {
   const [distributionPoints, setDistributionPoints] = React.useState<
     IDistributionPoint[]
   >([]);
+  const [total, setTotal] = React.useState<number>(0);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const [error, setError] = React.useState<Error>();
-  // const [pagination, setPagination] = React.useState({
-  //   limit: 10,
-  //   offset: 0,
-  //   params: {},
-  // });
+  const [pagination, setPagination] = React.useState({
+    limit: 12,
+    offset: 0,
+  });
 
   const onListDistributionPoints = async (params?: IQueryDistributionPoints) => {
     setIsLoading(true);
 
     try {
       const data = await listDistributionPoints(params);
-      setDistributionPoints(data.items);
-      // setPagination({
-      //   limit: data.limit,
-      //   offset: data.page * data.limit,
-      //   params: params || {},
-      // });
+      setTotal(data.total);
+      setDistributionPoints((prev) => {
+        if (params?.offset && Number(params.offset) > 0) {
+          const newItems = data.items.filter(
+            (item) => !prev.some((p) => p.id === item.id),
+          );
+          return [...prev, ...newItems];
+        }
+        return data.items;
+      });
     } catch (e) {
       const error = e as Error;
       console.error(error);
@@ -66,11 +69,13 @@ export function DistributionPointProvider() {
   return (
     <DistributionPointContext.Provider
       value={{
-        error,
         distributionPoints,
+        total,
         isLoading,
         isAdmin: true,
         isLoggedIn: currentUser != null,
+        pagination,
+        setPagination,
         onListDistributionPoints,
         saveOrSetDistributionPoint,
       }}

@@ -56,7 +56,13 @@ export function listRequestedProduct(id: string): Promise<IRequestedProduct> {
   return get(`/distribution-point/requested-products/${id}`);
 }
 
-export function listDonations(params?: IQueryDonations): Promise<IListDonations> {
+export function listMeDonations(params?: IQueryDonations): Promise<IListDonations> {
+  return get(`/distribution-point/donation/me`, {
+    params,
+  });
+}
+
+export function listAllDonations(params?: IQueryDonations): Promise<IListDonations> {
   return get(`/distribution-point/donation`, {
     params,
   });

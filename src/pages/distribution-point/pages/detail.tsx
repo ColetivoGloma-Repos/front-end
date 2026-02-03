@@ -25,14 +25,13 @@ import {
   createDonation,
   createRequestedProduct,
   cancelRequestedProduct,
-  listDonations,
+  listMeDonations,
   listOneDistributionPoint,
   listRequestedProduct,
   listRequestedProducts,
   updateRequestedProduct,
 } from "../../../services/distribution-point";
 import { DonationStatus } from "../../../interfaces/distribution-point";
-import { useAuthProvider } from "../../../context/Auth";
 import { toast } from "react-toastify";
 import { upsertRequestedProductSchema } from "../validations/upsert-requested-product";
 
@@ -51,7 +50,6 @@ interface IState {
 export default function DetailDistributionPoint() {
   const navigation = useNavigate();
   const { id = "" } = useParams();
-  const { currentUser } = useAuthProvider();
   const { isAdmin, isLoggedIn } = useDistributionPointProvider();
 
   const [{ donations, distributionPoint, requestedProducts }, setState] =
@@ -65,15 +63,15 @@ export default function DetailDistributionPoint() {
     let mounted = false;
     if (mounted) return;
 
-    onDistributionPointLoad();
+    onDistributionPointLoad(isLoggedIn);
 
     return () => {
       mounted = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, currentUser?.id]);
+  }, [id, isLoggedIn]);
 
-  const onDistributionPointLoad = async () => {
+  const onDistributionPointLoad = async (isLoggedIn: boolean) => {
     try {
       const data = await listOneDistributionPoint(id || "");
       setState((prev) => ({
@@ -81,7 +79,7 @@ export default function DetailDistributionPoint() {
         distributionPoint: data,
       }));
 
-      await Promise.all([onRequestedProductsLoad(), onDonationsLoad()]);
+      await Promise.all([onRequestedProductsLoad(), onDonationsLoad(isLoggedIn)]);
     } catch (e) {
       const error = e as Error;
       console.error(error);
@@ -103,12 +101,14 @@ export default function DetailDistributionPoint() {
     }
   };
 
-  const onDonationsLoad = async () => {
+  const onDonationsLoad = async (isLoggedIn: boolean) => {
+    if (!isLoggedIn) return;
+
     try {
-      const donations = await listDonations({
+      const donations = await listMeDonations({
         distributionPointId: id || "",
         status: DonationStatus.ACTIVE,
-        limit: "100",
+        limit: "1000",
       });
       const donationsByProduct: { [key: string]: number } = {};
       donations.items.forEach((donation) => {

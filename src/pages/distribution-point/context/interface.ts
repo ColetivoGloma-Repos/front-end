@@ -5,10 +5,12 @@ import {
 
 export interface IDistributionPointProvider {
   distributionPoints: IDistributionPoint[];
+  total: number;
   isLoading: boolean;
   isAdmin: boolean;
-  error?: Error;
   isLoggedIn: boolean;
+  pagination: { limit: number; offset: number };
+  setPagination: React.Dispatch<React.SetStateAction<{ limit: number; offset: number }>>;
   onListDistributionPoints: (params?: IQueryDistributionPoints) => Promise<void>;
   saveOrSetDistributionPoint: (
     data: IDistributionPoint,

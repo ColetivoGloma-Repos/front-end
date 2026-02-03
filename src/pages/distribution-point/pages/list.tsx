@@ -3,25 +3,48 @@ import { IoMdAdd, IoMdPin } from "react-icons/io";
 import { formatAddress } from "../../../utils";
 import { useDistributionPointProvider } from "../context";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../../../components/common";
+import { Button, Loading } from "../../../components/common";
+import useInView from "../../../hooks/useInView";
 
 export default function ListDistributionPoint() {
   const navigation = useNavigate();
 
-  const { distributionPoints, onListDistributionPoints, isAdmin, isLoggedIn } =
-    useDistributionPointProvider();
+  const {
+    distributionPoints,
+    onListDistributionPoints,
+    isAdmin,
+    isLoggedIn,
+    total,
+    isLoading,
+    pagination,
+    setPagination,
+  } = useDistributionPointProvider();
+
+  const { ref, inView } = useInView({
+    threshold: 0,
+  });
 
   React.useEffect(() => {
-    let mounted = false;
-    if (mounted) return;
-
-    onListDistributionPoints();
-
-    return () => {
-      mounted = true;
-    };
+    if (distributionPoints.length === 0) {
+      onListDistributionPoints({
+        limit: String(pagination.limit),
+        offset: String(0),
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  React.useEffect(() => {
+    if (inView && !isLoading && distributionPoints.length < total) {
+      const newOffset = pagination.offset + pagination.limit;
+      setPagination((prev) => ({ ...prev, offset: newOffset }));
+      onListDistributionPoints({
+        limit: String(pagination.limit),
+        offset: String(newOffset),
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inView]);
 
   const navigateToDetail = (id: string) => {
     navigation(`/distribution-point/${id}`);
@@ -39,7 +62,9 @@ export default function ListDistributionPoint() {
     <div className="py-8">
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-base-content">Pontos de Distribuição</h2>
+          <h2 className="text-3xl font-bold text-base-content">
+            Pontos de Distribuição
+          </h2>
           <p className="text-base-content/70 mt-1">
             Selecione um local para visualizar necessidades ou doar.
           </p>
@@ -118,6 +143,12 @@ export default function ListDistributionPoint() {
           );
         })}
       </div>
+      {isLoading && (
+        <div className="w-full flex justify-center py-4">
+          <Loading />
+        </div>
+      )}
+      <div ref={ref} />
     </div>
   );
 }
