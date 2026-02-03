@@ -10,7 +10,8 @@ export default function EditDistributionPoint() {
   const navigation = useNavigate();
   const { id = "" } = useParams();
 
-  const { saveOrSetDistributionPoint } = useDistributionPointProvider();
+  const { saveOrSetDistributionPoint, isCoordinator, ownerId } =
+    useDistributionPointProvider();
 
   const [distributionPoint, setDistributionPoint] = React.useState<IDistributionPoint>();
 
@@ -43,6 +44,10 @@ export default function EditDistributionPoint() {
   }, []);
 
   if (!distributionPoint) return null;
+
+  const isOnwer = isCoordinator && distributionPoint.ownerId === ownerId;
+
+  if (!isOnwer) return null;
 
   return (
     <DistributionPointForm

@@ -44,6 +44,7 @@ export interface IQueryDonations extends IQueryRequest {
   distributionPointId?: string;
   requestedProductId?: string;
   status?: DonationStatus;
+  userId?: string;
 }
 
 export interface IListDonations {

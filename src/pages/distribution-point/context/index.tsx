@@ -66,14 +66,22 @@ export function DistributionPointProvider() {
     });
   };
 
+  const isLoggedIn = currentUser != null;
+  const roles = currentUser?.roles || [];
+  const isAdmin = roles.includes("admin");
+  const isCoordinator = roles.includes("coordinator");
+  const ownerId = currentUser?.id || "";
+
   return (
     <DistributionPointContext.Provider
       value={{
         distributionPoints,
         total,
         isLoading,
-        isAdmin: true,
-        isLoggedIn: currentUser != null,
+        isLoggedIn,
+        isAdmin,
+        ownerId,
+        isCoordinator,
         pagination,
         setPagination,
         onListDistributionPoints,

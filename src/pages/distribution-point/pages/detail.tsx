@@ -25,7 +25,7 @@ import {
   createDonation,
   createRequestedProduct,
   cancelRequestedProduct,
-  listMeDonations,
+  listDonations,
   listOneDistributionPoint,
   listRequestedProduct,
   listRequestedProducts,
@@ -34,6 +34,7 @@ import {
 import { DonationStatus } from "../../../interfaces/distribution-point";
 import { toast } from "react-toastify";
 import { upsertRequestedProductSchema } from "../validations/upsert-requested-product";
+import { useAuthProvider } from "../../../context/Auth";
 
 interface IAddProductFormValues {
   name: string;
@@ -50,7 +51,8 @@ interface IState {
 export default function DetailDistributionPoint() {
   const navigation = useNavigate();
   const { id = "" } = useParams();
-  const { isAdmin, isLoggedIn } = useDistributionPointProvider();
+  const { currentUser } = useAuthProvider();
+  const { isAdmin, isCoordinator, isLoggedIn } = useDistributionPointProvider();
 
   const [{ donations, distributionPoint, requestedProducts }, setState] =
     React.useState<IState>({
@@ -105,7 +107,7 @@ export default function DetailDistributionPoint() {
     if (!isLoggedIn) return;
 
     try {
-      const donations = await listMeDonations({
+      const donations = await listDonations({
         distributionPointId: id || "",
         status: DonationStatus.ACTIVE,
         limit: "1000",
@@ -315,6 +317,8 @@ export default function DetailDistributionPoint() {
 
   if (!distributionPoint) return null;
 
+  const isOnwer = isCoordinator && distributionPoint.ownerId === currentUser?.id;
+
   const hasImages = distributionPoint.images && distributionPoint.images?.length > 0;
 
   return (
@@ -358,7 +362,7 @@ export default function DetailDistributionPoint() {
                   <h2 className="card-title text-2xl">{distributionPoint.title}</h2>
                 )}
 
-                {isAdmin && isLoggedIn && (
+                {(isOnwer || isAdmin) && isLoggedIn && (
                   <button
                     onClick={navigateToEdit}
                     className="btn rounded-lg btn-sm btn-ghost text-info bg-info/10 hover:bg-info/20 ml-auto"
@@ -378,7 +382,7 @@ export default function DetailDistributionPoint() {
                 "{distributionPoint.description}"
               </p>
 
-              {isAdmin && isLoggedIn && (
+              {(isOnwer || isAdmin) && isLoggedIn && (
                 <>
                   <div className="divider">Admin</div>
 
@@ -466,7 +470,7 @@ export default function DetailDistributionPoint() {
                 <RequestedProductCard
                   key={requestedProduct.id}
                   requestedProduct={requestedProduct}
-                  isAdmin={isAdmin && isLoggedIn}
+                  isAdmin={(isOnwer || isAdmin) && isLoggedIn}
                   isLoggedIn={isLoggedIn}
                   userDonatedAmount={donations[requestedProduct.id]}
                   onDonate={(amount) => handleDonate(requestedProduct.id, amount)}

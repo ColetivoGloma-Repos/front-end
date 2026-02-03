@@ -13,6 +13,7 @@ export default function ListDistributionPoint() {
     distributionPoints,
     onListDistributionPoints,
     isAdmin,
+    isCoordinator,
     isLoggedIn,
     total,
     isLoading,
@@ -62,14 +63,14 @@ export default function ListDistributionPoint() {
     <div className="py-8">
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-base-content">
+          <h2 className="text-3xl font-bold text-base-content text-center md:text-start">
             Pontos de Distribuição
           </h2>
-          <p className="text-base-content/70 mt-1">
+          <p className="text-base-content/70 mt-1 text-center md:text-start">
             Selecione um local para visualizar necessidades ou doar.
           </p>
         </div>
-        {isAdmin && isLoggedIn && (
+        {(isCoordinator || isAdmin) && isLoggedIn && (
           <div className="flex gap-2">
             <Button
               className="btn btn-primary text-white !rounded-lg hover:!bg-blue-800"

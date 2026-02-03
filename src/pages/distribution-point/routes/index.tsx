@@ -6,15 +6,19 @@ import ListDistributionPoint from "../pages/list";
 import CreateDistributionPoint from "../pages/create";
 import EditDistributionPoint from "../pages/edit";
 import ManageDistributionPoint from "../pages/manage";
+import { PrivateRoleRoute } from "../../../routes/Auth/PrivateRoleRoute";
 
 export function distributionPointRoutes() {
   return (
     <Route element={<DistributionPointProvider />}>
       <Route path="/" element={<ListDistributionPoint />} />
       <Route path="/distribution-point/:id" element={<DetailDistributionPoint />} />
-      <Route path="/distribution-point/create" element={<CreateDistributionPoint />} />
-      <Route path="/distribution-point/:id/edit" element={<EditDistributionPoint />} />
-      <Route path="/distribution-point/manage" element={<ManageDistributionPoint />} />
+
+      <Route element={<PrivateRoleRoute roles={["admin", "coordinator"]} />}>
+        <Route path="/distribution-point/create" element={<CreateDistributionPoint />} />
+        <Route path="/distribution-point/:id/edit" element={<EditDistributionPoint />} />
+        <Route path="/distribution-point/manage" element={<ManageDistributionPoint />} />
+      </Route>
     </Route>
   );
 }

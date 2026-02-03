@@ -8,6 +8,8 @@ export interface IDistributionPointProvider {
   total: number;
   isLoading: boolean;
   isAdmin: boolean;
+  isCoordinator: boolean;
+  ownerId: string;
   isLoggedIn: boolean;
   pagination: { limit: number; offset: number };
   setPagination: React.Dispatch<React.SetStateAction<{ limit: number; offset: number }>>;

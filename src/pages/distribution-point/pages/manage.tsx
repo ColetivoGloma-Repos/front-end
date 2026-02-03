@@ -15,7 +15,7 @@ import {
   confirmDeliveryDonation,
   confirmDeliveryRequestedProduct,
   listDistributionPoints,
-  listAllDonations,
+  listDonations,
   listRequestedProducts,
 } from "../../../services/distribution-point";
 import {
@@ -26,7 +26,6 @@ import {
   IQueryDonations,
 } from "../../../interfaces/distribution-point";
 import { toast } from "react-toastify";
-import { useAuthProvider } from "../../../context/Auth";
 import useParams from "../../../hooks/useParams";
 import { Button, Input, Select } from "../../../components/common";
 import { TableManageDonation } from "../components/TableManageDonation";
@@ -34,6 +33,7 @@ import { TableManageRequestedProducts } from "../components/TableManageRequested
 import { IQueryRequest } from "../../../interfaces/default";
 import { ReturnButton } from "../components";
 import { RequestedProductStatus } from "../../../interfaces/distribution-point/point-requested-product";
+import { useDistributionPointProvider } from "../context";
 
 type IActionType = "approve" | "reject";
 type DashboardTab = "donations" | "history" | "requests";
@@ -49,7 +49,7 @@ interface IQuery extends IQueryRequest {
 
 export default function ManageDistributionPoint() {
   const navigation = useNavigate();
-  const { currentUser } = useAuthProvider();
+  const { ownerId } = useDistributionPointProvider();
 
   const [params, setParams] = useParams<IQuery>("donations", {
     tab: "donations",
@@ -115,7 +115,7 @@ export default function ManageDistributionPoint() {
   }, []);
 
   React.useEffect(() => {
-    if (!currentUser) return;
+    if (!ownerId) return;
 
     const query = buildQuery(params);
 
@@ -127,17 +127,17 @@ export default function ManageDistributionPoint() {
     }
 
     fetchDonations(query);
-  }, [params, currentUser, buildQuery, dashboardTab]);
+  }, [params, ownerId, buildQuery, dashboardTab]);
 
   React.useEffect(() => {
-    if (!currentUser) return;
+    if (!ownerId) return;
 
     let cancelled = false;
 
     (async () => {
       try {
         const response = await listDistributionPoints({
-          ownerId: currentUser?.id,
+          ownerId,
           limit: "100",
         });
         if (!cancelled) setDistributionPoints(response.items);
@@ -149,11 +149,11 @@ export default function ManageDistributionPoint() {
     return () => {
       cancelled = true;
     };
-  }, [currentUser]);
+  }, [ownerId]);
 
   const fetchDonations = async (_params?: any) => {
     try {
-      const response = await listAllDonations(_params);
+      const response = await listDonations(_params);
       setData(response);
     } catch (e) {
       const error = e as Error;
