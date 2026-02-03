@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { UnitType } from "../../../interfaces/products";
 import { upsertRequestedProductSchema } from "./upsert-requested-product";
 
 export function upsertDistributionPointSchema(isEditMode: boolean) {
