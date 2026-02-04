@@ -35,7 +35,7 @@ import { DonationStatus } from "../../../interfaces/distribution-point";
 import { toast } from "react-toastify";
 import { upsertRequestedProductSchema } from "../validations/upsert-requested-product";
 import { useAuthProvider } from "../../../context/Auth";
-import { phoneMask } from "../../../utils/masks";
+import { integerMask, phoneMask } from "../../../utils/masks";
 
 interface IAddProductFormValues {
   name: string;
@@ -415,6 +415,7 @@ export default function DetailDistributionPoint() {
                         className="input-sm h-9 !rounded-lg bg-white"
                         errors={errors}
                         required
+                        mask={integerMask}
                         {...register("requestedQuantity")}
                       />
 

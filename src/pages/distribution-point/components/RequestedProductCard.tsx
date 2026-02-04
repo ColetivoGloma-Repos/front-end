@@ -20,6 +20,7 @@ import { Button } from "../../../components/common/Button";
 import { Input } from "../../../components/common/Input";
 import { ActionButton } from "./ActionButton";
 import { upsertRequestedProductSchema } from "../validations/upsert-requested-product";
+import { integerMask } from "../../../utils/masks";
 
 type LoadingActionType = null | "donate" | "cancel" | "edit" | "delete" | "confirm";
 interface IRequestedProductCardProps {
@@ -227,6 +228,7 @@ export function RequestedProductCard({
                 containerClassName="w-full"
                 label={undefined}
                 errors={errors}
+                mask={integerMask}
                 {...register("requestedQuantity", { valueAsNumber: true })}
               />
 

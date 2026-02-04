@@ -17,6 +17,7 @@ import { ActionButton } from "./ActionButton";
 import { ReturnButton } from "./ReturnButton";
 import { upsertDistributionPointSchema } from "../validations";
 import { getNestedValue } from "../../../utils";
+import { integerMask, phoneMask, zipCodeMask } from "../../../utils/masks";
 
 interface IDistributionPointFormProps {
   isEditMode: boolean;
@@ -44,15 +45,15 @@ export function DistributionPointForm({
     () => ({
       title: data?.title || "",
       description: data?.description || "",
-      phone: data?.phone || "",
+      phone: phoneMask(data?.phone || ""),
       address: {
-        cep: data?.address.cep || "",
+        cep: zipCodeMask(data?.address.cep || ""),
         pais: data?.address.pais || "Brasil",
         estado: data?.address.estado || "",
         municipio: data?.address.municipio || "",
         bairro: data?.address.bairro || "",
         logradouro: data?.address.logradouro || "",
-        numero: data?.address.numero || "",
+        numero: integerMask(data?.address.numero || ""),
         complemento: data?.address.complemento || "",
       },
       requestedProducts: [],
@@ -178,6 +179,7 @@ export function DistributionPointForm({
                   className="w-full"
                   errors={errors}
                   required
+                  mask={phoneMask}
                   {...register("phone")}
                 />
               </div>
@@ -196,6 +198,7 @@ export function DistributionPointForm({
                     placeholder="40000-000"
                     className="input-sm w-full bg-white"
                     errors={errors}
+                    mask={zipCodeMask}
                     {...register("address.cep")}
                   />
 
@@ -266,6 +269,7 @@ export function DistributionPointForm({
                     className="input-sm w-full bg-white"
                     errors={errors}
                     required
+                    mask={integerMask}
                     {...register("address.numero")}
                   />
 
