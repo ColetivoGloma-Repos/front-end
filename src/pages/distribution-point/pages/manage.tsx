@@ -154,6 +154,7 @@ export default function ManageDistributionPoint() {
 
   const fetchDonations = async (_params?: any) => {
     try {
+      setLoading(true);
       const response = await listDonations(_params);
       setData(response);
     } catch (e) {
@@ -161,11 +162,14 @@ export default function ManageDistributionPoint() {
       console.error(error);
 
       toast.error(error.message || "Erro ao buscar doações. Tente novamente mais tarde.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchRequestedProducts = async (_params?: any) => {
     try {
+      setLoading(true);
       const response = await listRequestedProducts(_params);
       setRequestedProducts(response);
     } catch (e) {
@@ -176,6 +180,8 @@ export default function ManageDistributionPoint() {
         error.message ||
           "Erro ao buscar solicitações de produtos. Tente novamente mais tarde.",
       );
+    } finally {
+      setLoading(false);
     }
   };
 
