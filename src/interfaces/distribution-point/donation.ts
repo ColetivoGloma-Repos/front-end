@@ -9,6 +9,7 @@ export enum DonationStatus {
 export interface IUserSummary {
   name: string;
   email: string;
+  phone?: string;
 }
 
 export interface IDonation {

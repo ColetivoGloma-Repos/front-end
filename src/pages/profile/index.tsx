@@ -62,7 +62,11 @@ export default function ProfileScreen() {
       {user ? (
         <div className="w-full max-w-4xl mx-auto bg-base-100 shadow-xl p-5 border-2 rounded-lg">
           <div className="flex flex-col items-center mb-6">
-            <Avatar src={user.url || ""} className="mb-4 w-24 h-24 rounded-full" />
+            <Avatar
+              src={user.url || ""}
+              alt={user.name}
+              className="mb-4 w-24 h-24 rounded-full"
+            />
             <h2 className="text-2xl font-bold">Perfil do Usuário</h2>
           </div>
           {!currentUser?.roles?.includes("coordinator") && (

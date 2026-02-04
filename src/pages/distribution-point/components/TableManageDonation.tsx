@@ -10,6 +10,7 @@ import {
 } from "../../../interfaces/distribution-point";
 import { StatusBadge } from "./StatusBadge";
 import { IoMdCheckmark, IoMdClose } from "react-icons/io";
+import { Avatar } from "../../../components/common";
 
 type IActionType = "approve" | "reject";
 type DashboardTab = "donations" | "history" | "requests";
@@ -38,6 +39,7 @@ type FlattenedDonation = {
   updatedAt: string;
   userName: string;
   userEmail: string;
+  userPhone: string;
   distributionPointName: string;
   productName: string;
   unit: string;
@@ -80,6 +82,7 @@ export function TableManageDonation({
         updatedAt: donation.updatedAt,
         userName: donation.user?.name ?? "Anônimo",
         userEmail: donation.user?.email ?? "Sem email",
+        userPhone: donation.user?.phone ?? "Sem telefone",
         distributionPointName,
         productName,
         unit,
@@ -117,19 +120,19 @@ export function TableManageDonation({
                     <tr key={donation.id} className="hover">
                       <td>
                         <div className="flex items-center gap-3">
-                          <div className="avatar placeholder">
-                            <div className="bg-neutral text-neutral-content rounded-full w-8">
-                              <span className="text-xs">
-                                {donation.userName?.charAt(0) || "A"}
-                              </span>
-                            </div>
-                          </div>
+                          <Avatar
+                            alt={donation.userName}
+                            className="w-8 h-8 rounded-full"
+                          />
                           <div>
                             <div className="font-bold text-sm">
                               {donation.userName || "Anônimo"}
                             </div>
                             <div className="text-xs opacity-50">
                               {donation.userEmail || "Sem email"}
+                            </div>
+                            <div className="text-xs opacity-50">
+                              {donation.userPhone}
                             </div>
                           </div>
                         </div>
@@ -201,6 +204,7 @@ export function TableManageDonation({
                       </div>
                       <div>
                         <div className="font-bold text-sm">{donation.userName}</div>
+                        <div className="text-xs opacity-60">{donation.userPhone}</div>
                         <div className="text-[10px] opacity-60 uppercase font-bold tracking-tight">
                           {new Date(donation.timestamp).toLocaleDateString()} às{" "}
                           {new Date(donation.timestamp).toLocaleTimeString([], {
