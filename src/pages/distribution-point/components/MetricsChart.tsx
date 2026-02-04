@@ -36,13 +36,15 @@ export function MetricsChart({ requestedProducts }: IMetricsChartProps) {
 
       return {
         name: product.name,
-        uv: Math.min(
-          100,
-          (requestedProduct.donatedQuantity / requestedProduct.requestedQuantity) * 100,
+        uv: Number(
+          Math.min(
+            100,
+            (requestedProduct.donatedQuantity / requestedProduct.requestedQuantity) * 100,
+          ).toFixed(2),
         ),
         fill: fill,
         status: requestedProduct.status,
-        actual: `${requestedProduct.donatedQuantity} / ${requestedProduct.requestedQuantity} ${product.unit}`,
+        actual: `${Number(requestedProduct.donatedQuantity.toFixed(2))} / ${Number(requestedProduct.requestedQuantity.toFixed(2))} ${product.unit}`,
       };
     });
 

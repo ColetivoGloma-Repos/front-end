@@ -35,6 +35,7 @@ import { DonationStatus } from "../../../interfaces/distribution-point";
 import { toast } from "react-toastify";
 import { upsertRequestedProductSchema } from "../validations/upsert-requested-product";
 import { useAuthProvider } from "../../../context/Auth";
+import { phoneMask } from "../../../utils/masks";
 
 interface IAddProductFormValues {
   name: string;
@@ -375,7 +376,7 @@ export default function DetailDistributionPoint() {
 
               <div className="flex items-center gap-2 mb-2 text-primary font-medium">
                 <IoMdCall size={16} />
-                <span>{distributionPoint.phone}</span>
+                <span>{phoneMask(distributionPoint.phone)}</span>
               </div>
 
               <p className="text-base-content/70 italic">
