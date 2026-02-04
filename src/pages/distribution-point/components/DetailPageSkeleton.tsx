@@ -1,6 +1,6 @@
 import { Skeleton } from "../../../components/common";
 
-export function DetailSkeleton() {
+export function DetailPageSkeleton() {
   return (
     <div className="py-8 animate-pulse">
       <div className="mb-6 h-8 w-24 bg-base-300 rounded"></div>

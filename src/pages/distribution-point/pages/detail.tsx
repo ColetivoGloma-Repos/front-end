@@ -38,7 +38,7 @@ import { useAuthProvider } from "../../../context/Auth";
 import { integerMask, phoneMask } from "../../../utils/masks";
 import { Loading } from "../../../components/common";
 import useInView from "../../../hooks/useInView";
-import { DetailSkeleton } from "../components/DetailSkeleton";
+import { DetailPageSkeleton } from "../components/DetailPageSkeleton";
 
 const LIMIT = 10;
 
@@ -363,7 +363,7 @@ export default function DetailDistributionPoint() {
   );
 
   if (isLoading) {
-    return <DetailSkeleton />;
+    return <DetailPageSkeleton />;
   }
 
   const distributionPoint = _distributionPoint!;
