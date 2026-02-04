@@ -48,7 +48,6 @@ interface IQuery extends IQueryRequest {
 }
 
 const ACTION_REQUEST_TIMEOUT = 200;
-const DEBOUNCE_DELAY = 500;
 
 export default function ManageDistributionPoint() {
   const navigation = useNavigate();
