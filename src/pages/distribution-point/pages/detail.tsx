@@ -109,11 +109,13 @@ export default function DetailDistributionPoint() {
       const data = await listOneDistributionPoint(id || "");
       await onRequestedProductsLoad(isLoggedIn, 0);
 
-      setState((prev) => ({
-        ...prev,
-        distributionPoint: data,
-        isLoading: false,
-      }));
+      setTimeout(() => {
+        setState((prev) => ({
+          ...prev,
+          distributionPoint: data,
+          isLoading: false,
+        }));
+      }, 200);
     } catch (e) {
       const error = e as Error;
       console.error(error);
