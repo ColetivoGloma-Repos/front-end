@@ -12,6 +12,7 @@ import {
   MetricsChart,
   RequestedProductCard,
   ReturnButton,
+  DetailPageSkeleton,
 } from "../components";
 import { IoMdCreate, IoMdCall, IoMdAdd } from "react-icons/io";
 import { useForm } from "react-hook-form";
@@ -38,7 +39,6 @@ import { useAuthProvider } from "../../../context/Auth";
 import { integerMask, phoneMask } from "../../../utils/masks";
 import { Loading } from "../../../components/common";
 import useInView from "../../../hooks/useInView";
-import { DetailPageSkeleton } from "../components/DetailPageSkeleton";
 
 const LIMIT = 10;
 

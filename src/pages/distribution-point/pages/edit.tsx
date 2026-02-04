@@ -5,6 +5,7 @@ import { useDistributionPointProvider } from "../context";
 import { IDistributionPoint } from "../../../interfaces/distribution-point";
 import { toast } from "react-toastify";
 import { listOneDistributionPoint } from "../../../services/distribution-point";
+import { FormSkeleton } from "../components";
 
 export default function EditDistributionPoint() {
   const navigation = useNavigate();
@@ -13,7 +14,14 @@ export default function EditDistributionPoint() {
   const { saveOrSetDistributionPoint, isCoordinator, ownerId } =
     useDistributionPointProvider();
 
-  const [distributionPoint, setDistributionPoint] = React.useState<IDistributionPoint>();
+  const [{ isLoading, distributionPoint: _distributionPoint }, setState] =
+    React.useState<{
+      distributionPoint?: IDistributionPoint;
+      isLoading: boolean;
+    }>({
+      distributionPoint: undefined,
+      isLoading: true,
+    });
 
   const handleNavigation = () => {
     navigation(`/distribution-point/${id}`);
@@ -21,8 +29,14 @@ export default function EditDistributionPoint() {
 
   const onPageLoad = async () => {
     try {
-      const response = await listOneDistributionPoint(id);
-      setDistributionPoint(response);
+      const distributionPoint = await listOneDistributionPoint(id);
+      setTimeout(() => {
+        setState((prev) => ({
+          ...prev,
+          distributionPoint,
+          isLoading: false,
+        }));
+      }, 200);
     } catch (e) {
       const error = e as Error;
       console.error(error);
@@ -43,7 +57,11 @@ export default function EditDistributionPoint() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!distributionPoint) return null;
+  if (isLoading) {
+    return <FormSkeleton />;
+  }
+
+  const distributionPoint = _distributionPoint!;
 
   const isOnwer = isCoordinator && distributionPoint.ownerId === ownerId;
 
