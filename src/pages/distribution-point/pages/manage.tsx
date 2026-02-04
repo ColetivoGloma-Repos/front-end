@@ -64,6 +64,7 @@ export default function ManageDistributionPoint() {
     IDistributionPoint[]
   >([]);
   const [requesting, setRequesting] = React.useState<boolean>(false);
+  const [isLoading, setLoading] = React.useState<boolean>(false);
 
   const dashboardTab = params.tab ?? "donations";
 
@@ -549,6 +550,7 @@ export default function ManageDistributionPoint() {
             offset: Number(params.offset || "0"),
             total: requestedProducts?.total || 0,
           }}
+          isLoading={isLoading}
           requesting={requesting}
         />
       ) : (
@@ -563,6 +565,7 @@ export default function ManageDistributionPoint() {
             tab: params.tab || "donations",
             total: data?.total || 0,
           }}
+          isLoading={isLoading}
           requesting={requesting}
         />
       )}

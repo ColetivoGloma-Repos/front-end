@@ -9,12 +9,15 @@ import {
 } from "../../../interfaces/distribution-point";
 import { StatusBadge } from "./StatusBadge";
 import { ModalRequestedProductAction } from "./ModalRequestedProductAction";
+import { TableSkeleton } from "./TableSkeleton";
+import { Skeleton } from "../../../components/common/Skeleton";
 
 type IActionType = "approve" | "reject";
 interface ITableManageRequestedProductsProps {
   data: IRequestedProduct[];
   distributionPoints: IDistributionPoint[];
   requesting: boolean;
+  isLoading?: boolean;
   onReviewRequest: (id: string, actionType: IActionType) => void;
   onParams: (data: IQueryRequest) => void;
   params: {
@@ -36,6 +39,7 @@ export function TableManageRequestedProducts({
   data,
   distributionPoints,
   requesting,
+  isLoading,
 }: ITableManageRequestedProductsProps) {
   const [openModalType, setOpenModal] = React.useState<IActionType>();
   const [requestedProduct, setRequestedProduct] =
@@ -91,7 +95,82 @@ export function TableManageRequestedProducts({
   return (
     <div className="card rounded-2xl bg-base-100 shadow-xl border-t-4 border-primary overflow-hidden">
       <div className="card-body p-0">
-        {filteredRequestedProducts.length === 0 ? (
+        {isLoading ? (
+          <TableSkeleton
+            desktopHeader={
+              <>
+                <th>
+                  <Skeleton className="h-4 w-32" />
+                </th>
+                <th>
+                  <Skeleton className="h-4 w-24" />
+                </th>
+                <th>
+                  <Skeleton className="h-4 w-24" />
+                </th>
+                <th>
+                  <Skeleton className="h-4 w-24" />
+                </th>
+                <th className="text-right">
+                  <Skeleton className="h-4 w-16 ml-auto" />
+                </th>
+              </>
+            }
+            desktopRowRender={(i) => (
+              <>
+                <td>
+                  <div className="flex flex-col gap-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
+                </td>
+                <td>
+                  <div className="flex flex-col gap-1 w-full max-w-[150px]">
+                    <Skeleton className="h-2 rounded-full w-full" />
+                    <Skeleton className="h-3 w-20" />
+                  </div>
+                </td>
+                <td>
+                  <Skeleton className="h-6 rounded-full w-24" />
+                </td>
+                <td>
+                  <div className="flex flex-col gap-2">
+                    <Skeleton className="h-3 w-20" />
+                    <Skeleton className="h-2 w-12" />
+                  </div>
+                </td>
+                <td className="text-right">
+                  <div className="flex justify-end gap-2">
+                    <Skeleton className="w-9 h-9 rounded-lg" />
+                    <Skeleton className="w-20 h-9 rounded-lg" />
+                  </div>
+                </td>
+              </>
+            )}
+            mobileItemRender={(i) => (
+              <>
+                <div className="flex justify-between items-center">
+                  <div className="flex flex-col gap-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
+                  <Skeleton className="h-6 rounded-full w-20" />
+                </div>
+                <div className="flex flex-col gap-1 mt-1">
+                  <Skeleton className="h-3 rounded-full w-full" />
+                  <div className="flex justify-between">
+                    <Skeleton className="h-2 w-20" />
+                    <Skeleton className="h-2 w-20" />
+                  </div>
+                </div>
+                <div className="flex gap-2 mt-2">
+                  <Skeleton className="h-8 rounded-lg flex-1" />
+                  <Skeleton className="h-8 rounded-lg flex-1" />
+                </div>
+              </>
+            )}
+          />
+        ) : filteredRequestedProducts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 opacity-50">
             <IoFilter size={48} className="mb-4 text-base-content/30" />
             <p className="font-medium">Nenhum item encontrado.</p>
