@@ -36,6 +36,10 @@ import { toast } from "react-toastify";
 import { upsertRequestedProductSchema } from "../validations/upsert-requested-product";
 import { useAuthProvider } from "../../../context/Auth";
 import { integerMask, phoneMask } from "../../../utils/masks";
+import { Loading } from "../../../components/common";
+import useInView from "../../../hooks/useInView";
+
+const LIMIT = 10;
 
 interface IAddProductFormValues {
   name: string;
@@ -47,6 +51,8 @@ interface IState {
   distributionPoint?: IDistributionPoint;
   requestedProducts: IRequestedProduct[];
   donations: { [key: string]: number };
+  page: number;
+  total: number;
 }
 
 export default function DetailDistributionPoint() {
@@ -54,12 +60,17 @@ export default function DetailDistributionPoint() {
   const { id = "" } = useParams();
   const { currentUser } = useAuthProvider();
   const { isAdmin, isCoordinator, isLoggedIn } = useDistributionPointProvider();
+  const { ref, inView } = useInView({
+    threshold: 0,
+  });
 
-  const [{ donations, distributionPoint, requestedProducts }, setState] =
+  const [{ donations, distributionPoint, requestedProducts, page, total }, setState] =
     React.useState<IState>({
       distributionPoint: undefined,
       requestedProducts: [],
       donations: {},
+      page: 0,
+      total: 0,
     });
 
   React.useEffect(() => {
@@ -74,6 +85,13 @@ export default function DetailDistributionPoint() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, isLoggedIn]);
 
+  React.useEffect(() => {
+    if (inView && requestedProducts.length < total) {
+      onRequestedProductsLoad(isLoggedIn, page + 1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inView]);
+
   const onDistributionPointLoad = async (isLoggedIn: boolean) => {
     try {
       const data = await listOneDistributionPoint(id || "");
@@ -82,7 +100,7 @@ export default function DetailDistributionPoint() {
         distributionPoint: data,
       }));
 
-      await Promise.all([onRequestedProductsLoad(), onDonationsLoad(isLoggedIn)]);
+      await onRequestedProductsLoad(isLoggedIn, 0);
     } catch (e) {
       const error = e as Error;
       console.error(error);
@@ -93,12 +111,25 @@ export default function DetailDistributionPoint() {
     }
   };
 
-  const onRequestedProductsLoad = async () => {
+  const onRequestedProductsLoad = async (isLoggedIn: boolean, page = 0) => {
     try {
-      const requestedProducts = await listRequestedProducts({
+      const response = await listRequestedProducts({
         distributionPointId: id,
+        limit: String(LIMIT),
+        offset: String(page * LIMIT),
       });
-      setState((prev) => ({ ...prev, requestedProducts: requestedProducts.items || [] }));
+
+      setState((prev) => ({
+        ...prev,
+        requestedProducts:
+          page === 0
+            ? response.items || []
+            : [...prev.requestedProducts, ...(response.items || [])],
+        page,
+        total: response.total,
+      }));
+
+      await onDonationsLoad(isLoggedIn);
     } catch (error) {
       console.error(error);
     }
@@ -468,21 +499,29 @@ export default function DetailDistributionPoint() {
                 </span>
               </div>
             ) : (
-              requestedProducts.map((requestedProduct) => (
-                <RequestedProductCard
-                  key={requestedProduct.id}
-                  requestedProduct={requestedProduct}
-                  isAdmin={(isOnwer || isAdmin) && isLoggedIn}
-                  isLoggedIn={isLoggedIn}
-                  userDonatedAmount={donations[requestedProduct.id]}
-                  onDonate={(amount) => handleDonate(requestedProduct.id, amount)}
-                  onCancelDonation={() => handleCancelDonation(requestedProduct.id)}
-                  onEdit={(updates) =>
-                    handleAdminUpdateProduct(requestedProduct.id, updates)
-                  }
-                  onDelete={() => handleAdminDeleteProduct(requestedProduct.id)}
-                />
-              ))
+              <>
+                {requestedProducts.map((requestedProduct) => (
+                  <RequestedProductCard
+                    key={requestedProduct.id}
+                    requestedProduct={requestedProduct}
+                    isAdmin={(isOnwer || isAdmin) && isLoggedIn}
+                    isLoggedIn={isLoggedIn}
+                    userDonatedAmount={donations[requestedProduct.id]}
+                    onDonate={(amount) => handleDonate(requestedProduct.id, amount)}
+                    onCancelDonation={() => handleCancelDonation(requestedProduct.id)}
+                    onEdit={(updates) =>
+                      handleAdminUpdateProduct(requestedProduct.id, updates)
+                    }
+                    onDelete={() => handleAdminDeleteProduct(requestedProduct.id)}
+                  />
+                ))}
+
+                {requestedProducts.length < total && (
+                  <div ref={ref} className="w-full flex justify-center py-4">
+                    <Loading className="loading-md text-primary" />
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
