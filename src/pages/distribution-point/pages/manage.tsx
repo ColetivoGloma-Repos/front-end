@@ -34,12 +34,10 @@ import { IQueryRequest } from "../../../interfaces/default";
 import { ReturnButton } from "../components";
 import { RequestedProductStatus } from "../../../interfaces/distribution-point/point-requested-product";
 import { useDistributionPointProvider } from "../context";
-
-type IActionType = "approve" | "reject";
-type DashboardTab = "donations" | "history" | "requests";
+import { DashboardTabType, IActionType } from "../interface/common";
 
 interface IQuery extends IQueryRequest {
-  tab?: DashboardTab;
+  tab?: DashboardTabType;
   excludeStatus?: DonationStatus;
   distributionPointId?: string;
   status?: DonationStatus;
@@ -204,7 +202,7 @@ export default function ManageDistributionPoint() {
     });
   };
 
-  const handleTabChange = (newTab: DashboardTab) => {
+  const handleTabChange = (newTab: DashboardTabType) => {
     setParams((prev) => ({
       ...prev,
       tab: newTab,

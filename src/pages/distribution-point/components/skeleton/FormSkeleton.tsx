@@ -1,4 +1,5 @@
-import { Skeleton } from "../../../components/common";
+import { Skeleton } from "../../../../components/common";
+
 
 export function FormSkeleton() {
   return (

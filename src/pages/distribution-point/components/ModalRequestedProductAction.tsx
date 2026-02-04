@@ -5,8 +5,8 @@ import {
   IoAlertCircleOutline,
   IoCloseOutline,
 } from "react-icons/io5";
+import { IActionType } from "../interface/common";
 
-type IActionType = "approve" | "reject";
 interface IModalRequestedProductActionProps {
   onClose: () => void;
   onSubmit: (actionType: IActionType) => void;

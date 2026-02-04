@@ -8,5 +8,5 @@ export * from "./DistributionPointForm";
 export * from "./ModalRequestedProductAction";
 export * from "./ReturnButton";
 export * from "./TablePagination";
-export * from "./FormSkeleton";
 export * from "./DetailPageSkeleton";
+export * from "./skeleton";

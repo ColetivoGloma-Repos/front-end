@@ -7,6 +7,11 @@ import { toast } from "react-toastify";
 import { listOneDistributionPoint } from "../../../services/distribution-point";
 import { FormSkeleton } from "../components";
 
+interface IState {
+  distributionPoint?: IDistributionPoint;
+  isLoading: boolean;
+}
+
 export default function EditDistributionPoint() {
   const navigation = useNavigate();
   const { id = "" } = useParams();
@@ -15,10 +20,7 @@ export default function EditDistributionPoint() {
     useDistributionPointProvider();
 
   const [{ isLoading, distributionPoint: _distributionPoint }, setState] =
-    React.useState<{
-      distributionPoint?: IDistributionPoint;
-      isLoading: boolean;
-    }>({
+    React.useState<IState>({
       distributionPoint: undefined,
       isLoading: true,
     });
