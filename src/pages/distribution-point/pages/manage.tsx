@@ -47,6 +47,9 @@ interface IQuery extends IQueryRequest {
   requestedStatus?: RequestedProductStatus;
 }
 
+const ACTION_REQUEST_TIMEOUT = 200;
+const DEBOUNCE_DELAY = 500;
+
 export default function ManageDistributionPoint() {
   const navigation = useNavigate();
   const { ownerId } = useDistributionPointProvider();
@@ -153,8 +156,8 @@ export default function ManageDistributionPoint() {
   }, [ownerId]);
 
   const fetchDonations = async (_params?: any) => {
+    const timer = setTimeout(() => setLoading(true), ACTION_REQUEST_TIMEOUT);
     try {
-      setLoading(true);
       const response = await listDonations(_params);
       setData(response);
     } catch (e) {
@@ -163,13 +166,14 @@ export default function ManageDistributionPoint() {
 
       toast.error(error.message || "Erro ao buscar doações. Tente novamente mais tarde.");
     } finally {
+      clearTimeout(timer);
       setLoading(false);
     }
   };
 
   const fetchRequestedProducts = async (_params?: any) => {
+    const timer = setTimeout(() => setLoading(true), ACTION_REQUEST_TIMEOUT);
     try {
-      setLoading(true);
       const response = await listRequestedProducts(_params);
       setRequestedProducts(response);
     } catch (e) {
@@ -181,6 +185,7 @@ export default function ManageDistributionPoint() {
           "Erro ao buscar solicitações de produtos. Tente novamente mais tarde.",
       );
     } finally {
+      clearTimeout(timer);
       setLoading(false);
     }
   };
@@ -556,7 +561,7 @@ export default function ManageDistributionPoint() {
             offset: Number(params.offset || "0"),
             total: requestedProducts?.total || 0,
           }}
-          isLoading={isLoading}
+          isLoading={isLoading || !requestedProducts}
           requesting={requesting}
         />
       ) : (
@@ -571,7 +576,7 @@ export default function ManageDistributionPoint() {
             tab: params.tab || "donations",
             total: data?.total || 0,
           }}
-          isLoading={isLoading}
+          isLoading={isLoading || !data}
           requesting={requesting}
         />
       )}
