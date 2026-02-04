@@ -38,6 +38,7 @@ import { useAuthProvider } from "../../../context/Auth";
 import { integerMask, phoneMask } from "../../../utils/masks";
 import { Loading } from "../../../components/common";
 import useInView from "../../../hooks/useInView";
+import { DetailSkeleton } from "../components/DetailSkeleton";
 
 const LIMIT = 10;
 
@@ -51,6 +52,7 @@ interface IState {
   distributionPoint?: IDistributionPoint;
   requestedProducts: IRequestedProduct[];
   donations: { [key: string]: number };
+  isLoading: boolean;
   page: number;
   total: number;
 }
@@ -64,14 +66,24 @@ export default function DetailDistributionPoint() {
     threshold: 0,
   });
 
-  const [{ donations, distributionPoint, requestedProducts, page, total }, setState] =
-    React.useState<IState>({
-      distributionPoint: undefined,
-      requestedProducts: [],
-      donations: {},
-      page: 0,
-      total: 0,
-    });
+  const [
+    {
+      donations,
+      distributionPoint: _distributionPoint,
+      requestedProducts,
+      isLoading,
+      page,
+      total,
+    },
+    setState,
+  ] = React.useState<IState>({
+    distributionPoint: undefined,
+    requestedProducts: [],
+    donations: {},
+    isLoading: true,
+    page: 0,
+    total: 0,
+  });
 
   React.useEffect(() => {
     let mounted = false;
@@ -95,12 +107,13 @@ export default function DetailDistributionPoint() {
   const onDistributionPointLoad = async (isLoggedIn: boolean) => {
     try {
       const data = await listOneDistributionPoint(id || "");
+      await onRequestedProductsLoad(isLoggedIn, 0);
+
       setState((prev) => ({
         ...prev,
         distributionPoint: data,
+        isLoading: false,
       }));
-
-      await onRequestedProductsLoad(isLoggedIn, 0);
     } catch (e) {
       const error = e as Error;
       console.error(error);
@@ -108,6 +121,8 @@ export default function DetailDistributionPoint() {
       toast.error(
         error.message || "Erro ao carregar informações do ponto de distribuição.",
       );
+
+      navigation("/");
     }
   };
 
@@ -347,7 +362,11 @@ export default function DetailDistributionPoint() {
     [],
   );
 
-  if (!distributionPoint) return null;
+  if (isLoading) {
+    return <DetailSkeleton />;
+  }
+
+  const distributionPoint = _distributionPoint!;
 
   const isOnwer = isCoordinator && distributionPoint.ownerId === currentUser?.id;
 
