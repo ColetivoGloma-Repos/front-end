@@ -19,6 +19,7 @@ import {
   createDistributionPoint,
   updateDistributionPoint,
 } from "../../../services/distribution-point";
+import { uploadImage } from "../../../services/upload.service";
 import { ActionButton } from "./ActionButton";
 import { ReturnButton } from "./ReturnButton";
 import { upsertDistributionPointSchema } from "../validations";
@@ -39,6 +40,7 @@ export function DistributionPointForm({
   navigationCallback,
 }: IDistributionPointFormProps) {
   const [requesting, setRequesting] = React.useState(false);
+  const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
 
   const schema = React.useMemo(
     () => upsertDistributionPointSchema(isEditMode),
@@ -50,7 +52,6 @@ export function DistributionPointForm({
       title: data?.title || "",
       description: data?.description || "",
       phone: phoneMask(data?.phone || ""),
-      images: data?.images || [],
       address: {
         cep: zipCodeMask(data?.address.cep || ""),
         pais: data?.address.pais || "Brasil",
@@ -102,6 +103,11 @@ export function DistributionPointForm({
 
     try {
       const response = await createDistributionPoint(values);
+
+      if (selectedFile) {
+        await uploadImage(selectedFile, "distributionPoint", response.id);
+      }
+
       if (saveOrEditCallback) {
         await Promise.resolve(saveOrEditCallback(response));
       }
@@ -128,6 +134,11 @@ export function DistributionPointForm({
 
     try {
       const response = await updateDistributionPoint(id, values);
+
+      if (selectedFile) {
+        await uploadImage(selectedFile, "distributionPoint", id);
+      }
+
       if (saveOrEditCallback) {
         await Promise.resolve(saveOrEditCallback(response, id));
       }
@@ -293,19 +304,8 @@ export function DistributionPointForm({
 
               <ImageUpload
                 label="Imagem do Local"
-                value={watch("images")?.[0]}
-                onChange={(file) => {
-                  if (file) {
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                      setValue("images", [reader.result as string]);
-                    };
-                    reader.readAsDataURL(file);
-                  } else {
-                    setValue("images", []);
-                  }
-                }}
-                error={errors.images?.message}
+                value={selectedFile || data?.files?.[0]?.url}
+                onChange={(file) => setSelectedFile(file)}
               />
 
               <Textarea

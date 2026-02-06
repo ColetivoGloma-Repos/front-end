@@ -18,6 +18,12 @@ export function ImageUpload({ label, onChange, error, value }: ImageUploadProps)
   useEffect(() => {
     if (typeof value === "string") {
       setPreview(value);
+    } else if (value instanceof File) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result as string);
+      };
+      reader.readAsDataURL(value);
     } else if (!value) {
       setPreview(null);
     }

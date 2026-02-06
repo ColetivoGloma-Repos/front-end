@@ -94,9 +94,9 @@ export default function ListDistributionPoint() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {distributionPoints.map((distributionPoint) => {
           const hasImages =
-            distributionPoint.images && distributionPoint.images.length > 0;
+            distributionPoint.files && distributionPoint.files.length > 0;
           const bgImage = hasImages
-            ? distributionPoint.images![0]
+            ? distributionPoint.files![0].url
             : "https://placehold.co/600x400/e2e8f0/475569?text=Sem+Imagem";
 
           return (

@@ -3,7 +3,7 @@ import { getCookie } from "./cookie.service";
 type IMethodType = "POST" | "GET" | "PUT" | "DELETE" | "PATCH";
 
 interface IMethod {
-  data?: Record<string, any>;
+  data?: Record<string, any> | FormData;
   params?: Record<string, any>;
   headers?: Record<string, string>;
   options?: Record<string, any>;
@@ -28,22 +28,25 @@ function isUrl(url: string): boolean {
 export async function request(
   url: string,
   method?: IMethodType,
-  body?: { [key: string]: any } | null,
+  body?: { [key: string]: any } | FormData | null,
   headers?: { [key: string]: string },
   options?: { [key: string]: any },
 ) {
   const token = getCookie("token");
 
-  const updatedHeader = {
-    "Content-Type": "application/json",
+  const updatedHeader: any = {
     Authorization: `Bearer ${token}`,
     ...(headers || {}),
   };
 
+  if (!(body instanceof FormData)) {
+    updatedHeader["Content-Type"] = "application/json";
+  }
+
   return await fetch(isUrl(url) ? url : `${apiBase}${url}`, {
     method: method,
     headers: updatedHeader,
-    body: body ? JSON.stringify(body) : null,
+    body: body instanceof FormData ? body : body ? JSON.stringify(body) : null,
     ...options,
   }).then(responseJson);
 }

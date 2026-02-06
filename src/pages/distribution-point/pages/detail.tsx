@@ -372,7 +372,7 @@ export default function DetailDistributionPoint() {
 
   const isOnwer = isCoordinator && distributionPoint.ownerId === currentUser?.id;
 
-  const hasImages = distributionPoint.images && distributionPoint.images?.length > 0;
+  const hasImages = distributionPoint.files && distributionPoint.files?.length > 0;
 
   return (
     <div className="py-8">
@@ -386,7 +386,7 @@ export default function DetailDistributionPoint() {
           />
 
           <img
-            src={distributionPoint.images![0]}
+            src={distributionPoint.files![0].url}
             alt={distributionPoint.title}
             className="w-full h-full object-cover"
           />

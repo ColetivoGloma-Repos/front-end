@@ -8,6 +8,15 @@ export enum DistributionPointStatus {
   REJECTED = "REJECTED",
 }
 
+export interface IDistributionPointFile {
+  id: string;
+  filename: string;
+  url: string;
+  ref: string;
+  type: string;
+  createdAt: string;
+}
+
 export interface IDistributionPoint {
   id: string;
   title: string;
@@ -17,7 +26,7 @@ export interface IDistributionPoint {
   status: DistributionPointStatus;
   createdAt: string;
   updatedAt: string;
-  images?: string[];
+  files?: IDistributionPointFile[];
   isFullyStocked: boolean;
   requestedProducts: number;
   address: IAddress;
@@ -27,7 +36,6 @@ export interface ICreateDistributionPoint {
   title: string;
   description?: string | null;
   phone: string;
-  images?: string[];
   address: ICreateAddress;
   requestedProducts: ICreateProductRequestedProduct[];
 }
