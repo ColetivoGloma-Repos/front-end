@@ -27,6 +27,7 @@ export interface ICreateDistributionPoint {
   title: string;
   description?: string | null;
   phone: string;
+  images?: string[];
   address: ICreateAddress;
   requestedProducts: ICreateProductRequestedProduct[];
 }

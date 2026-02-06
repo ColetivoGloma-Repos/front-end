@@ -2,7 +2,13 @@ import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IoMdPin, IoMdAdd, IoMdTrash, IoMdSave } from "react-icons/io";
-import { Button, Input, Select, Textarea } from "../../../components/common";
+import {
+  Button,
+  Input,
+  Select,
+  Textarea,
+  ImageUpload,
+} from "../../../components/common";
 import { UnitType } from "../../../interfaces/products";
 import { toast } from "react-toastify";
 import {
@@ -32,8 +38,6 @@ export function DistributionPointForm({
   saveOrEditCallback,
   navigationCallback,
 }: IDistributionPointFormProps) {
-  const [imageUrl, setImageUrl] = React.useState("");
-
   const [requesting, setRequesting] = React.useState(false);
 
   const schema = React.useMemo(
@@ -46,6 +50,7 @@ export function DistributionPointForm({
       title: data?.title || "",
       description: data?.description || "",
       phone: phoneMask(data?.phone || ""),
+      images: data?.images || [],
       address: {
         cep: zipCodeMask(data?.address.cep || ""),
         pais: data?.address.pais || "Brasil",
@@ -286,14 +291,21 @@ export function DistributionPointForm({
                 </div>
               </div>
 
-              <Input
-                label="Imagem do Local (URL)"
-                type="text"
-                placeholder="https://exemplo.com/foto.jpg"
-                className="w-full"
-                errors={errors}
-                value={imageUrl}
-                onChange={(e: any) => setImageUrl(String(e?.target?.value ?? ""))}
+              <ImageUpload
+                label="Imagem do Local"
+                value={watch("images")?.[0]}
+                onChange={(file) => {
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      setValue("images", [reader.result as string]);
+                    };
+                    reader.readAsDataURL(file);
+                  } else {
+                    setValue("images", []);
+                  }
+                }}
+                error={errors.images?.message}
               />
 
               <Textarea
