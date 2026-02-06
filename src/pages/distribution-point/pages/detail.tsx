@@ -39,6 +39,7 @@ import { useAuthProvider } from "../../../context/Auth";
 import { integerMask, phoneMask } from "../../../utils/masks";
 import { Loading } from "../../../components/common";
 import useInView from "../../../hooks/useInView";
+import { ROUTES } from "../routes";
 
 const LIMIT = 10;
 
@@ -124,7 +125,7 @@ export default function DetailDistributionPoint() {
         error.message || "Erro ao carregar informações do ponto de distribuição.",
       );
 
-      navigation("/");
+      navigation(ROUTES.list);
     }
   };
 
@@ -175,11 +176,11 @@ export default function DetailDistributionPoint() {
   };
 
   const navigateToList = () => {
-    navigation("/");
+    navigation(ROUTES.list);
   };
 
   const navigateToEdit = () => {
-    navigation(`/distribution-point/${id}/edit`);
+    navigation(ROUTES.edit(id));
   };
 
   const fetchRequestedProduct = async (

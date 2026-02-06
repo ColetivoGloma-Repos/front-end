@@ -35,6 +35,7 @@ import { ReturnButton } from "../components";
 import { RequestedProductStatus } from "../../../interfaces/distribution-point/point-requested-product";
 import { useDistributionPointProvider } from "../context";
 import { DashboardTabType, IActionType } from "../interface/common";
+import { ROUTES } from "../routes";
 
 interface IQuery extends IQueryRequest {
   tab?: DashboardTabType;
@@ -321,7 +322,7 @@ export default function ManageDistributionPoint() {
   };
 
   const navigateToList = () => {
-    navigation(`/`);
+    navigation(ROUTES.list);
   };
 
   const description = {

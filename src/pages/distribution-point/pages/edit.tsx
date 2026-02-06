@@ -6,6 +6,7 @@ import { IDistributionPoint } from "../../../interfaces/distribution-point";
 import { toast } from "react-toastify";
 import { listOneDistributionPoint } from "../../../services/distribution-point";
 import { FormSkeleton } from "../components";
+import { ROUTES } from "../routes";
 
 interface IState {
   distributionPoint?: IDistributionPoint;
@@ -26,7 +27,7 @@ export default function EditDistributionPoint() {
     });
 
   const handleNavigation = () => {
-    navigation(`/distribution-point/${id}`);
+    navigation(ROUTES.details(id));
   };
 
   const onPageLoad = async () => {

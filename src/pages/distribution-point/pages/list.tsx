@@ -7,6 +7,7 @@ import { Button, Loading } from "../../../components/common";
 import useInView from "../../../hooks/useInView";
 import { ListDistributionPointSkeleton } from "../components/skeleton";
 import { IQueryDistributionPoints } from "../../../interfaces/distribution-point";
+import { ROUTES } from "../routes";
 
 export default function ListDistributionPoint() {
   const navigation = useNavigate();
@@ -60,15 +61,15 @@ export default function ListDistributionPoint() {
   };
 
   const navigateToDetail = (id: string) => {
-    navigation(`/distribution-point/${id}`);
+    navigation(ROUTES.details(id));
   };
 
   const navigateToCreate = () => {
-    navigation(`/distribution-point/create`);
+    navigation(ROUTES.create);
   };
 
   const navigateToManage = () => {
-    navigation(`/distribution-point/manage`);
+    navigation(ROUTES.manage);
   };
 
   if (isLoading && distributionPoints.length === 0) {

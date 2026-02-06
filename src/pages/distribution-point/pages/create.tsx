@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { DistributionPointForm } from "../components/DistributionPointForm";
 import { useDistributionPointProvider } from "../context";
+import { ROUTES } from "../routes";
 
 export default function CreateDistributionPoint() {
   const navigation = useNavigate();
@@ -8,7 +9,7 @@ export default function CreateDistributionPoint() {
   const { saveOrSetDistributionPoint } = useDistributionPointProvider();
 
   const handleNavigation = () => {
-    navigation(`/`);
+    navigation(ROUTES.list);
   };
 
   return (

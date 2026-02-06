@@ -30,9 +30,6 @@ export function LocationMap({ coordinates, address }: LocationMapProps) {
           Localização
         </h3>
         <p className="text-sm font-medium leading-snug">{address}</p>
-        {/* <div className="text-xs text-base-content/60 mt-1 font-mono">
-          Lat: {coordinates.lat.toFixed(6)}, Lng: {coordinates.lng.toFixed(6)}
-        </div> */}
       </div>
     </div>
   );

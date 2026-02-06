@@ -7,6 +7,14 @@ import EditDistributionPoint from "../pages/edit";
 import ManageDistributionPoint from "../pages/manage";
 import { PrivateRoleRoute } from "../../../routes/Auth/PrivateRoleRoute";
 
+export const ROUTES = {
+  list: "/",
+  details: (id: string) => `/distribution-point/${id}`,
+  create: "/distribution-point/create",
+  edit: (id: string) => `/distribution-point/${id}/edit`,
+  manage: "/distribution-point/manage",
+};
+
 export function distributionPointRoutes() {
   return (
     <Route element={<DistributionPointProvider />}>
