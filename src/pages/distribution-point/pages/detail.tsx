@@ -115,7 +115,7 @@ export default function DetailDistributionPoint() {
           distributionPoint: data,
           isLoading: false,
         }));
-      }, 200);
+      }, 150);
     } catch (e) {
       const error = e as Error;
       console.error(error);
@@ -364,7 +364,7 @@ export default function DetailDistributionPoint() {
     [],
   );
 
-  if (isLoading) {
+  if (isLoading && !_distributionPoint) {
     return <DetailPageSkeleton />;
   }
 

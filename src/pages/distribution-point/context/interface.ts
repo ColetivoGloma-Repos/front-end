@@ -6,7 +6,6 @@ import {
 export interface IDistributionPointProvider {
   distributionPoints: IDistributionPoint[];
   total: number;
-  isLoading: boolean;
   isAdmin: boolean;
   isCoordinator: boolean;
   ownerId: string;

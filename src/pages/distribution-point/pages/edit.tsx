@@ -38,7 +38,7 @@ export default function EditDistributionPoint() {
           distributionPoint,
           isLoading: false,
         }));
-      }, 200);
+      }, 150);
     } catch (e) {
       const error = e as Error;
       console.error(error);
@@ -59,7 +59,7 @@ export default function EditDistributionPoint() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (isLoading) {
+  if (isLoading && !_distributionPoint) {
     return <FormSkeleton />;
   }
 

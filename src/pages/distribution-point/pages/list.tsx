@@ -5,10 +5,11 @@ import { useDistributionPointProvider } from "../context";
 import { useNavigate } from "react-router-dom";
 import { Button, Loading } from "../../../components/common";
 import useInView from "../../../hooks/useInView";
+import { ListDistributionPointSkeleton } from "../components/skeleton";
+import { IQueryDistributionPoints } from "../../../interfaces/distribution-point";
 
 export default function ListDistributionPoint() {
   const navigation = useNavigate();
-
   const {
     distributionPoints,
     onListDistributionPoints,
@@ -16,10 +17,11 @@ export default function ListDistributionPoint() {
     isCoordinator,
     isLoggedIn,
     total,
-    isLoading,
     pagination,
     setPagination,
   } = useDistributionPointProvider();
+
+  const [isLoading, setLoading] = React.useState<boolean>(true);
 
   const { ref, inView } = useInView({
     threshold: 0,
@@ -27,7 +29,7 @@ export default function ListDistributionPoint() {
 
   React.useEffect(() => {
     if (distributionPoints.length === 0) {
-      onListDistributionPoints({
+      onInitialLoad({
         limit: String(pagination.limit),
         offset: String(0),
       });
@@ -47,6 +49,16 @@ export default function ListDistributionPoint() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inView]);
 
+  const onInitialLoad = async (params?: IQueryDistributionPoints) => {
+    try {
+      setLoading(true);
+
+      await onListDistributionPoints(params);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const navigateToDetail = (id: string) => {
     navigation(`/distribution-point/${id}`);
   };
@@ -58,6 +70,10 @@ export default function ListDistributionPoint() {
   const navigateToManage = () => {
     navigation(`/distribution-point/manage`);
   };
+
+  if (isLoading && distributionPoints.length === 0) {
+    return <ListDistributionPointSkeleton />;
+  }
 
   return (
     <div className="py-8">
@@ -93,8 +109,7 @@ export default function ListDistributionPoint() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {distributionPoints.map((distributionPoint) => {
-          const hasImages =
-            distributionPoint.files && distributionPoint.files.length > 0;
+          const hasImages = distributionPoint.files && distributionPoint.files.length > 0;
           const bgImage = hasImages
             ? distributionPoint.files![0].url
             : "https://placehold.co/600x400/e2e8f0/475569?text=Sem+Imagem";

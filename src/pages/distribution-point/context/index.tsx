@@ -20,15 +20,12 @@ export function DistributionPointProvider() {
     IDistributionPoint[]
   >([]);
   const [total, setTotal] = React.useState<number>(0);
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [pagination, setPagination] = React.useState({
     limit: 12,
     offset: 0,
   });
 
   const onListDistributionPoints = async (params?: IQueryDistributionPoints) => {
-    setIsLoading(true);
-
     try {
       const data = await listDistributionPoints(params);
       setTotal(data.total);
@@ -46,8 +43,6 @@ export function DistributionPointProvider() {
       console.error(error);
 
       toast.error(error.message || "Erro ao carregar pontos de distribuição.");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -77,7 +72,6 @@ export function DistributionPointProvider() {
       value={{
         distributionPoints,
         total,
-        isLoading,
         isLoggedIn,
         isAdmin,
         ownerId,
