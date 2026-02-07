@@ -72,8 +72,7 @@ export default function ProfileScreen() {
          {!currentUser?.roles?.includes('coordinator') && (
             <ToRequireCoordinator onRequest={handleAskIfCanToChangeForCoordinador} />
           )}
-
-         {currentUser?.roles.includes('coordinator') && (
+         {currentUser?.roles.includes('coordinator') && !currentUser?.roles.includes('initiative-administrator') && (
             <ToRequireinitiativeAdministrator
           onRequest={handleAskIfCanToChangeForCoordinador}
           />
