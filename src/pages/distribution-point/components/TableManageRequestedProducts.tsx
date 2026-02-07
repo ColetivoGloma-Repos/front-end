@@ -168,7 +168,12 @@ export function TableManageRequestedProducts({
                                 : handleActionType("approve", requestedProduct)
                             }
                             className="btn btn-sm btn-success text-white gap-1 rounded-lg h-9"
-                            disabled={requestedProduct.donatedQuantity <= 0 || requesting}
+                            disabled={
+                              requestedProduct.donatedQuantity <= 0 ||
+                              requesting ||
+                              requestedProduct.requestedQuantity ===
+                                requestedProduct.donatedQuantity
+                            }
                           >
                             <IoCubeOutline size={14} /> Confirmar
                           </button>
@@ -222,7 +227,12 @@ export function TableManageRequestedProducts({
                       <IoTrashOutline size={16} /> Recusar
                     </button>
                     <button
-                      disabled={requestedProduct.donatedQuantity <= 0 || requesting}
+                      disabled={
+                        requestedProduct.donatedQuantity <= 0 ||
+                        requesting ||
+                        requestedProduct.requestedQuantity ===
+                          requestedProduct.donatedQuantity
+                      }
                       onClick={() =>
                         requestedProduct.status === RequestedProductStatus.FULL
                           ? onReviewRequest(requestedProduct.id, "approve")
