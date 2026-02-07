@@ -50,6 +50,7 @@ export function RequestedProductCard({
   onDelete,
 }: IRequestedProductCardProps) {
   const [donateAmount, setDonateAmount] = React.useState<string>("");
+  const [donationError, setDonationError] = React.useState<string | null>(null);
   const [isEditing, setIsEditing] = React.useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
   const [loadingAction, setLoadingAction] = React.useState<LoadingActionType>(null);
@@ -106,6 +107,12 @@ export function RequestedProductCard({
     event.preventDefault();
     const amount = parseFloat(donateAmount);
     if (!isNaN(amount) && amount > 0) {
+      if (amount > remaining) {
+        setDonationError(`O valor máximo permitido é ${remaining} ${product.unit}`);
+        return;
+      }
+
+      setDonationError(null);
       setLoadingAction("donate");
       try {
         await Promise.resolve(onDonate(amount));
@@ -310,26 +317,31 @@ export function RequestedProductCard({
           </div>
 
           {!isAdmin && !isLocked && isLoggedIn && (
-            <form onSubmit={handleDonate} className="flex gap-2">
-              <Input
-                type="number"
-                step="1"
-                min="1"
-                max={remaining}
-                disabled={donateDisabled}
-                value={donateAmount}
-                onChange={(e) => setDonateAmount((e.target as HTMLInputElement).value)}
-                placeholder={`Max: ${remaining}`}
-                className="input-sm flex-1"
-                containerClassName="flex-1"
-              />
-              <Button
-                type="submit"
-                className="btn-primary btn-sm text-white"
-                text={isLoadingDonate ? "Doando..." : "Doar"}
-                disabled={donateDisabled || Number(donateAmount ?? 0) <= 0}
-              />
-            </form>
+            <div className="flex flex-col gap-1">
+              <form onSubmit={handleDonate} className="flex gap-2">
+                <Input
+                  disabled={donateDisabled}
+                  value={donateAmount}
+                  onChange={(e) => {
+                    setDonateAmount((e.target as HTMLInputElement).value);
+                    setDonationError(null);
+                  }}
+                  mask={integerMask}
+                  placeholder={`Max: ${remaining}`}
+                  className={`input-sm flex-1 ${donationError ? "input-error" : ""}`}
+                  containerClassName="flex-1"
+                />
+                <Button
+                  type="submit"
+                  className="btn-primary btn-sm text-white"
+                  text={isLoadingDonate ? "Doando..." : "Doar"}
+                  disabled={donateDisabled || Number(donateAmount ?? 0) <= 0}
+                />
+              </form>
+              {donationError && (
+                <p className="text-error text-sm text-center">{donationError}</p>
+              )}
+            </div>
           )}
 
           {!isAdmin && !isLocked && !isLoggedIn && (
