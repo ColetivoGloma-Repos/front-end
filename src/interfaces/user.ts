@@ -37,6 +37,7 @@ export interface IUser {
     birthDate: Date;
     isDonor: boolean;
     isCoordinator: boolean;
+    isAdminInitiative: boolean;
     roles: typeRoles[];
     hasVehicle?: boolean;
     vehicleType?: string;
