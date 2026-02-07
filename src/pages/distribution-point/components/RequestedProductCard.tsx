@@ -102,8 +102,8 @@ export function RequestedProductCard({
     mode: "onSubmit",
   });
 
-  const handleDonate = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleDonate = async (event: React.FormEvent) => {
+    event.preventDefault();
     const amount = parseFloat(donateAmount);
     if (!isNaN(amount) && amount > 0) {
       setLoadingAction("donate");
@@ -313,8 +313,8 @@ export function RequestedProductCard({
             <form onSubmit={handleDonate} className="flex gap-2">
               <Input
                 type="number"
-                min="0.01"
-                step="0.01"
+                step="1"
+                min="1"
                 max={remaining}
                 disabled={donateDisabled}
                 value={donateAmount}
@@ -324,10 +324,10 @@ export function RequestedProductCard({
                 containerClassName="flex-1"
               />
               <Button
-                disabled={donateDisabled}
                 type="submit"
                 className="btn-primary btn-sm text-white"
                 text={isLoadingDonate ? "Doando..." : "Doar"}
+                disabled={donateDisabled || Number(donateAmount ?? 0) <= 0}
               />
             </form>
           )}
