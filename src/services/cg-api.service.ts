@@ -3,13 +3,14 @@ import { getCookie } from "./cookie.service";
 type IMethodType = "POST" | "GET" | "PUT" | "DELETE" | "PATCH";
 
 interface IMethod {
-  data?: Record<string, any>;
+  data?: Record<string, any> | FormData;
   params?: Record<string, any>;
   headers?: Record<string, string>;
   options?: Record<string, any>;
 }
 
-const apiBase = 'https://coral-app-yndk5.ondigitalocean.app/api'
+// const apiBase = 'https://coral-app-yndk5.ondigitalocean.app/api'
+const apiBase = "http://localhost:8081/api";
 
 async function responseJson(response: Response) {
   if (!response.ok || response.status >= 400) {
@@ -27,22 +28,25 @@ function isUrl(url: string): boolean {
 export async function request(
   url: string,
   method?: IMethodType,
-  body?: { [key: string]: any } | null,
+  body?: { [key: string]: any } | FormData | null,
   headers?: { [key: string]: string },
-  options?: { [key: string]: any }
+  options?: { [key: string]: any },
 ) {
   const token = getCookie("token");
 
-  const updatedHeader = {
-    "Content-Type": "application/json",
+  const updatedHeader: any = {
     Authorization: `Bearer ${token}`,
     ...(headers || {}),
   };
 
+  if (!(body instanceof FormData)) {
+    updatedHeader["Content-Type"] = "application/json";
+  }
+
   return await fetch(isUrl(url) ? url : `${apiBase}${url}`, {
     method: method,
     headers: updatedHeader,
-    body: body ? JSON.stringify(body) : null,
+    body: body instanceof FormData ? body : body ? JSON.stringify(body) : null,
     ...options,
   }).then(responseJson);
 }
@@ -68,14 +72,14 @@ function buildUrl(baseUrl: string, params?: { [key: string]: any }): string {
 
 export async function get(
   url: string,
-  { params, headers, options }: Omit<IMethod, "data"> = {}
+  { params, headers, options }: Omit<IMethod, "data"> = {},
 ) {
   return await request(buildUrl(url, params), "GET", null, headers, options);
 }
 
 export async function post(
   url: string,
-  { data, params, headers, options }: IMethod = {}
+  { data, params, headers, options }: IMethod = {},
 ) {
   return await request(buildUrl(url, params), "POST", data, headers, options);
 }
@@ -86,7 +90,7 @@ export async function put(url: string, { data, params, headers, options }: IMeth
 
 export async function patch(
   url: string,
-  { data, params, headers, options }: IMethod = {}
+  { data, params, headers, options }: IMethod = {},
 ) {
   return await request(buildUrl(url, params), "PATCH", data, headers, options);
 }

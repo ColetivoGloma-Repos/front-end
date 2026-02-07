@@ -42,7 +42,11 @@ export function Header({ openSidebar, openNotification }: IHeaderProps) {
                   <IoMdNotifications size={30} />
                </div>
               <div className="flex justify-center" onClick={openSidebar}>
-                <Avatar src={currentUser?.url || logo} className="cursor-pointer size-[40px]" />
+                <Avatar
+                  src={currentUser?.url || logo}
+                  alt={currentUser?.name}
+                  className="cursor-pointer size-[40px]"
+                />
               </div>
             
                </>
