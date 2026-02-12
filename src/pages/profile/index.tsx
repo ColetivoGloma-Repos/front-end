@@ -10,7 +10,6 @@ import { toast } from "react-toastify";
 import { toastMessage } from "../../helpers/toast-message";
 import ProfileVehicle from "../../components/pages/Profile/Edit/VehicleInfo";
 import ToRequireCoordinator from "../../components/pages/Profile/Edit/CoordinatorRequest";
-import ToRequireinitiativeAdministrator from "../../components/pages/Profile/Edit/InitiativeAdministrator";
 
 export default function ProfileScreen() {
   const { currentUser } = useAuthProvider();
@@ -58,6 +57,23 @@ export default function ProfileScreen() {
       }    
   };
 
+  const hasCoordinatorRole = currentUser?.roles.includes("coordinator");
+  const isCoordinator = hasCoordinatorRole && user?.status === "approved";
+  const isCoordinatorPending = hasCoordinatorRole && user?.status === "pending";
+  const isCoordinatorCanceled = hasCoordinatorRole && user?.status === "canceled";
+  const isCommonUser =
+    !hasCoordinatorRole ||
+    !user?.status ||
+    !["approved", "pending", "canceled"].includes(user.status);
+
+  const coordinatorStatusLabel = isCoordinator
+    ? "Aprovado"
+    : isCoordinatorPending
+    ? "Pendente"
+    : isCoordinatorCanceled
+    ? "Cancelado"
+    : "";
+
   return (
     <section className="profile-section p-5 flex h-full min-h-screen">
       {user ? (
@@ -69,16 +85,16 @@ export default function ProfileScreen() {
             />
             <h2 className="text-2xl font-bold">Perfil do Usuário</h2>
           </div>
-         {!currentUser?.roles?.includes('coordinator') && (
+          {isCommonUser ? (
             <ToRequireCoordinator onRequest={handleAskIfCanToChangeForCoordinador} />
+          ) : (
+            <div className="mb-4 text-sm text-gray-700">
+              <span className="font-semibold">Status do coordenador:</span>{" "}
+              {coordinatorStatusLabel}
+            </div>
           )}
 
-         {currentUser?.roles.includes('coordinator') && (
-            <ToRequireinitiativeAdministrator
-          onRequest={handleAskIfCanToChangeForCoordinador}
-          />
-        )}
-
+         
           <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={(e) => e.preventDefault()}>
             <div className="space-y-4">
               <ProfilePersonalInfo

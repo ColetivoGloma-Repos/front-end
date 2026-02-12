@@ -13,13 +13,12 @@ import { toast } from "react-toastify";
 import { toastMessage } from "../../helpers/toast-message";
 import { ISearchDemandPoint } from "../../interfaces/demand-point";
 import { IChangeStatus, ISearchCoordinator, IUserDash } from "../../interfaces/user";
-import { changeStatusToAdminInitiative, listInitiative } from "../../services/coordinators.service";
 import { ModalStatusCoordinator } from "../../components/modals/Dashboard/ChangeStatusCoordinator";
 
 const limit = 12;
 
 
-export default function AllCoordinatorsWantToBecomeAdminInitiativeScreen() {
+function AllCoordinatorsWantToBecomeAdminInitiativeScreen() {
   const navigate = useNavigate();
   const { currentUser } = useAuthProvider();
  React.useEffect(() => {
@@ -52,7 +51,7 @@ const handleFilter = async (data: ISearchCoordinator) => {
   try {
     setRequesting(true);
 
-    
+    /*
     const resp = await listInitiative({
       limit: limit,
       offset: page.current * limit,
@@ -62,11 +61,12 @@ const handleFilter = async (data: ISearchCoordinator) => {
     const respData = resp.data;
     const respTotal = resp.total;
 
-    
     setAdmins(respData);
-
- 
     setInfinitScroll(respTotal > limit ? respData.length > 0 : false);
+    */
+
+    setAdmins([]);
+    setInfinitScroll(false);
 
     page.current++;
   } catch (error) {
@@ -85,10 +85,10 @@ const handleFilter = async (data: ISearchCoordinator) => {
     
   try {
     setRequestingCreate(true); 
+    /*
     await changeStatusToAdminInitiative(data);
-    
-    
     updateCoordinatorStatus(data.id, data.status);
+    */
 
     toast.success("Administrador de iniciativa atualizado com sucesso.");
   } catch (error) {
@@ -129,6 +129,7 @@ const updateCoordinatorStatus = (id: string, newStatus: string) => {
  const load = async () => {
   try {
     const currentPage = page.current;
+    /*
     const resp = await listInitiative({
       limit: limit,
       offset: page.current * limit,
@@ -136,10 +137,13 @@ const updateCoordinatorStatus = (id: string, newStatus: string) => {
     });
     const respData = resp.data;
     const respTotal = resp.total;
-   
+
     setAdmins((prevAdmins) => [...prevAdmins, ...respData]);
     setInfinitScroll(respTotal > limit ? respData.length > 0 : false);
     page.current++;
+    */
+
+    setInfinitScroll(false);
   } catch (error) {
     setInfinitScroll(false);
   } finally {
