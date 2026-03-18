@@ -38,7 +38,7 @@
     "test": "react-scripts test",
     "test:watch": "react-scripts test --watch",
     "test:cov": "react-scripts test --coverage",
-    "dev": "yarn start:dev"
+    "dev": "npm run start:dev"
   },
   "eslintConfig": {
     "extends": [
