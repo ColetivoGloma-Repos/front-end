@@ -2,6 +2,10 @@
   "name": "CG-Front-end",
   "version": "0.2.0",
   "private": true,
+  "engines": {
+    "node": "20.x",
+    "npm": "10.x"
+  },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
     "@preact/signals-react": "^2.0.2",
@@ -57,7 +61,7 @@
     "@storybook/addons": "^7.6.17",
     "@storybook/blocks": "8.4.7",
     "@storybook/preset-create-react-app": "8.4.7",
-    "@storybook/react": "^8.4.6",
+    "@storybook/react": "8.4.7",
     "@storybook/react-webpack5": "8.4.7",
     "@storybook/test": "8.4.7",
     "@types/js-cookie": "^3.0.6",
