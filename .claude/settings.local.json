@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find D:/Projetos/javascript/tests/cg/front-end/src -name *.test.* -o -name *.spec.*)"
+    ]
+  }
+}
