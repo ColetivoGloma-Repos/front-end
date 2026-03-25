@@ -9,8 +9,7 @@ interface IMethod {
   options?: Record<string, any>;
 }
 
-// const apiBase = 'https://coral-app-yndk5.ondigitalocean.app/api'
-const apiBase = "http://localhost:8081/api";
+const apiBase = 'https://backdev-app-4zhqu.ondigitalocean.app/api';
 
 async function responseJson(response: Response) {
   if (!response.ok || response.status >= 400) {
@@ -28,9 +27,9 @@ function isUrl(url: string): boolean {
 export async function request(
   url: string,
   method?: IMethodType,
-  body?: { [key: string]: any } | FormData | null,
-  headers?: { [key: string]: string },
-  options?: { [key: string]: any },
+  body?: { [key: string]: any; } | FormData | null,
+  headers?: { [key: string]: string; },
+  options?: { [key: string]: any; },
 ) {
   const token = getCookie("token");
 
@@ -51,7 +50,7 @@ export async function request(
   }).then(responseJson);
 }
 
-function buildUrl(baseUrl: string, params?: { [key: string]: any }): string {
+function buildUrl(baseUrl: string, params?: { [key: string]: any; }): string {
   if (!params) {
     return baseUrl;
   }
