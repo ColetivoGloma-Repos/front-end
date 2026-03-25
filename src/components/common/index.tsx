@@ -16,3 +16,4 @@ export * from "./Link";
 export * from "./Image";
 export * from "./Alert";
 export * from "./Tooltip";
+export * from "./ImageUpload";

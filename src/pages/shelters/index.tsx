@@ -9,7 +9,6 @@ import useInView from "../../hooks/useInView";
 import { useNavigate } from "react-router-dom";
 import { useAuthProvider } from "../../context/Auth";
 import { ModalShelter } from "../../components/modals";
-import { ISearchProducts } from "../../interfaces/products";
 import { toast } from "react-toastify";
 import { toastMessage } from "../../helpers/toast-message";
 
@@ -24,7 +23,7 @@ export default function SheltersScreen() {
   });
 
   const page = React.useRef<number>(0);
-  const filter = React.useRef<ISearchProducts>({});
+  const filter = React.useRef<any>({});
 
   const [openModal, setOpenModal] = React.useState<boolean>(false);
   const [requesting, setRequesting] = React.useState<boolean>(false);
