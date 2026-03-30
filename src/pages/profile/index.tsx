@@ -24,37 +24,36 @@ export default function ProfileScreen() {
 
   const handleEditToggle = async () => {
     setRequesting(true);
-    if (!request) {        
-        if (request) {
-          toast.warn("Carregando...");
-        }
-      try {        
+    if (!request) {
+      if (request) {
+        toast.warn("Carregando...");
+      }
+      try {
         const updatedUser = await updateUser(currentUser!.id, user as IUserUpdate);
         await setUser(updatedUser);
         toast.success("Usuário atualizado com sucesso");
       } catch (error) {
-        console.log(error);
+        console.error(error);
         toast.error(toastMessage.INTERNAL_SERVER_ERROR);
-      }finally {
-        setRequesting(false)
+      } finally {
+        setRequesting(false);
       }
     }
-    
   };
 
-   const handleAskIfCanToChangeForCoordinador = async () => {     
-      try {
-        setRequesting(true);
-        if (request) {
-          toast.warn("Carregando...");
-        }
-        const updatedUser = await askIfChangeStatusToCoordinator(currentUser!.id);
-        await setUser(updatedUser);
-        toast.success("Usuário atualizado com sucesso");
-      } catch (error) {
-        console.log(error);
-        toast.error(toastMessage.INTERNAL_SERVER_ERROR);
-      }    
+  const handleAskIfCanToChangeForCoordinador = async () => {
+    try {
+      setRequesting(true);
+      if (request) {
+        toast.warn("Carregando...");
+      }
+      const updatedUser = await askIfChangeStatusToCoordinator(currentUser!.id);
+      await setUser(updatedUser);
+      toast.success("Usuário atualizado com sucesso");
+    } catch (error) {
+      console.error(error);
+      toast.error(toastMessage.INTERNAL_SERVER_ERROR);
+    }
   };
 
   const hasCoordinatorRole = currentUser?.roles.includes("coordinator");
@@ -81,11 +80,16 @@ export default function ProfileScreen() {
           <div className="flex flex-col items-center mb-6">
             <Avatar
               src={user.url || ""}
+              alt={user.name}
               className="mb-4 w-24 h-24 rounded-full"
             />
             <h2 className="text-2xl font-bold">Perfil do Usuário</h2>
           </div>
+<<<<<<< HEAD
           {isCommonUser ? (
+=======
+          {!currentUser?.roles?.includes("coordinator") && (
+>>>>>>> 2db7f3fca47fd8614fd46e02c41c63e5a789e9b9
             <ToRequireCoordinator onRequest={handleAskIfCanToChangeForCoordinador} />
           ) : (
             <div className="mb-4 text-sm text-gray-700">
@@ -94,27 +98,34 @@ export default function ProfileScreen() {
             </div>
           )}
 
+<<<<<<< HEAD
          
           <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={(e) => e.preventDefault()}>
+=======
+          {currentUser?.roles.includes("coordinator") && (
+            <ToRequireinitiativeAdministrator
+              onRequest={handleAskIfCanToChangeForCoordinador}
+            />
+          )}
+
+          <form
+            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+            onSubmit={(e) => e.preventDefault()}
+          >
+>>>>>>> 2db7f3fca47fd8614fd46e02c41c63e5a789e9b9
             <div className="space-y-4">
-              <ProfilePersonalInfo
-                currentUser={user}
-                setUser={setUser}
-              />
+              <ProfilePersonalInfo currentUser={user} setUser={setUser} />
             </div>
 
             <div className="space-y-4">
-              <ProfileAddress
-                address={user.address}
-                setUser={setUser}
-              />
+              <ProfileAddress address={user.address} setUser={setUser} />
 
               <ProfileVehicle
                 hasVehicle={user?.hasVehicle}
                 vehicleType={user?.vehicleType}
                 setUser={setUser}
               />
-              </div>
+            </div>
 
             <div className="md:col-span-2 flex justify-end mt-4">
               <Button

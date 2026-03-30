@@ -10,14 +10,13 @@ import ForgotPasswordScreen from "../pages/auth/forgot-password";
 import ResetPasswordScreen from "../pages/auth/reset-password";
 import SheltersScreen from "../pages/shelters";
 import CoordinatorsScreen from "../pages/shelters/id";
-import DistribuitionPointsScreen from "../pages/distribuition-points";
-import DistribuitionPointScreen from "../pages/distribuition-points/id";
 import ProfileScreen from "../pages/profile";
 import DemandsPointScreen from "../pages/demand-point";
 import DemandPointScreen from "../pages/demand-point/id";
 import AllCoordinatorsScreen from "../pages/approve-coordinators";
 import { PrivateRoleRoute } from "./Auth/PrivateRoleRoute";
 import { DashboardAdminScreen } from "../pages/dashboard-admin";
+import { distributionPointRoutes } from "../pages/distribution-point/routes";
 
 export function RoutesPage() {
   return (
@@ -33,30 +32,18 @@ export function RoutesPage() {
         <Route path="/reset-password" element={<ResetPasswordScreen />} />
 
         <Route element={<Layout />}>
-          <Route path="/" element={<DistribuitionPointsScreen />} />
-          <Route
-            path="/distribuition-points/:id"
-            element={<DistribuitionPointScreen />}
-          />
+          {distributionPointRoutes()}
 
-          <Route
-            path="/demands-point"
-            element={<DemandsPointScreen />}
-          />
-          
-          <Route
-            path="/demand-point/:id"
-            element={<DemandPointScreen />}
-          />
-       
-       
+          <Route path="/demands-point" element={<DemandsPointScreen />} />
+
+          <Route path="/demand-point/:id" element={<DemandPointScreen />} />
+
           <Route element={<PrivateRoute />}>
             <Route path="/shelters" element={<SheltersScreen />} />
             <Route path="/profile" element={<ProfileScreen />} />
             <Route path="/shelters/:id" element={<CoordinatorsScreen />} />
-            
           </Route>
-          <Route element={<PrivateRoleRoute roles={['admin']} />}>
+          <Route element={<PrivateRoleRoute roles={["admin"]} />}>
             <Route path="/coordinators" element={<AllCoordinatorsScreen />} />
             <Route path="/dashboard-admin" element={<DashboardAdminScreen />} />
           </Route>

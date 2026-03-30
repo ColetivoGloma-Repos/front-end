@@ -8,4 +8,13 @@ export interface IParamsDefault {
   sortBy?: string;
   sort?: string;
   search?: string;
+  q?: string;
+}
+
+export interface IQueryRequest {
+  limit?: string;
+  offset?: string;
+  sortBy?: string;
+  sort?: "asc" | "desc";
+  q?: string;
 }

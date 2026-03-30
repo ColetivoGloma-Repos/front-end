@@ -17,9 +17,14 @@ export const phoneMask = (value: string) => {
 
 export const weightMask = (value: string) => {
   if (!value) return "";
-  const valueClean = value.replace(/\D/g, '');
+  const valueClean = value.replace(/\D/g, "");
   const intPart = valueClean.slice(0, -2);
   const decimalPart = valueClean.slice(-2);
-  const weightFormatted = intPart + '.' + decimalPart;
-  return weightFormatted;  
+  const weightFormatted = intPart + "." + decimalPart;
+  return weightFormatted;
+};
+
+export const integerMask = (value: string) => {
+  if (!value) return "";
+  return value.replace(/\D/g, "");
 };
