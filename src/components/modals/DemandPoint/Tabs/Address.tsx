@@ -46,18 +46,22 @@ export function TabAddress({ register, errors }: ITabAddress) {
         {...register("collectPoint.bairro")}
         errors={errors}
       />
-      <Input
-        label="Logradouro: "
-        placeholder="Digite o logradouro"
-        {...register("collectPoint.logradouro")}
-        errors={errors}
-      />
-      <Input
-        label="Número: "
-        placeholder="Digite o número"
-        {...register("collectPoint.numero")}
-        errors={errors}
-      />
+      <div className="md:col-span-2 flex gap-4">
+        <Input
+          label="Logradouro: "
+          placeholder="Digite o logradouro"
+          {...register("collectPoint.logradouro")}
+          errors={errors}
+          containerClassName="flex-1 min-w-0"
+        />
+        <Input
+          label="Número: "
+          placeholder="Digite o número"
+          {...register("collectPoint.numero")}
+          errors={errors}
+          containerClassName="w-28 shrink-0"
+        />
+      </div>
       <Input
         label="Complemento: "
         placeholder="Digite o complemento"
