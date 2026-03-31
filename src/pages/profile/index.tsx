@@ -12,7 +12,7 @@ import ProfileVehicle from "../../components/pages/Profile/Edit/VehicleInfo";
 import ToRequireCoordinator from "../../components/pages/Profile/Edit/CoordinatorRequest";
 
 export default function ProfileScreen() {
-  const { currentUser } = useAuthProvider();
+  const { currentUser, loginUser, updateCurrentUser } = useAuthProvider();
   const [user, setUser] = React.useState(currentUser);
   const [request, setRequesting] = React.useState(false);
 
@@ -24,13 +24,13 @@ export default function ProfileScreen() {
 
   const handleEditToggle = async () => {
     setRequesting(true);
-    if (!request) {
-      if (request) {
-        toast.warn("Carregando...");
-      }
-      try {
+    if (!request) {        
+        if (request) {
+          toast.warn("Carregando...");
+        }
+      try {        
         const updatedUser = await updateUser(currentUser!.id, user as IUserUpdate);
-        await setUser(updatedUser);
+        updateCurrentUser(updatedUser);
         toast.success("Usuário atualizado com sucesso");
       } catch (error) {
         console.error(error);
@@ -41,19 +41,17 @@ export default function ProfileScreen() {
     }
   };
 
-  const handleAskIfCanToChangeForCoordinador = async () => {
-    try {
-      setRequesting(true);
-      if (request) {
-        toast.warn("Carregando...");
+   const handleAskIfCanToChangeForCoordinador = async () => {
+      try {
+        setRequesting(true);
+        await askIfChangeStatusToCoordinator(currentUser!.id);
+        await loginUser();
+        toast.success("Solicitação enviada com sucesso");
+      } catch (error: any) {
+        toast.error(error?.message || toastMessage.INTERNAL_SERVER_ERROR);
+      } finally {
+        setRequesting(false);
       }
-      const updatedUser = await askIfChangeStatusToCoordinator(currentUser!.id);
-      await setUser(updatedUser);
-      toast.success("Usuário atualizado com sucesso");
-    } catch (error) {
-      console.error(error);
-      toast.error(toastMessage.INTERNAL_SERVER_ERROR);
-    }
   };
 
   const hasCoordinatorRole = currentUser?.roles.includes("coordinator");

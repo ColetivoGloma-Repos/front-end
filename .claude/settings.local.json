@@ -1,7 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(find D:/Projetos/javascript/tests/cg/front-end/src -name *.test.* -o -name *.spec.*)"
+      "Bash(find D:/Projetos/javascript/tests/cg/front-end/src -name *.test.* -o -name *.spec.*)",
+      "Bash(npm install:*)",
+      "Bash(node -e \"const p = require\\(''./node_modules/recharts/package.json''\\); console.log\\(''version:'', p.version, ''\\\\npeerDeps:'', JSON.stringify\\(p.peerDependencies\\)\\)\")",
+      "Bash(node -e \"try { require\\(''recharts''\\); console.log\\(''OK''\\); } catch\\(e\\) { console.log\\(''ERROR:'', e.message\\); }\")",
+      "Bash(node -e \"const p = require\\(''''./node_modules/recharts/package.json''''\\); console.log\\(JSON.stringify\\(p, null, 2\\)\\)\")",
+      "Bash(node -e \"const p = require\\(''./node_modules/recharts/package.json''\\); console.log\\(JSON.stringify\\(p.dependencies, null, 2\\)\\)\")",
+      "Bash(node -e \"const p = require\\(''./node_modules/recharts/package.json''\\); console.log\\(''version:'', p.version, ''\\\\ntypes:'', p.types\\)\")"
     ]
   }
 }

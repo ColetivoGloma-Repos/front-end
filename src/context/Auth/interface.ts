@@ -8,6 +8,7 @@ export interface IAuthProvider {
   settings: ISettings;
   logout: () => void;
   loginUser: () => void;
+  updateCurrentUser: (user: IUser) => void;
 }
 
 export interface IContextProvider {

@@ -81,7 +81,7 @@ export function MetricsChart({ requestedProducts }: IMetricsChartProps) {
                 wrapperStyle={{ right: 0 }}
               />
               <Tooltip
-                content={({ payload }) => {
+                content={({ payload }: { payload?: any[] }) => {
                   if (payload && payload.length) {
                     const item = payload[0].payload;
                     const statusText = style(item.status).text;

@@ -51,6 +51,7 @@ export function TabAddress({ register, errors }: ITabAddress) {
         placeholder="Digite o logradouro"
         {...register("collectPoint.logradouro")}
         errors={errors}
+        containerClassName="md:col-span-2"
       />
       <Input
         label="Número: "

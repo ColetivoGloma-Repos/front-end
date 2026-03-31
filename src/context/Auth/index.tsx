@@ -44,8 +44,12 @@ export function AuthProvider({ children }: IContextProvider) {
     load();
   }, []);
 
+  const updateCurrentUser = (user: IUser) => {
+    setCurrentUser(user);
+  };
+
   return (
-    <AuthContext.Provider value={{ currentUser, status, settings, loginUser, logout }}>
+    <AuthContext.Provider value={{ currentUser, status, settings, loginUser, logout, updateCurrentUser }}>
       {children}
     </AuthContext.Provider>
   );
