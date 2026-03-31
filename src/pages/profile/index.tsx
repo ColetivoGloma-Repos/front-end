@@ -85,11 +85,7 @@ export default function ProfileScreen() {
             />
             <h2 className="text-2xl font-bold">Perfil do Usuário</h2>
           </div>
-<<<<<<< HEAD
           {isCommonUser ? (
-=======
-          {!currentUser?.roles?.includes("coordinator") && (
->>>>>>> 2db7f3fca47fd8614fd46e02c41c63e5a789e9b9
             <ToRequireCoordinator onRequest={handleAskIfCanToChangeForCoordinador} />
           ) : (
             <div className="mb-4 text-sm text-gray-700">
@@ -98,21 +94,8 @@ export default function ProfileScreen() {
             </div>
           )}
 
-<<<<<<< HEAD
          
           <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={(e) => e.preventDefault()}>
-=======
-          {currentUser?.roles.includes("coordinator") && (
-            <ToRequireinitiativeAdministrator
-              onRequest={handleAskIfCanToChangeForCoordinador}
-            />
-          )}
-
-          <form
-            className="grid grid-cols-1 md:grid-cols-2 gap-6"
-            onSubmit={(e) => e.preventDefault()}
-          >
->>>>>>> 2db7f3fca47fd8614fd46e02c41c63e5a789e9b9
             <div className="space-y-4">
               <ProfilePersonalInfo currentUser={user} setUser={setUser} />
             </div>
