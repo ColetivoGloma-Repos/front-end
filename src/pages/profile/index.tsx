@@ -10,10 +10,9 @@ import { toast } from "react-toastify";
 import { toastMessage } from "../../helpers/toast-message";
 import ProfileVehicle from "../../components/pages/Profile/Edit/VehicleInfo";
 import ToRequireCoordinator from "../../components/pages/Profile/Edit/CoordinatorRequest";
-import ToRequireinitiativeAdministrator from "../../components/pages/Profile/Edit/InitiativeAdministrator";
 
 export default function ProfileScreen() {
-  const { currentUser, loginUser } = useAuthProvider();
+  const { currentUser, loginUser, updateCurrentUser } = useAuthProvider();
   const [user, setUser] = React.useState(currentUser);
   const [request, setRequesting] = React.useState(false);
 
@@ -30,17 +29,16 @@ export default function ProfileScreen() {
           toast.warn("Carregando...");
         }
       try {        
-        await updateUser(currentUser!.id, user as IUserUpdate);
-        await loginUser();
+        const updatedUser = await updateUser(currentUser!.id, user as IUserUpdate);
+        updateCurrentUser(updatedUser);
         toast.success("Usuário atualizado com sucesso");
       } catch (error) {
-        console.log(error);
+        console.error(error);
         toast.error(toastMessage.INTERNAL_SERVER_ERROR);
-      }finally {
-        setRequesting(false)
+      } finally {
+        setRequesting(false);
       }
     }
-    
   };
 
    const handleAskIfCanToChangeForCoordinador = async () => {
@@ -49,13 +47,29 @@ export default function ProfileScreen() {
         await askIfChangeStatusToCoordinator(currentUser!.id);
         await loginUser();
         toast.success("Solicitação enviada com sucesso");
-      } catch (error) {
-        console.log(error);
-        toast.error(toastMessage.INTERNAL_SERVER_ERROR);
+      } catch (error: any) {
+        toast.error(error?.message || toastMessage.INTERNAL_SERVER_ERROR);
       } finally {
         setRequesting(false);
       }
   };
+
+  const hasCoordinatorRole = currentUser?.roles.includes("coordinator");
+  const isCoordinator = hasCoordinatorRole && user?.status === "approved";
+  const isCoordinatorPending = hasCoordinatorRole && user?.status === "pending";
+  const isCoordinatorCanceled = hasCoordinatorRole && user?.status === "canceled";
+  const isCommonUser =
+    !hasCoordinatorRole ||
+    !user?.status ||
+    !["approved", "pending", "canceled"].includes(user.status);
+
+  const coordinatorStatusLabel = isCoordinator
+    ? "Aprovado"
+    : isCoordinatorPending
+    ? "Pendente"
+    : isCoordinatorCanceled
+    ? "Cancelado"
+    : "";
 
   return (
     <section className="profile-section p-5 flex h-full min-h-screen">
@@ -64,40 +78,35 @@ export default function ProfileScreen() {
           <div className="flex flex-col items-center mb-6">
             <Avatar
               src={user.url || ""}
+              alt={user.name}
               className="mb-4 w-24 h-24 rounded-full"
             />
             <h2 className="text-2xl font-bold">Perfil do Usuário</h2>
           </div>
-         {!currentUser?.roles?.includes('coordinator') && (
+          {isCommonUser ? (
             <ToRequireCoordinator onRequest={handleAskIfCanToChangeForCoordinador} />
+          ) : (
+            <div className="mb-4 text-sm text-gray-700">
+              <span className="font-semibold">Status do coordenador:</span>{" "}
+              {coordinatorStatusLabel}
+            </div>
           )}
 
-         {currentUser?.roles.includes('coordinator') && (
-            <ToRequireinitiativeAdministrator
-          onRequest={handleAskIfCanToChangeForCoordinador}
-          />
-        )}
-
+         
           <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={(e) => e.preventDefault()}>
             <div className="space-y-4">
-              <ProfilePersonalInfo
-                currentUser={user}
-                setUser={setUser}
-              />
+              <ProfilePersonalInfo currentUser={user} setUser={setUser} />
             </div>
 
             <div className="space-y-4">
-              <ProfileAddress
-                address={user.address}
-                setUser={setUser}
-              />
+              <ProfileAddress address={user.address} setUser={setUser} />
 
               <ProfileVehicle
                 hasVehicle={user?.hasVehicle}
                 vehicleType={user?.vehicleType}
                 setUser={setUser}
               />
-              </div>
+            </div>
 
             <div className="md:col-span-2 flex justify-end mt-4">
               <Button

@@ -1,11 +1,11 @@
 import { FieldErrors, UseFormRegister } from "react-hook-form";
 import { Input } from "../../../common";
-import { IDistribuitionPointCreate } from "../../../../interfaces/distriuition-points";
+
 import { zipCodeMask } from "../../../../utils/masks";
 
 interface ITabAddress {
-  register: UseFormRegister<IDistribuitionPointCreate>;
-  errors: FieldErrors<IDistribuitionPointCreate>;
+  register: UseFormRegister<any>;
+  errors: FieldErrors<any>;
 }
 
 export function TabAddress({ register, errors }: ITabAddress) {
