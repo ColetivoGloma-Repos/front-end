@@ -13,7 +13,7 @@ import ToRequireCoordinator from "../../components/pages/Profile/Edit/Coordinato
 import ToRequireinitiativeAdministrator from "../../components/pages/Profile/Edit/InitiativeAdministrator";
 
 export default function ProfileScreen() {
-  const { currentUser } = useAuthProvider();
+  const { currentUser, loginUser } = useAuthProvider();
   const [user, setUser] = React.useState(currentUser);
   const [request, setRequesting] = React.useState(false);
 
@@ -30,8 +30,8 @@ export default function ProfileScreen() {
           toast.warn("Carregando...");
         }
       try {        
-        const updatedUser = await updateUser(currentUser!.id, user as IUserUpdate);
-        await setUser(updatedUser);
+        await updateUser(currentUser!.id, user as IUserUpdate);
+        await loginUser();
         toast.success("Usuário atualizado com sucesso");
       } catch (error) {
         console.log(error);
@@ -43,19 +43,18 @@ export default function ProfileScreen() {
     
   };
 
-   const handleAskIfCanToChangeForCoordinador = async () => {     
+   const handleAskIfCanToChangeForCoordinador = async () => {
       try {
         setRequesting(true);
-        if (request) {
-          toast.warn("Carregando...");
-        }
-        const updatedUser = await askIfChangeStatusToCoordinator(currentUser!.id);
-        await setUser(updatedUser);
-        toast.success("Usuário atualizado com sucesso");
+        await askIfChangeStatusToCoordinator(currentUser!.id);
+        await loginUser();
+        toast.success("Solicitação enviada com sucesso");
       } catch (error) {
         console.log(error);
         toast.error(toastMessage.INTERNAL_SERVER_ERROR);
-      }    
+      } finally {
+        setRequesting(false);
+      }
   };
 
   return (

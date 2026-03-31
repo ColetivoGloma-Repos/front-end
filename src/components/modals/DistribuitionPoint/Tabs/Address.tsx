@@ -47,22 +47,19 @@ export function TabAddress({ register, errors }: ITabAddress) {
         {...register("address.bairro")}
         errors={errors}
       />
-      <div className="md:col-span-2 flex gap-4">
-        <Input
-          label="Logradouro: "
-          placeholder="Digite o logradouro"
-          {...register("address.logradouro")}
-          errors={errors}
-          containerClassName="flex-1 min-w-0"
-        />
-        <Input
-          label="Número: "
-          placeholder="Digite o número"
-          {...register("address.numero")}
-          errors={errors}
-          containerClassName="w-28 shrink-0"
-        />
-      </div>
+      <Input
+        label="Logradouro: "
+        placeholder="Digite o logradouro"
+        {...register("address.logradouro")}
+        errors={errors}
+        containerClassName="md:col-span-2"
+      />
+      <Input
+        label="Número: "
+        placeholder="Digite o número"
+        {...register("address.numero")}
+        errors={errors}
+      />
       <Input
         label="Complemento: "
         placeholder="Digite o complemento"
