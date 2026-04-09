@@ -17,6 +17,7 @@ import {
 } from "../../../interfaces/distribution-point";
 import {
   createDistributionPoint,
+  listOneDistributionPoint,
   updateDistributionPoint,
 } from "../../../services/distribution-point";
 import { uploadImage } from "../../../services/upload.service";
@@ -41,6 +42,16 @@ export function DistributionPointForm({
 }: IDistributionPointFormProps) {
   const [requesting, setRequesting] = React.useState(false);
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
+  const latestUploadedFile = React.useMemo(
+    () =>
+      data?.files && data.files.length > 0
+        ? [...data.files].sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+          )[0]
+        : null,
+    [data?.files],
+  );
 
   const schema = React.useMemo(
     () => upsertDistributionPointSchema(isEditMode),
@@ -103,13 +114,15 @@ export function DistributionPointForm({
 
     try {
       const response = await createDistributionPoint(values);
+      let distributionPointResponse = response;
 
       if (selectedFile) {
         await uploadImage(selectedFile, "distributionPoint", response.id);
+        distributionPointResponse = await listOneDistributionPoint(response.id);
       }
 
       if (saveOrEditCallback) {
-        await Promise.resolve(saveOrEditCallback(response));
+        await Promise.resolve(saveOrEditCallback(distributionPointResponse));
       }
       toast.success("Ponto de distribuição criado com sucesso!");
       navigationCallback?.();
@@ -134,13 +147,15 @@ export function DistributionPointForm({
 
     try {
       const response = await updateDistributionPoint(id, values);
+      let distributionPointResponse = response;
 
       if (selectedFile) {
         await uploadImage(selectedFile, "distributionPoint", id);
+        distributionPointResponse = await listOneDistributionPoint(id);
       }
 
       if (saveOrEditCallback) {
-        await Promise.resolve(saveOrEditCallback(response, id));
+        await Promise.resolve(saveOrEditCallback(distributionPointResponse, id));
       }
       toast.success("Alterações salvas com sucesso!");
       navigationCallback?.();
@@ -304,7 +319,7 @@ export function DistributionPointForm({
 
               <ImageUpload
                 label="Imagem do Local"
-                value={selectedFile || data?.files?.[0]?.url}
+                value={selectedFile || latestUploadedFile?.url}
                 onChange={(file) => setSelectedFile(file)}
               />
 

@@ -373,7 +373,14 @@ export default function DetailDistributionPoint() {
 
   const isOnwer = isCoordinator && distributionPoint.ownerId === currentUser?.id;
 
-  const hasImages = distributionPoint.files && distributionPoint.files?.length > 0;
+  const latestFile =
+    distributionPoint.files && distributionPoint.files.length > 0
+      ? [...distributionPoint.files].sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        )[0]
+      : null;
+  const hasImages = !!latestFile?.url;
 
   return (
     <div className="py-8">
@@ -387,7 +394,7 @@ export default function DetailDistributionPoint() {
           />
 
           <img
-            src={distributionPoint.files![0].url}
+            src={latestFile?.url}
             alt={distributionPoint.title}
             className="w-full h-full object-cover"
           />
