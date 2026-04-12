@@ -36,16 +36,13 @@ function LoginPointScreen() {
       setRequesting(true);
 
       const response = await login(data);
-
       setCookie("token", response.token, 7);
-
       loginUser();
       toast.success("Login feito com sucesso");
-
       navigate("/");
-    } catch (error: any) {
-      console.error(error);
-      toast.error(toastMessage.INTERNAL_SERVER_ERROR);
+    } catch (error: unknown) {
+        const err = error as { message?: string };
+        toast.error(err?.message || toastMessage.INTERNAL_SERVER_ERROR);       
     } finally {
       setRequesting(false);
     }

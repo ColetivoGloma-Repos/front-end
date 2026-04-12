@@ -26,7 +26,6 @@ export function AuthProvider({ children }: IContextProvider) {
       setCurrentUser(resp.data.data);
       setStatus(resp.data.status);
     } catch (error) {
-      console.error(error);
       setStatus("unauthorized");
       delCookie("token");
       localStorage.clear();
