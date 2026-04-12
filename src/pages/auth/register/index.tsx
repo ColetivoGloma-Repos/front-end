@@ -47,10 +47,9 @@ function SignUpScreen() {
       navigate("/");
     } catch (error) {
       const err = error as Error & {statusCode: number};
-      console.error(error);
-
-      if(err?.statusCode === 409 || err?.message === "Email já está em uso") {
-        toast.error("Já existe uma conta cadastrada com esse email.");
+      if(err?.statusCode === 409 || err?.message === "Email já cadastrado") {
+        console.log(err);
+        toast.error(err.message || "Email já está em uso 2");
         return;
       }
 
