@@ -5,6 +5,82 @@ import { getNotifications } from "../../services/notification.service";
 import { getCookie } from "../../services/cookie.service";
 import { INotification } from "../../interfaces/notification";
 
+const notificationTypeMap: Record<string, string> = {
+  INFO: "Informação",
+  WARNING: "Aviso",
+  ERROR: "Erro",
+  SUCCESS: "Sucesso",
+  REQUEST: "Solicitação",
+  APPROVED: "Aprovado",
+  REJECTED: "Rejeitado",
+  PENDING: "Pendente",
+  CREATED: "Criado",
+  UPDATED: "Atualizado",
+  DELETED: "Removido",
+};
+
+const notificationTextMap: Record<string, string> = {
+  notification: "notificação",
+  notifications: "notificações",
+  request: "solicitação",
+  requests: "solicitações",
+  donation: "doação",
+  donations: "doações",
+  distribution: "distribuição",
+  distributions: "distribuições",
+  shelter: "abrigo",
+  shelters: "abrigos",
+  "distribution point": "ponto de distribuição",
+  "distribution points": "pontos de distribuição",
+  "demand point": "ponto de demanda",
+  "demand points": "pontos de demanda",
+  coordinator: "coordenador",
+  coordinators: "coordenadores",
+  created: "criado",
+  updated: "atualizado",
+  deleted: "removido",
+  approved: "aprovado",
+  rejected: "rejeitado",
+  pending: "pendente",
+};
+
+const textReplacementOrder = Object.keys(notificationTextMap).sort(
+  (a, b) => b.length - a.length,
+);
+
+function applyTextReplacement(
+  input: string,
+  source: string,
+  target: string,
+) {
+  return input.split(source).join(target);
+}
+
+function translateNotificationText(text: string) {
+  let translated = text;
+
+  textReplacementOrder.forEach((source) => {
+    const target = notificationTextMap[source];
+    translated = applyTextReplacement(translated, source, target);
+    translated = applyTextReplacement(
+      translated,
+      source.charAt(0).toUpperCase() + source.slice(1),
+      target.charAt(0).toUpperCase() + target.slice(1),
+    );
+    translated = applyTextReplacement(
+      translated,
+      source.toUpperCase(),
+      target.charAt(0).toUpperCase() + target.slice(1),
+    );
+  });
+
+  return translated;
+}
+
+function translateNotificationType(type: string) {
+  return notificationTypeMap[type] ?? translateNotificationText(type);
+}
+
 
 interface INotificationProps {
   open: boolean;
@@ -66,10 +142,10 @@ export function Notification({ open, close }: INotificationProps) {
                     key={n.id}
                     className="p-3 rounded-md border border-gray-200 shadow-sm flex flex-col"
                   >
-                    <span className="text-sm font-semibold">{n.type}</span>
-                    <span className="text-gray-700 text-sm">{n.message}</span>
+                    <span className="text-sm font-semibold">{translateNotificationType(n.type)}</span>
+                    <span className="text-gray-700 text-sm">{translateNotificationText(n.message)}</span>
                     <span className="text-xs text-gray-500 mt-1">
-                      {new Date(n.createdAt).toLocaleString()}
+                      {new Date(n.createdAt).toLocaleString("pt-BR")}
                     </span>
                   </li>
                 ))
