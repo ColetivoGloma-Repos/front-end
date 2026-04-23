@@ -32,7 +32,7 @@ import {
   listRequestedProducts,
   updateRequestedProduct,
 } from "../../../services/distribution-point";
-import { DonationStatus } from "../../../interfaces/distribution-point";
+import { DonationCollectionType, DonationStatus } from "../../../interfaces/distribution-point";
 import { toast } from "react-toastify";
 import { upsertRequestedProductSchema } from "../validations/upsert-requested-product";
 import { useAuthProvider } from "../../../context/Auth";
@@ -210,10 +210,15 @@ export default function DetailDistributionPoint() {
     return requestedProductResponse;
   };
 
-  const handleDonate = async (requestedProductId: string, quantity: number) => {
+  const handleDonate = async (
+    requestedProductId: string,
+    quantity: number,
+    collectionType: DonationCollectionType,
+  ) => {
     const donationResponse = await createDonation({
       requestedProductId,
       quantity,
+      collectionType,
     }).catch((e) => {
       const error = e as Error;
       console.error(error);
@@ -536,7 +541,7 @@ export default function DetailDistributionPoint() {
                     isAdmin={(isOnwer || isAdmin) && isLoggedIn}
                     isLoggedIn={isLoggedIn}
                     userDonatedAmount={donations[requestedProduct.id]}
-                    onDonate={(amount) => handleDonate(requestedProduct.id, amount)}
+                    onDonate={(amount, collectionType) => handleDonate(requestedProduct.id, amount, collectionType)}
                     onCancelDonation={() => handleCancelDonation(requestedProduct.id)}
                     onEdit={(updates) =>
                       handleAdminUpdateProduct(requestedProduct.id, updates)

@@ -17,8 +17,10 @@ import {
   listDistributionPoints,
   listDonations,
   listRequestedProducts,
+  updateDonationCollectionType,
 } from "../../../services/distribution-point";
 import {
+  DonationCollectionType,
   DonationStatus,
   IDistributionPoint,
   IListDonations,
@@ -321,6 +323,22 @@ export default function ManageDistributionPoint() {
     await handleCancelAllDonation(requestedProductId);
   };
 
+  const handleUpdateCollectionType = async (
+    donationId: string,
+    collectionType: DonationCollectionType,
+  ) => {
+    try {
+      await updateDonationCollectionType(donationId, collectionType);
+      const query = buildQuery(params);
+      await fetchDonations(query);
+    } catch (e) {
+      const error = e as Error;
+      toast.error(
+        error.message || "Erro ao atualizar o tipo de coleta. Tente novamente.",
+      );
+    }
+  };
+
   const navigateToList = () => {
     navigation(ROUTES.list);
   };
@@ -568,6 +586,7 @@ export default function ManageDistributionPoint() {
           distributionPoints={distributionPoints}
           onParams={handleParams}
           onReviewRequest={handleReviewRequestDonation}
+          onUpdateCollectionType={handleUpdateCollectionType}
           params={{
             limit: Number(params.limit || "10"),
             offset: Number(params.offset || "0"),

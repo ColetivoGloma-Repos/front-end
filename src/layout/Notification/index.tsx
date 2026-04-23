@@ -11,6 +11,7 @@ const notificationTypeMap: Record<string, string> = {
   ERROR: "Erro",
   SUCCESS: "Sucesso",
   REQUEST: "Solicitação",
+  REQUESTED_PRODUCT: "Solicitação de Produto",
   APPROVED: "Aprovado",
   REJECTED: "Rejeitado",
   PENDING: "Pendente",

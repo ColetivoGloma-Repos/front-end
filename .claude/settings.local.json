@@ -7,7 +7,10 @@
       "Bash(node -e \"try { require\\(''recharts''\\); console.log\\(''OK''\\); } catch\\(e\\) { console.log\\(''ERROR:'', e.message\\); }\")",
       "Bash(node -e \"const p = require\\(''''./node_modules/recharts/package.json''''\\); console.log\\(JSON.stringify\\(p, null, 2\\)\\)\")",
       "Bash(node -e \"const p = require\\(''./node_modules/recharts/package.json''\\); console.log\\(JSON.stringify\\(p.dependencies, null, 2\\)\\)\")",
-      "Bash(node -e \"const p = require\\(''./node_modules/recharts/package.json''\\); console.log\\(''version:'', p.version, ''\\\\ntypes:'', p.types\\)\")"
+      "Bash(node -e \"const p = require\\(''./node_modules/recharts/package.json''\\); console.log\\(''version:'', p.version, ''\\\\ntypes:'', p.types\\)\")",
+      "Bash(npx tsc:*)",
+      "Bash(git checkout:*)",
+      "Bash(xargs grep:*)"
     ]
   }
 }
