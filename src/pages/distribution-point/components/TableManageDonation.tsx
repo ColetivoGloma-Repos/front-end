@@ -4,15 +4,18 @@ import { ActionButton } from "./ActionButton";
 import { IQueryRequest } from "../../../interfaces/default";
 import { TablePagination } from "./TablePagination";
 import {
+  DonationCollectionType,
   DonationStatus,
   IDistributionPoint,
   IDonation,
 } from "../../../interfaces/distribution-point";
+import { formatAddress } from "../../../utils";
 import { StatusBadge } from "./StatusBadge";
 import { IoMdCheckmark, IoMdClose } from "react-icons/io";
 import { Avatar } from "../../../components/common";
 import { TableManageDonationSkeleton } from "./skeleton";
 import { DashboardTabType, IActionType } from "../interface/common";
+import { useAuthProvider } from "../../../context/Auth";
 
 interface ITableManageDonationProps {
   data: IDonation[];
@@ -20,6 +23,7 @@ interface ITableManageDonationProps {
   requesting: boolean;
   isLoading?: boolean;
   onReviewRequest: (id: string, actionType: IActionType) => void;
+  onUpdateCollectionType?: (id: string, collectionType: DonationCollectionType) => void;
   onParams: (data: IQueryRequest) => void;
   params: {
     limit: number;
@@ -36,20 +40,33 @@ type FlattenedDonation = {
   distributionPointId: string;
   quantity: number;
   status: DonationStatus;
+  collectionType?: DonationCollectionType | null;
   createdAt: string;
   updatedAt: string;
   userName: string;
   userEmail: string;
   userPhone: string;
+  userAddress: string;
   distributionPointName: string;
   productName: string;
   unit: string;
   timestamp: number;
 };
 
+function CollectionTypeBadge({ collectionType }: { collectionType?: DonationCollectionType | null }) {
+  if (collectionType === DonationCollectionType.DELIVERY) {
+    return <span className="badge badge-info badge-outline rounded-full text-xs">Entrega</span>;
+  }
+  if (collectionType === DonationCollectionType.PICKUP) {
+    return <span className="badge badge-secondary badge-outline rounded-full text-xs">Coleta</span>;
+  }
+  return <span className="text-xs opacity-30">—</span>;
+}
+
 export function TableManageDonation({
   onParams,
   onReviewRequest,
+  onUpdateCollectionType,
   params,
   data,
   distributionPoints,
@@ -57,6 +74,9 @@ export function TableManageDonation({
   isLoading,
 }: ITableManageDonationProps) {
   const dashboardTab = params.tab;
+  const { currentUser } = useAuthProvider();
+  const canEdit =
+    currentUser?.roles?.includes("coordinator") || currentUser?.roles?.includes("admin");
 
   const filteredDonations: FlattenedDonation[] = React.useMemo(() => {
     const donations = data ?? [];
@@ -80,11 +100,13 @@ export function TableManageDonation({
         distributionPointId: donation.distributionPointId,
         quantity: donation.quantity,
         status: donation.status,
+        collectionType: donation.collectionType,
         createdAt: donation.createdAt,
         updatedAt: donation.updatedAt,
         userName: donation.user?.name ?? "Anônimo",
         userEmail: donation.user?.email ?? "Sem email",
         userPhone: donation.user?.phone ?? "Sem telefone",
+        userAddress: donation.user?.address ? formatAddress(donation.user.address) : "",
         distributionPointName,
         productName,
         unit,
@@ -114,6 +136,7 @@ export function TableManageDonation({
                     <th>Quantidade</th>
                     <th>Data</th>
                     <th className="text-center">Status</th>
+                    <th className="text-center">Coleta</th>
                     {dashboardTab === "donations" && (
                       <th className="text-right">Ações</th>
                     )}
@@ -136,6 +159,9 @@ export function TableManageDonation({
                               {donation.userEmail || "Sem email"}
                             </div>
                             <div className="text-xs opacity-50">{donation.userPhone}</div>
+                            {donation.userAddress && (
+                              <div className="text-xs opacity-50">{donation.userAddress}</div>
+                            )}
                           </div>
                         </div>
                       </td>
@@ -168,6 +194,26 @@ export function TableManageDonation({
 
                       <td className="text-center">
                         <StatusBadge status={donation.status} />
+                      </td>
+
+                      <td className="text-center">
+                        {canEdit && onUpdateCollectionType ? (
+                          <select
+                            className="select select-xs select-bordered rounded-lg"
+                            value={donation.collectionType ?? ""}
+                            disabled={requesting}
+                            onChange={(e) => {
+                              const val = e.target.value as DonationCollectionType;
+                              if (val) onUpdateCollectionType(donation.id, val);
+                            }}
+                          >
+                            <option value="">—</option>
+                            <option value={DonationCollectionType.DELIVERY}>Entrega</option>
+                            <option value={DonationCollectionType.PICKUP}>Coleta</option>
+                          </select>
+                        ) : (
+                          <CollectionTypeBadge collectionType={donation.collectionType} />
+                        )}
                       </td>
 
                       {dashboardTab === "donations" && (
@@ -207,6 +253,9 @@ export function TableManageDonation({
                       <div>
                         <div className="font-bold text-sm">{donation.userName}</div>
                         <div className="text-xs opacity-60">{donation.userPhone}</div>
+                        {donation.userAddress && (
+                          <div className="text-xs opacity-60">{donation.userAddress}</div>
+                        )}
                         <div className="text-[10px] opacity-60 uppercase font-bold tracking-tight">
                           {new Date(donation.timestamp).toLocaleDateString()} às{" "}
                           {new Date(donation.timestamp).toLocaleTimeString([], {
@@ -232,6 +281,27 @@ export function TableManageDonation({
                     <div className="text-[11px] opacity-60 flex items-center gap-1 mt-1">
                       <IoMap size={10} /> {donation.distributionPointName}
                     </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-base-content/50">Coleta:</span>
+                    {canEdit && onUpdateCollectionType ? (
+                      <select
+                        className="select select-xs select-bordered rounded-lg"
+                        value={donation.collectionType ?? ""}
+                        disabled={requesting}
+                        onChange={(e) => {
+                          const val = e.target.value as DonationCollectionType;
+                          if (val) onUpdateCollectionType(donation.id, val);
+                        }}
+                      >
+                        <option value="">—</option>
+                        <option value={DonationCollectionType.DELIVERY}>Entrega</option>
+                        <option value={DonationCollectionType.PICKUP}>Coleta</option>
+                      </select>
+                    ) : (
+                      <CollectionTypeBadge collectionType={donation.collectionType} />
+                    )}
                   </div>
 
                   {dashboardTab === "donations" && (

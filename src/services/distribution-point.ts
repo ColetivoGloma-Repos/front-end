@@ -13,6 +13,7 @@ import {
   IUpdateRequestedProduct,
   ICreateRequestedProduct,
   IQueryRequestedProducts,
+  DonationCollectionType,
 } from "../interfaces/distribution-point";
 
 export function createDistributionPoint(
@@ -70,6 +71,13 @@ export function createDonation(data: ICreateDonation): Promise<IDonation> {
 
 export function cancelDonation(id: string): Promise<IDonation> {
   return del(`/distribution-point/donation/${id}`);
+}
+
+export function updateDonationCollectionType(
+  id: string,
+  collectionType: DonationCollectionType,
+): Promise<IDonation> {
+  return patch(`/distribution-point/donation/${id}`, { data: { collectionType } });
 }
 
 export function confirmDeliveryDonation(id: string): Promise<IDonation> {

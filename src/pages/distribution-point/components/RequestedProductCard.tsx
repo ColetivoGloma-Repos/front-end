@@ -9,6 +9,7 @@ import {
   IoMdCube,
   IoMdWarning,
 } from "react-icons/io";
+import { IoCar, IoHome } from "react-icons/io5";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -16,6 +17,7 @@ import {
   IUpdateRequestedProduct,
   RequestedProductStatus,
 } from "../../../interfaces/distribution-point/point-requested-product";
+import { DonationCollectionType } from "../../../interfaces/distribution-point";
 import { Button } from "../../../components/common/Button";
 import { Input } from "../../../components/common/Input";
 import { ActionButton } from "./ActionButton";
@@ -28,7 +30,7 @@ interface IRequestedProductCardProps {
   isAdmin: boolean;
   isLoggedIn: boolean;
   userDonatedAmount?: number;
-  onDonate: (amount: number) => void;
+  onDonate: (amount: number, collectionType: DonationCollectionType) => void;
   onCancelDonation: () => void;
   onEdit: (updatedRequestedProduct: IUpdateRequestedProduct) => void;
   onDelete: () => void;
@@ -53,6 +55,7 @@ export function RequestedProductCard({
   const [donationError, setDonationError] = React.useState<string | null>(null);
   const [isEditing, setIsEditing] = React.useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
+  const [showCollectionModal, setShowCollectionModal] = React.useState(false);
   const [loadingAction, setLoadingAction] = React.useState<LoadingActionType>(null);
 
   const product = requestedProduct.product;
@@ -103,7 +106,7 @@ export function RequestedProductCard({
     mode: "onSubmit",
   });
 
-  const handleDonate = async (event: React.FormEvent) => {
+  const handleDonate = (event: React.FormEvent) => {
     event.preventDefault();
     const amount = parseFloat(donateAmount);
     if (!isNaN(amount) && amount > 0) {
@@ -111,15 +114,20 @@ export function RequestedProductCard({
         setDonationError(`O valor máximo permitido é ${remaining} ${product.unit}`);
         return;
       }
-
       setDonationError(null);
-      setLoadingAction("donate");
-      try {
-        await Promise.resolve(onDonate(amount));
-        setDonateAmount("");
-      } finally {
-        setLoadingAction(null);
-      }
+      setShowCollectionModal(true);
+    }
+  };
+
+  const handleCollectionChoice = async (collectionType: DonationCollectionType) => {
+    setShowCollectionModal(false);
+    const amount = parseFloat(donateAmount);
+    setLoadingAction("donate");
+    try {
+      await Promise.resolve(onDonate(amount, collectionType));
+      setDonateAmount("");
+    } finally {
+      setLoadingAction(null);
     }
   };
 
@@ -387,6 +395,46 @@ export function RequestedProductCard({
           )}
         </div>
       </div>
+
+      {showCollectionModal && (
+        <div className="modal modal-open z-50">
+          <div className="modal-box rounded-2xl max-w-sm">
+            <h3 className="font-bold text-lg flex items-center gap-2">
+              <IoMdWarning size={22} className="text-warning" /> Como será a entrega?
+            </h3>
+            <p className="py-3 text-sm text-base-content/70">
+              Você vai levar <strong>{donateAmount} {product.unit}</strong> de{" "}
+              <strong>{product.name}</strong> até o ponto de coleta, ou precisa que alguém
+              busque?
+            </p>
+
+            <div className="flex flex-col gap-2 mt-4">
+              <button
+                type="button"
+                className="btn btn-primary rounded-xl w-full text-white gap-2"
+                onClick={() => handleCollectionChoice(DonationCollectionType.DELIVERY)}
+              >
+                <IoCar size={18} /> Vou entregar
+              </button>
+              <button
+                type="button"
+                className="btn btn-outline rounded-xl w-full gap-2"
+                onClick={() => handleCollectionChoice(DonationCollectionType.PICKUP)}
+              >
+                <IoHome size={18} /> Preciso de coleta
+              </button>
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm rounded-xl w-full text-base-content/50"
+                onClick={() => setShowCollectionModal(false)}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+          <div className="modal-backdrop" onClick={() => setShowCollectionModal(false)} />
+        </div>
+      )}
 
       {showDeleteConfirm && (
         <div className="modal modal-open z-50">

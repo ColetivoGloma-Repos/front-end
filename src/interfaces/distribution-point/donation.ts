@@ -1,3 +1,4 @@
+import { IAddress } from "../address";
 import { IQueryRequest } from "./../default";
 
 export enum DonationStatus {
@@ -6,10 +7,16 @@ export enum DonationStatus {
   DELIVERED = "DELIVERED",
 }
 
+export enum DonationCollectionType {
+  DELIVERY = "DELIVERY",
+  PICKUP = "PICKUP",
+}
+
 export interface IUserSummary {
   name: string;
   email: string;
   phone?: string;
+  address?: IAddress;
 }
 
 export interface IDonation {
@@ -19,6 +26,7 @@ export interface IDonation {
   distributionPointId: string;
   quantity: number;
   status: DonationStatus;
+  collectionType?: DonationCollectionType | null;
   createdAt: string;
   updatedAt: string;
   user: IUserSummary;
@@ -35,6 +43,7 @@ export interface IDonation {
 export interface ICreateDonation {
   requestedProductId: string;
   quantity: number;
+  collectionType?: DonationCollectionType;
 }
 
 export interface IUpdateDonation {

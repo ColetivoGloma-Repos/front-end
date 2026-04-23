@@ -6,6 +6,9 @@ type Props = {
 };
 
 export default function ProfileAddress({ address, setUser }: Props) {
+  const [loadingCep, setLoadingCep] = React.useState(false);
+  const [cepError, setCepError] = React.useState("");
+
   const handleChange = (field: string, value: string) => {
     setUser((prev: any) => ({
       ...prev,
@@ -16,22 +19,67 @@ export default function ProfileAddress({ address, setUser }: Props) {
     }));
   };
 
+  const handleCepChange = async (raw: string) => {
+    const cep = raw.replace(/\D/g, "");
+    handleChange("cep", cep);
+    setCepError("");
+
+    if (cep.length !== 8) return;
+
+    setLoadingCep(true);
+    try {
+      const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const data = await res.json();
+
+      if (data.erro) {
+        setCepError("CEP não encontrado.");
+        return;
+      }
+
+      setUser((prev: any) => ({
+        ...prev,
+        address: {
+          ...prev.address,
+          cep,
+          logradouro: data.logradouro || prev.address?.logradouro || "",
+          bairro: data.bairro || prev.address?.bairro || "",
+          municipio: data.localidade || prev.address?.municipio || "",
+          estado: data.uf || prev.address?.estado || "",
+          pais: "Brasil",
+        },
+      }));
+    } catch {
+      setCepError("Erro ao buscar CEP.");
+    } finally {
+      setLoadingCep(false);
+    }
+  };
+
   return (
     <div className="form-control col-span-2">
       <label className="label">
         <span className="label-text">Endereço</span>
       </label>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="form-control md:col-span-2">
+
+        <div className="form-control">
           <label className="label">
-            <span className="label-text">Logradouro</span>
+            <span className="label-text">CEP</span>
           </label>
-          <input
-            type="text"
-            value={address?.logradouro || ""}
-            className="input input-bordered w-full"
-            onChange={(e) => handleChange("logradouro", e.target.value)}
-          />
+          <div className="relative">
+            <input
+              type="text"
+              value={address?.cep || ""}
+              maxLength={8}
+              placeholder="00000000"
+              className={`input input-bordered w-full ${cepError ? "input-error" : ""}`}
+              onChange={(e) => handleCepChange(e.target.value)}
+            />
+            {loadingCep && (
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 loading loading-spinner loading-xs" />
+            )}
+          </div>
+          {cepError && <span className="text-error text-xs mt-1">{cepError}</span>}
         </div>
 
         <div className="form-control">
@@ -43,6 +91,18 @@ export default function ProfileAddress({ address, setUser }: Props) {
             value={address?.numero || ""}
             className="input input-bordered w-full"
             onChange={(e) => handleChange("numero", e.target.value)}
+          />
+        </div>
+
+        <div className="form-control md:col-span-2">
+          <label className="label">
+            <span className="label-text">Logradouro</span>
+          </label>
+          <input
+            type="text"
+            value={address?.logradouro || ""}
+            className="input input-bordered w-full"
+            onChange={(e) => handleChange("logradouro", e.target.value)}
           />
         </div>
 
@@ -82,18 +142,6 @@ export default function ProfileAddress({ address, setUser }: Props) {
           />
         </div>
 
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text">CEP</span>
-          </label>
-          <input
-            type="text"
-            value={address?.cep || ""}
-            className="input input-bordered w-full"
-            onChange={(e) => handleChange("cep", e.target.value)}
-          />
-        </div>
-
         <div className="form-control md:col-span-2">
           <label className="label">
             <span className="label-text">Complemento</span>
@@ -105,6 +153,7 @@ export default function ProfileAddress({ address, setUser }: Props) {
             onChange={(e) => handleChange("complemento", e.target.value)}
           />
         </div>
+
       </div>
     </div>
   );
