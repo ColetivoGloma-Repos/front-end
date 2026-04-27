@@ -21,7 +21,7 @@ export function MetricsChart({ requestedProducts }: IMetricsChartProps) {
       case RequestedProductStatus.DELIVERED:
         return { color: "#34D399", text: "Entregue" };
       case RequestedProductStatus.FULL:
-        return { color: "#FBBF24", text: "Aguardando" };
+        return { color: "#FBBF24", text: "Meta atingida" };
       case RequestedProductStatus.OPEN:
       default:
         return { color: "#3B82F6", text: "Ativo" };

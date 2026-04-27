@@ -9,7 +9,7 @@ export function StatusBadge({ status }: { status: any }) {
     case DonationStatus.ACTIVE:
       return (
         <div className="badge badge-warning gap-1 rounded-full">
-          <IoTime size={10} /> Pendente
+          <IoTime size={10} /> Em andamento
         </div>
       );
 
@@ -24,6 +24,13 @@ export function StatusBadge({ status }: { status: any }) {
       return (
         <div className="badge badge-error text-white gap-1 rounded-full">
           <IoClose size={10} /> Cancelado
+        </div>
+      );
+
+    case RequestedProductStatus.DELIVERED:
+      return (
+        <div className="badge badge-success text-white gap-1 rounded-full">
+          <IoCheckmark size={10} /> Entregue
         </div>
       );
 
