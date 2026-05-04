@@ -31,6 +31,7 @@ import {
   listRequestedProduct,
   listRequestedProducts,
   updateRequestedProduct,
+  listCoordinators,
 } from "../../../services/distribution-point";
 import { DonationCollectionType, DonationStatus } from "../../../interfaces/distribution-point";
 import { toast } from "react-toastify";
@@ -56,6 +57,7 @@ interface IState {
   isLoading: boolean;
   page: number;
   total: number;
+  coordinators: any[];
 }
 
 export default function DetailDistributionPoint() {
@@ -75,6 +77,7 @@ export default function DetailDistributionPoint() {
       isLoading,
       page,
       total,
+      coordinators,
     },
     setState,
   ] = React.useState<IState>({
@@ -84,6 +87,7 @@ export default function DetailDistributionPoint() {
     isLoading: true,
     page: 0,
     total: 0,
+    coordinators: [],
   });
 
   React.useEffect(() => {
@@ -109,6 +113,7 @@ export default function DetailDistributionPoint() {
     try {
       const data = await listOneDistributionPoint(id || "");
       await onRequestedProductsLoad(isLoggedIn, 0);
+      await onCoordinatorsLoad(data.id, data.owner);
 
       setTimeout(() => {
         setState((prev) => ({
@@ -170,6 +175,28 @@ export default function DetailDistributionPoint() {
         donationsByProduct[donation.requestedProductId] += donation.quantity;
       });
       setState((prev) => ({ ...prev, donations: donationsByProduct }));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const onCoordinatorsLoad = async (distributionPointId: string, owner?: any) => {
+    try {
+      const response = await listCoordinators(distributionPointId);
+      const coordsWithVehicle = (response.coordinators || []).map((coord) => ({
+        ...coord,
+        hasVehicle: coord.owner?.hasVehicle,
+      }));
+      
+      const ownerCoordinator = owner ? {
+        id: owner.id,
+        name: owner.name,
+        phone: owner.phone,
+        hasVehicle: owner.hasVehicle,
+      } : null;
+
+      const allCoordinators = ownerCoordinator ? [ownerCoordinator, ...coordsWithVehicle] : coordsWithVehicle;
+      setState((prev) => ({ ...prev, coordinators: allCoordinators }));
     } catch (error) {
       console.error(error);
     }
@@ -373,7 +400,6 @@ export default function DetailDistributionPoint() {
   if (isLoading && !_distributionPoint) {
     return <DetailPageSkeleton />;
   }
-
   const distributionPoint = _distributionPoint!;
 
   const isOnwer = isCoordinator && distributionPoint.ownerId === currentUser?.id;
@@ -437,7 +463,7 @@ export default function DetailDistributionPoint() {
                     <IoMdCreate size={16} /> Editar Info
                   </button>
                 )}
-              </div>
+              </div>          
 
               <div className="flex items-center gap-2 mb-2 text-primary font-medium">
                 <IoMdCall size={16} />
@@ -447,6 +473,46 @@ export default function DetailDistributionPoint() {
               <p className="text-base-content/70 italic">
                 "{distributionPoint.description}"
               </p>
+
+              <div className="mt-6">              
+                  <h3 className="font-bold text-lg mb-4 text-base-content">
+                    Coordenadores
+                  </h3>
+                  <div className="space-y-3">
+                    {coordinators && coordinators.length > 0 ? (
+                      coordinators.map((coordinator) => (
+                        <div key={coordinator.id} className="flex items-center gap-3 p-3 bg-base-200 rounded-lg hover:bg-base-300 transition">
+                          <div className="avatar placeholder">
+                            <div className="bg-primary text-primary-content rounded-full w-10">
+                              <span className="text-sm font-bold">{coordinator.name?.charAt(0) || '?'}</span>
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-semibold text-sm">{coordinator.name || 'Coordenador'}</p>
+                            <p className="text-xs text-base-content/60">Coordenador</p>
+                            <p className="text-xs text-primary">{coordinator.phone || 'Sem telefone'}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                             <p>Possui veículo ?</p>
+                            <span className={`badge ${coordinator.hasVehicle ? 'badge-success' : 'badge-error'}`}>
+                              {coordinator.hasVehicle ? 'Sim' : 'Não'}
+                            </span>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="alert alert-info rounded-lg">
+                        <span className="text-sm">Nenhum coordenador vinculado a este ponto.</span>
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => navigation(`/distribution-point/${id}/coordinators`)}
+                    className="btn btn-sm btn-ghost w-full mt-2 text-primary"
+                  >
+                    Ver mais coordenadores
+                  </button>
+              </div>
 
               {(isOnwer || isAdmin) && isLoggedIn && (
                 <>
