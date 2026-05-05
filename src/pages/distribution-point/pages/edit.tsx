@@ -17,7 +17,7 @@ export default function EditDistributionPoint() {
   const navigation = useNavigate();
   const { id = "" } = useParams();
 
-  const { saveOrSetDistributionPoint, isCoordinator, ownerId } =
+  const { saveOrSetDistributionPoint, isCoordinator, isAdmin, ownerId } =
     useDistributionPointProvider();
 
   const [{ isLoading, distributionPoint: _distributionPoint }, setState] =
@@ -66,7 +66,7 @@ export default function EditDistributionPoint() {
 
   const distributionPoint = _distributionPoint!;
 
-  const isOnwer = isCoordinator && distributionPoint.ownerId === ownerId;
+  const isOnwer = (isCoordinator && distributionPoint.ownerId === ownerId) || isAdmin;
 
   if (!isOnwer) return null;
 

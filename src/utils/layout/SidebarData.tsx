@@ -8,7 +8,6 @@ export const sidebarData = (currentUser: IUser): ISidebar[] => {
   const menuItems: ISidebar[] = [
     { id: "profile", text: "Perfil", route: "/profile" },
     { id: "distribuition-points", text: "Ponto de distribuição", route: "/" },
-    { id: "shelters", text: "Abrigos", route: "/shelters" },
     { id: "dashboard", text: "Dashboard", route: "/dashboard-admin" }
   ];
 

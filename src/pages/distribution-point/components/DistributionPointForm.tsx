@@ -1,7 +1,7 @@
 import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IoMdPin, IoMdAdd, IoMdTrash, IoMdSave } from "react-icons/io";
+import { IoMdPin, IoMdAdd, IoMdTrash, IoMdSave, IoMdHome } from "react-icons/io";
 import {
   Button,
   Input,
@@ -20,6 +20,9 @@ import {
   listOneDistributionPoint,
   updateDistributionPoint,
 } from "../../../services/distribution-point";
+import { listShelters, createShelter } from "../../../services/shelter.service";
+import { IShelter } from "../../../interfaces/shelter";
+import { ICreateAddress } from "../../../interfaces/address";
 import { uploadImage } from "../../../services/upload.service";
 import { ActionButton } from "./ActionButton";
 import { ReturnButton } from "./ReturnButton";
@@ -42,6 +45,108 @@ export function DistributionPointForm({
 }: IDistributionPointFormProps) {
   const [requesting, setRequesting] = React.useState(false);
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
+  const [shelters, setShelters] = React.useState<IShelter[]>([]);
+  const [shelterMode, setShelterMode] = React.useState<"none" | "existing" | "new">(
+    data?.shelterId ? "existing" : "none",
+  );
+  type NewShelterForm = { name: string; phone: string; description: string; address: ICreateAddress };
+  const [newShelterFields, setNewShelterFields] = React.useState<NewShelterForm>({
+    name: "",
+    phone: "",
+    description: "",
+    address: {
+      cep: "",
+      pais: "Brasil",
+      estado: "",
+      municipio: "",
+      bairro: "",
+      logradouro: "",
+      numero: "",
+      complemento: "",
+    },
+  });
+  const [newShelterErrors, setNewShelterErrors] = React.useState<Record<string, string>>({});
+  const [shelterCepLoading, setShelterCepLoading] = React.useState(false);
+  const [shelterCepError, setShelterCepError] = React.useState("");
+
+  React.useEffect(() => {
+    listShelters({})
+      .then((res: any) => {
+        const list = res?.data ?? res?.items ?? [];
+        setShelters(Array.isArray(list) ? list : []);
+        if (data?.shelterId) {
+          setValue("shelterId", data.shelterId);
+        }
+      })
+      .catch(() => setShelters([]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const updateShelterField = (field: string, value: string) => {
+    setNewShelterFields((prev) => {
+      if (field.startsWith("address.")) {
+        const key = field.replace("address.", "");
+        return { ...prev, address: { ...prev.address, [key]: value } };
+      }
+      return { ...prev, [field]: value };
+    });
+    setNewShelterErrors((prev) => {
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
+
+  const handleShelterCepChange = async (raw: string) => {
+    const masked = zipCodeMask(raw);
+    updateShelterField("address.cep", masked);
+    setShelterCepError("");
+
+    const digits = raw.replace(/\D/g, "");
+    if (digits.length !== 8) return;
+
+    setShelterCepLoading(true);
+    try {
+      const res = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
+      const data = await res.json();
+
+      if (data.erro) {
+        setShelterCepError("CEP não encontrado.");
+        return;
+      }
+
+      setNewShelterFields((prev) => ({
+        ...prev,
+        address: {
+          ...prev.address,
+          cep: masked,
+          logradouro: data.logradouro || prev.address.logradouro,
+          bairro: data.bairro || prev.address.bairro,
+          municipio: data.localidade || prev.address.municipio,
+          estado: data.uf || prev.address.estado,
+          pais: "Brasil",
+        },
+      }));
+    } catch {
+      setShelterCepError("Erro ao buscar CEP.");
+    } finally {
+      setShelterCepLoading(false);
+    }
+  };
+
+  const validateNewShelter = (): Record<string, string> => {
+    const errors: Record<string, string> = {};
+    if (!newShelterFields.name.trim()) errors.name = "Nome é obrigatório";
+    if (!newShelterFields.phone.trim()) errors.phone = "Telefone é obrigatório";
+    if (!newShelterFields.address.pais.trim()) errors["address.pais"] = "País é obrigatório";
+    if (!newShelterFields.address.estado.trim()) errors["address.estado"] = "Estado é obrigatório";
+    if (!newShelterFields.address.municipio.trim()) errors["address.municipio"] = "Município é obrigatório";
+    if (!newShelterFields.address.bairro.trim()) errors["address.bairro"] = "Bairro é obrigatório";
+    if (!newShelterFields.address.logradouro.trim()) errors["address.logradouro"] = "Logradouro é obrigatório";
+    if (!newShelterFields.address.numero.trim()) errors["address.numero"] = "Número é obrigatório";
+    return errors;
+  };
+
   const latestUploadedFile = React.useMemo(
     () =>
       data?.files && data.files.length > 0
@@ -63,6 +168,7 @@ export function DistributionPointForm({
       title: data?.title || "",
       description: data?.description || "",
       phone: phoneMask(data?.phone || ""),
+      shelterId: data?.shelterId ?? null,
       address: {
         cep: zipCodeMask(data?.address.cep || ""),
         pais: data?.address.pais || "Brasil",
@@ -108,6 +214,7 @@ export function DistributionPointForm({
   const watchedTitle = watch("title");
   const watchedLogradouro = watch("address.logradouro");
   const watchedRequestedProducts = watch("requestedProducts");
+  const watchedShelterId = watch("shelterId");
 
   const handleCreatePoint = async (values: ICreateDistributionPoint) => {
     setRequesting(true);
@@ -172,12 +279,37 @@ export function DistributionPointForm({
   };
 
   const onSubmit = async (values: ICreateDistributionPoint) => {
-    if (isEditMode) {
-      await handleSaveEdit(values);
-      return;
+    let resolvedShelterId: string | null = null;
+
+    if (shelterMode === "existing") {
+      resolvedShelterId = values.shelterId ?? null;
+    } else if (shelterMode === "new") {
+      const errors = validateNewShelter();
+      if (Object.keys(errors).length > 0) {
+        setNewShelterErrors(errors);
+        return;
+      }
+      setRequesting(true);
+      try {
+        const created = (await createShelter(newShelterFields as any)) as IShelter;
+        resolvedShelterId = created.id;
+        setShelters((prev) => [...prev, created]);
+      } catch (e) {
+        const error = e as Error;
+        toast.error(error.message || "Erro ao criar abrigo. Tente novamente.");
+        setRequesting(false);
+        return;
+      }
+      setRequesting(false);
     }
 
-    await handleCreatePoint(values);
+    const finalValues = { ...values, shelterId: resolvedShelterId };
+
+    if (isEditMode) {
+      await handleSaveEdit(finalValues);
+      return;
+    }
+    await handleCreatePoint(finalValues);
   };
 
   return (
@@ -315,6 +447,212 @@ export function DistributionPointForm({
                     />
                   </div>
                 </div>
+              </div>
+
+              <div className="bg-base-200 p-4 rounded-lg space-y-4">
+                <label className="label pt-0 pb-0">
+                  <span className="label-text font-bold text-lg flex items-center gap-2">
+                    <IoMdHome size={16} /> Abrigo
+                  </span>
+                </label>
+
+                <div className="flex gap-2">
+                  {(["none", "existing", "new"] as const).map((mode) => (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => setShelterMode(mode)}
+                      className={`btn btn-sm rounded-lg flex-1 ${
+                        shelterMode === mode
+                          ? "btn-primary text-white"
+                          : "btn-outline"
+                      }`}
+                    >
+                      {mode === "none"
+                        ? "Nenhum"
+                        : mode === "existing"
+                          ? "Selecionar existente"
+                          : "Criar novo"}
+                    </button>
+                  ))}
+                </div>
+
+                {shelterMode === "existing" && (
+                  <Select
+                    className="w-full"
+                    value={watchedShelterId ?? ""}
+                    options={[
+                      { label: "Selecione um abrigo...", value: "" },
+                      ...(Array.isArray(shelters) ? shelters : []).map((s) => ({
+                        label: s.name,
+                        value: s.id,
+                      })),
+                    ]}
+                    {...register("shelterId")}
+                  />
+                )}
+
+                {shelterMode === "new" && (
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="flex flex-col gap-1">
+                        <label className="font-bold">
+                          Nome <span className="text-error">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Nome do abrigo"
+                          className={`input input-bordered rounded-xl h-10 w-full ${newShelterErrors.name ? "input-error" : ""}`}
+                          value={newShelterFields.name}
+                          onChange={(e) => updateShelterField("name", e.target.value)}
+                        />
+                        {newShelterErrors.name && (
+                          <p className="text-error text-sm">{newShelterErrors.name}</p>
+                        )}
+                      </div>
+
+                      <div className="flex flex-col gap-1">
+                        <label className="font-bold">
+                          Telefone <span className="text-error">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="(00) 00000-0000"
+                          className={`input input-bordered rounded-xl h-10 w-full ${newShelterErrors.phone ? "input-error" : ""}`}
+                          value={newShelterFields.phone}
+                          onChange={(e) =>
+                            updateShelterField("phone", phoneMask(e.target.value))
+                          }
+                        />
+                        {newShelterErrors.phone && (
+                          <p className="text-error text-sm">{newShelterErrors.phone}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <label className="font-bold">Descrição</label>
+                      <textarea
+                        placeholder="Descrição do abrigo"
+                        className="textarea textarea-bordered rounded-xl h-20 w-full"
+                        value={newShelterFields.description}
+                        onChange={(e) =>
+                          updateShelterField("description", e.target.value)
+                        }
+                      />
+                    </div>
+
+                    <label className="label pt-1 pb-0">
+                      <span className="label-text font-bold flex items-center gap-2">
+                        <IoMdPin size={14} /> Endereço do Abrigo
+                      </span>
+                    </label>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div className="flex flex-col gap-1">
+                        <div className="relative">
+                          <input
+                            type="text"
+                            placeholder="CEP"
+                            maxLength={9}
+                            className={`input input-bordered input-sm rounded-xl bg-white w-full ${shelterCepError ? "input-error" : ""}`}
+                            value={newShelterFields.address.cep}
+                            onChange={(e) => handleShelterCepChange(e.target.value)}
+                          />
+                          {shelterCepLoading && (
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 loading loading-spinner loading-xs" />
+                          )}
+                        </div>
+                        {shelterCepError && (
+                          <p className="text-error text-xs">{shelterCepError}</p>
+                        )}
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="País"
+                        className={`input input-bordered input-sm rounded-xl bg-white w-full ${newShelterErrors["address.pais"] ? "input-error" : ""}`}
+                        value={newShelterFields.address.pais}
+                        onChange={(e) =>
+                          updateShelterField("address.pais", e.target.value)
+                        }
+                      />
+                      <input
+                        type="text"
+                        placeholder="UF *"
+                        maxLength={2}
+                        className={`input input-bordered input-sm rounded-xl bg-white w-full ${newShelterErrors["address.estado"] ? "input-error" : ""}`}
+                        value={newShelterFields.address.estado}
+                        onChange={(e) =>
+                          updateShelterField(
+                            "address.estado",
+                            e.target.value.toUpperCase(),
+                          )
+                        }
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <input
+                        type="text"
+                        placeholder="Município *"
+                        className={`input input-bordered input-sm rounded-xl bg-white w-full ${newShelterErrors["address.municipio"] ? "input-error" : ""}`}
+                        value={newShelterFields.address.municipio}
+                        onChange={(e) =>
+                          updateShelterField("address.municipio", e.target.value)
+                        }
+                      />
+                      <input
+                        type="text"
+                        placeholder="Bairro *"
+                        className={`input input-bordered input-sm rounded-xl bg-white w-full ${newShelterErrors["address.bairro"] ? "input-error" : ""}`}
+                        value={newShelterFields.address.bairro}
+                        onChange={(e) =>
+                          updateShelterField("address.bairro", e.target.value)
+                        }
+                      />
+                    </div>
+
+                    <input
+                      type="text"
+                      placeholder="Logradouro *"
+                      className={`input input-bordered input-sm rounded-xl bg-white w-full ${newShelterErrors["address.logradouro"] ? "input-error" : ""}`}
+                      value={newShelterFields.address.logradouro}
+                      onChange={(e) =>
+                        updateShelterField("address.logradouro", e.target.value)
+                      }
+                    />
+
+                    <div className="grid grid-cols-3 gap-3">
+                      <input
+                        type="text"
+                        placeholder="Número *"
+                        className={`input input-bordered input-sm rounded-xl bg-white w-full ${newShelterErrors["address.numero"] ? "input-error" : ""}`}
+                        value={newShelterFields.address.numero}
+                        onChange={(e) =>
+                          updateShelterField(
+                            "address.numero",
+                            integerMask(e.target.value),
+                          )
+                        }
+                      />
+                      <input
+                        type="text"
+                        placeholder="Complemento"
+                        className="input input-bordered input-sm rounded-xl bg-white w-full col-span-2"
+                        value={newShelterFields.address.complemento}
+                        onChange={(e) =>
+                          updateShelterField("address.complemento", e.target.value)
+                        }
+                      />
+                    </div>
+
+                    {Object.keys(newShelterErrors).length > 0 && (
+                      <p className="text-error text-sm text-center">
+                        Preencha os campos obrigatórios do abrigo.
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
 
               <ImageUpload
