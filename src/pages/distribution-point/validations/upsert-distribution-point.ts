@@ -6,6 +6,11 @@ export function upsertDistributionPointSchema(isEditMode: boolean) {
     title: z.string().trim().min(1, "Nome do ponto é obrigatório"),
     phone: z.string().trim().min(1, "Telefone é obrigatório"),
     description: z.string().trim().min(1, "Descrição é obrigatória"),
+    shelterId: z
+      .string()
+      .optional()
+      .nullable()
+      .transform((v) => (v === "" ? null : v)),
     address: z.object({
       cep: z
         .string()

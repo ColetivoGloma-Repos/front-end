@@ -29,6 +29,7 @@ interface IRequestedProductCardProps {
   requestedProduct: IRequestedProduct;
   isAdmin: boolean;
   isLoggedIn: boolean;
+  distributionPointApproved?: boolean;
   userDonatedAmount?: number;
   onDonate: (amount: number, collectionType: DonationCollectionType) => void;
   onCancelDonation: () => void;
@@ -45,6 +46,7 @@ export function RequestedProductCard({
   requestedProduct,
   isAdmin,
   isLoggedIn,
+  distributionPointApproved = true,
   userDonatedAmount = 0,
   onDonate,
   onCancelDonation,
@@ -324,7 +326,14 @@ export function RequestedProductCard({
             />
           </div>
 
-          {!isAdmin && !isLocked && isLoggedIn && (
+          {!isAdmin && !isLocked && !distributionPointApproved && (
+            <div className="flex rounded-lg items-center justify-center py-2 bg-warning/10 gap-2 text-warning-content/80">
+              <IoMdWarning size={14} />
+              <span className="text-xs font-medium">Ponto aguardando aprovação</span>
+            </div>
+          )}
+
+          {!isAdmin && !isLocked && distributionPointApproved && isLoggedIn && (
             <div className="flex flex-col gap-1">
               <form onSubmit={handleDonate} className="flex gap-2">
                 <Input
@@ -352,7 +361,7 @@ export function RequestedProductCard({
             </div>
           )}
 
-          {!isAdmin && !isLocked && !isLoggedIn && (
+          {!isAdmin && !isLocked && distributionPointApproved && !isLoggedIn && (
             <div className="flex rounded-lg items-center justify-center py-2 bg-base-200/50 gap-2 text-base-content/60">
               <IoMdLogIn size={14} />
               <span className="text-xs font-medium">Faça login para doar</span>

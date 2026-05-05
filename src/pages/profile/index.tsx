@@ -48,7 +48,8 @@ export default function ProfileScreen() {
         await loginUser();
         toast.success("Solicitação enviada com sucesso");
       } catch (error: any) {
-        toast.error(error?.message || toastMessage.INTERNAL_SERVER_ERROR);
+        const isApiError = error?.statusCode !== undefined && typeof error?.message === "string";
+        toast.error(isApiError ? error.message : "Não foi possível enviar a solicitação de coordenação. Tente novamente mais tarde.");
       } finally {
         setRequesting(false);
       }

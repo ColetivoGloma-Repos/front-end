@@ -1,6 +1,7 @@
 import { IQueryRequest } from "../default";
 import { IAddress, ICreateAddress } from "../address";
 import { ICreateProductRequestedProduct } from "./point-requested-product";
+import { IShelter } from "../shelter";
 
 export enum DistributionPointStatus {
   PENDING = "PENDING",
@@ -30,6 +31,8 @@ export interface IDistributionPoint {
   isFullyStocked: boolean;
   requestedProducts: number;
   address: IAddress;
+  shelterId?: string | null;
+  shelter?: IShelter | null;
 }
 
 export interface ICreateDistributionPoint {
@@ -38,6 +41,7 @@ export interface ICreateDistributionPoint {
   phone: string;
   address: ICreateAddress;
   requestedProducts: ICreateProductRequestedProduct[];
+  shelterId?: string | null;
 }
 
 export type IUpdateDistributionPoint = Partial<
