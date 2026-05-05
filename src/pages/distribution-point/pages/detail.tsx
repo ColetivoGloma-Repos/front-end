@@ -183,6 +183,14 @@ export default function DetailDistributionPoint() {
     navigation(ROUTES.edit(id));
   };
 
+  const isProfileComplete = (): boolean => {
+    if (!currentUser) return false;
+    if (!currentUser.phone) return false;
+    if (!currentUser.address) return false;
+    const { cep, municipio, logradouro, numero } = currentUser.address;
+    return !!(cep && municipio && logradouro && numero);
+  };
+
   const fetchRequestedProduct = async (
     requestedProductId: string,
     isNew: boolean = false,
@@ -215,6 +223,12 @@ export default function DetailDistributionPoint() {
     quantity: number,
     collectionType: DonationCollectionType,
   ) => {
+    if (!isProfileComplete()) {
+      toast.warn("Complete seu perfil antes de realizar uma doação.");
+      navigation("/profile");
+      return;
+    }
+
     const donationResponse = await createDonation({
       requestedProductId,
       quantity,
