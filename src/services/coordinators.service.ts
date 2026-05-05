@@ -10,6 +10,14 @@ export async function changeStatusCoordinator(data: IChangeStatus) {
     return patch(`/dashboard/coordinators`, { data })
 }
 
+export async function changeStatusShelter(data: IChangeStatus) {
+    return patch(`/dashboard/shelters`, { data })
+}
+
+export async function changeStatusDistributionPoint(data: IChangeStatus) {
+    return patch(`/dashboard/distribution-points`, { data })
+}
+
 // export async function listInitiative(params: ISearchDemandPoint) {
 //     return get(`/dashboard/admins-initiative`,  { params })
 // }

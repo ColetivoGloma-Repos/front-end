@@ -2,17 +2,23 @@ import { useForm } from "react-hook-form";
 import { Button, Modal, Select } from "../../common";
 import { IChangeStatus } from "../../../interfaces/user";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { statusList } from "./status.list";
 import { changeStatus } from "../../../validators/change-status";
 
-interface IModalShelter {
+const distributionPointStatusList = [
+  { label: "Selecione", value: "" },
+  { label: "Pendente", value: "PENDING" },
+  { label: "Aprovado", value: "APPROVED" },
+  { label: "Rejeitado", value: "REJECTED" },
+];
+
+interface IModalDistributionPoint {
   close: () => void;
   open: boolean;
   onSubmit: (data: IChangeStatus) => void;
   id: string;
 }
 
-export function ModalStatusShelter({ close, open, onSubmit, id }: IModalShelter) {
+export function ModalStatusDistributionPoint({ close, open, onSubmit, id }: IModalDistributionPoint) {
   const {
     register,
     handleSubmit,
@@ -33,7 +39,7 @@ export function ModalStatusShelter({ close, open, onSubmit, id }: IModalShelter)
       close={close}
       header={
         <div className="p-4">
-          <p className="font-semibold text-lg">Atualizar Status do Abrigo</p>
+          <p className="font-semibold text-lg">Atualizar Status do Ponto de Distribuição</p>
         </div>
       }
     >
@@ -42,7 +48,7 @@ export function ModalStatusShelter({ close, open, onSubmit, id }: IModalShelter)
           <Select
             label="Status:"
             {...register("status")}
-            options={statusList}
+            options={distributionPointStatusList}
             errors={errors}
           />
           <Button type="submit" text="Atualizar" className="w-full mt-4 bg-black text-white" />
