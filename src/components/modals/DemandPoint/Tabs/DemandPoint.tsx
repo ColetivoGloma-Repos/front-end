@@ -41,7 +41,8 @@ export function TabDemandPoint({ register, errors }: ITabDemandPoint) {
   
   useEffect(() => {
     if (currentUser && shelters.length > 0) {
-      const shelterMap = toMapShelterWithIdAndName(currentUser?.id, shelters);
+      const approvedShelters = shelters.filter((s: any) => s.status === "approved");
+      const shelterMap = toMapShelterWithIdAndName(currentUser?.id, approvedShelters);
       setShelterOptions(shelterMap)
     }
   }, [currentUser, shelters]);

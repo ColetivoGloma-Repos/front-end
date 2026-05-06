@@ -64,7 +64,8 @@ export function DistributionPointProvider() {
   const isLoggedIn = currentUser != null;
   const roles = currentUser?.roles || [];
   const isAdmin = roles.includes("admin");
-  const isCoordinator = roles.includes("coordinator");
+  const isWaiting = currentUser?.status === "waiting" && roles.includes("coordinator");
+  const isCoordinator = roles.includes("coordinator") && !isWaiting;
   const ownerId = currentUser?.id || "";
 
   return (

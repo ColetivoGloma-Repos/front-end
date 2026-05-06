@@ -169,7 +169,7 @@ export function TabShelterSettings() {
         onSubmit={() => handleDeleteShelter(id)}
       >
         <p className="mt-4 text-base font-medium text-center">
-          Ao confirmar esta ação, todas as referências de cordenadores neste abrigo serão
+          Ao confirmar esta ação, todas as referências de coordenadores neste abrigo serão
           removidas.
         </p>
       </ModalConfirmAction>

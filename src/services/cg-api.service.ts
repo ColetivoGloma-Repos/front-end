@@ -16,7 +16,8 @@ async function responseJson(response: Response) {
   if (!response.ok || response.status >= 400) {
     throw await response.clone().json();
   }
-  return response.json();
+  const text = await response.text();
+  return text ? JSON.parse(text) : null;
 }
 
 function isUrl(url: string): boolean {

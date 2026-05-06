@@ -28,6 +28,7 @@ export interface IShelter {
   creator: IUser;
   coordinators: IUser[];
   isSubscribe: boolean;
+  status?: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;
