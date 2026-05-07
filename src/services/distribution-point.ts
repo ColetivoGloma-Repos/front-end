@@ -112,3 +112,18 @@ export function createRequestedProduct(
 ): Promise<IRequestedProduct[]> {
   return post(`/distribution-point/requested-products`, { data });
 }
+
+export function listCoordinators(id: string): Promise<{ coordinators: any[] }> {
+  return get(`/distribution-point/${id}/coordinators`);
+}
+
+export function addCoordinator(
+  id: string,
+  data?: Record<string, any>,
+): Promise<IDistributionPoint> {
+  return patch(`/distribution-point/${id}/coordinator`, { data: data || {} });
+}
+
+export function removeCoordinator(id: string, coordinatorId: string): Promise<{ ok: true }> {
+  return del(`/distribution-point/${id}/coordinator/${coordinatorId}`);
+}

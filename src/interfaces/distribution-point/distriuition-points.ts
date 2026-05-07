@@ -18,6 +18,14 @@ export interface IDistributionPointFile {
   createdAt: string;
 }
 
+export interface IDistributionPointOwner {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+  hasVehicle?: boolean | null;
+}
+
 export interface IDistributionPoint {
   id: string;
   title: string;
@@ -31,6 +39,7 @@ export interface IDistributionPoint {
   isFullyStocked: boolean;
   requestedProducts: number;
   address: IAddress;
+  owner?: IDistributionPointOwner;
   shelterId?: string | null;
   shelter?: IShelter | null;
 }
