@@ -291,7 +291,7 @@ export function RequestedProductCard({
               </h4>
               <p className="text-sm text-base-content/70">
                 {deliveredQuantity} entregues | {donatedQuantity} doadas |{" "}
-                {requestedQuantity} meta {product.unit}
+                meta {requestedQuantity} {product.unit}
               </p>
             </div>
 
