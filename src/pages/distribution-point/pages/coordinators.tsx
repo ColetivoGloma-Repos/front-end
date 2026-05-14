@@ -50,24 +50,32 @@ export default function CoordinatorsPage() {
       const point = await listOneDistributionPoint(id || "");
       setDistributionPoint(point);
 
-      const response = await listCoordinators(id || "");
-      const coordsWithVehicle = (response.coordinators || []).map((coord) => ({
-        id: coord.id,
-        name: coord.name,
-        email: coord.email,
-        phone: coord.phone,
-        hasVehicle: coord.owner?.hasVehicle,
-      }));
+      let coordsWithVehicle: ICoordinator[] = [];
+      try {
+        const response = await listCoordinators(id || "");
+        coordsWithVehicle = (response.coordinators || []).map((coord) => ({
+          id: coord.id,
+          name: coord.name,
+          email: coord.email,
+          phone: coord.phone,
+          hasVehicle: coord.hasVehicle ?? coord.owner?.hasVehicle,
+        }));
+      } catch {
+        // endpoint ainda não disponível no backend, usa apenas as informações do owner
+      }
 
-      if (point.owner) {
+      const ownerRaw = point.owner ?? (currentUser?.id === point.ownerId ? currentUser : undefined);
+
+      if (ownerRaw) {
         const ownerCoord: ICoordinator = {
-          id: point.owner.id,
-          name: point.owner.name,
-          email: point.owner.email,
-          phone: point.owner.phone,
-          hasVehicle: point.owner.hasVehicle,
+          id: ownerRaw.id,
+          name: ownerRaw.name,
+          email: ownerRaw.email ?? "",
+          phone: ownerRaw.phone,
+          hasVehicle: ownerRaw.hasVehicle,
         };
-        setCoordinators([ownerCoord, ...coordsWithVehicle]);
+        const withoutOwnerDupes = coordsWithVehicle.filter((c) => c.id !== ownerRaw.id);
+        setCoordinators([ownerCoord, ...withoutOwnerDupes]);
       } else {
         setCoordinators(coordsWithVehicle);
       }

@@ -113,7 +113,8 @@ export default function DetailDistributionPoint() {
     try {
       const data = await listOneDistributionPoint(id || "");
       await onRequestedProductsLoad(isLoggedIn, 0);
-      await onCoordinatorsLoad(data.id, data.owner);
+      const ownerInfo = data.owner ?? (currentUser?.id === data.ownerId ? currentUser : undefined);
+      await onCoordinatorsLoad(data.id, ownerInfo);
 
       setTimeout(() => {
         setState((prev) => ({
@@ -181,25 +182,31 @@ export default function DetailDistributionPoint() {
   };
 
   const onCoordinatorsLoad = async (distributionPointId: string, owner?: any) => {
+    let coordsWithVehicle: any[] = [];
+
     try {
       const response = await listCoordinators(distributionPointId);
-      const coordsWithVehicle = (response.coordinators || []).map((coord) => ({
+      coordsWithVehicle = (response.coordinators || []).map((coord) => ({
         ...coord,
-        hasVehicle: coord.owner?.hasVehicle,
+        hasVehicle: coord.hasVehicle ?? coord.owner?.hasVehicle,
       }));
-      
-      const ownerCoordinator = owner ? {
-        id: owner.id,
-        name: owner.name,
-        phone: owner.phone,
-        hasVehicle: owner.hasVehicle,
-      } : null;
-
-      const allCoordinators = ownerCoordinator ? [ownerCoordinator, ...coordsWithVehicle] : coordsWithVehicle;
-      setState((prev) => ({ ...prev, coordinators: allCoordinators }));
-    } catch (error) {
-      console.error(error);
+    } catch {
+      // endpoint ainda não disponível no backend
     }
+
+    const ownerCoordinator = owner
+      ? { id: owner.id, name: owner.name, phone: owner.phone, hasVehicle: owner.hasVehicle }
+      : null;
+
+    const withoutOwnerDupes = ownerCoordinator
+      ? coordsWithVehicle.filter((c) => c.id !== ownerCoordinator.id)
+      : coordsWithVehicle;
+
+    const allCoordinators = ownerCoordinator
+      ? [ownerCoordinator, ...withoutOwnerDupes]
+      : withoutOwnerDupes;
+
+    setState((prev) => ({ ...prev, coordinators: allCoordinators }));
   };
 
   const navigateToList = () => {
