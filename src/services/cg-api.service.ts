@@ -9,13 +9,8 @@ interface IMethod {
   options?: Record<string, any>;
 }
 
-<<<<<<< HEAD
 const apiBase = "http://localhost:8080/api"
 //const apiBase = 'https://backdev-app-4zhqu.ondigitalocean.app/api';
-=======
-// const apiBase = "http://localhost:8080/api"
-const apiBase = 'https://backdev-app-4zhqu.ondigitalocean.app/api';
->>>>>>> 810744d376ccca3d71a3a3478cfd543298afd768
 
 async function responseJson(response: Response) {
   if (!response.ok || response.status >= 400) {
