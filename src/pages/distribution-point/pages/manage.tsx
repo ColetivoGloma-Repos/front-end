@@ -18,6 +18,9 @@ import {
   listDonations,
   listRequestedProducts,
   updateDonationCollectionType,
+  listCoordinators,
+  addCoordinator,
+  removeCoordinator,
 } from "../../../services/distribution-point";
 import {
   DonationCollectionType,
@@ -66,6 +69,7 @@ export default function ManageDistributionPoint() {
   const [distributionPoints, setDistributionPoints] = React.useState<
     IDistributionPoint[]
   >([]);
+  const [coordinators, setCoordinators] = React.useState<any[]>([]);
   const [requesting, setRequesting] = React.useState<boolean>(false);
   const [isLoading, setLoading] = React.useState<boolean>(false);
 
@@ -336,6 +340,63 @@ export default function ManageDistributionPoint() {
       toast.error(
         error.message || "Erro ao atualizar o tipo de coleta. Tente novamente.",
       );
+    }
+  };
+
+  const fetchCoordinators = async (distributionPointId: string) => {
+    const timer = setTimeout(() => setLoading(true), ACTION_REQUEST_TIMEOUT);
+    try {
+      const response = await listCoordinators(distributionPointId);
+      setCoordinators(response.coordinators);
+    } catch (e) {
+      const error = e as Error;
+      console.error(error);
+      toast.error(
+        error.message || "Erro ao buscar coordenadores. Tente novamente mais tarde.",
+      );
+    } finally {
+      clearTimeout(timer);
+      setLoading(false);
+    }
+  };
+
+  const handleAddCoordinator = async (
+    distributionPointId: string,
+    coordinatorData: any,
+  ) => {
+    setRequesting(true);
+    try {
+      await addCoordinator(distributionPointId, coordinatorData);
+      toast.success("Coordenador adicionado com sucesso!");
+      await fetchCoordinators(distributionPointId);
+    } catch (e) {
+      const error = e as Error;
+      console.error(error);
+      toast.error(
+        error.message || "Erro ao adicionar coordenador. Tente novamente mais tarde.",
+      );
+    } finally {
+      setRequesting(false);
+    }
+  };
+
+  const handleRemoveCoordinator = async (
+    distributionPointId: string,
+    coordinatorId: string,
+  ) => {
+    setRequesting(true);
+    try {
+      await removeCoordinator(distributionPointId, coordinatorId);
+      toast.success("Coordenador removido com sucesso!");
+      await fetchCoordinators(distributionPointId);
+    } catch (e) {
+      const error = e as Error;
+      console.error(error);
+      toast.error(
+        error.message || "Erro ao remover coordenador. Tente novamente mais tarde.",
+      );
+    } finally {
+      setRequesting(false);
     }
   };
 
