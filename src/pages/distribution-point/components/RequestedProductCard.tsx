@@ -62,7 +62,6 @@ export function RequestedProductCard({
 
   const product = requestedProduct.product;
 
-  const deliveredQuantity = requestedProduct.deliveredQuantity;
   const donatedQuantity = requestedProduct.donatedQuantity;
   const requestedQuantity = requestedProduct.requestedQuantity;
 
@@ -76,16 +75,8 @@ export function RequestedProductCard({
 
   const safeTarget = Math.max(1, requestedQuantity);
 
-  const deliveredClamped = Math.max(0, Math.min(deliveredQuantity, safeTarget));
   const donatedClamped = Math.max(0, Math.min(donatedQuantity, safeTarget));
-
-  const deliveredPercent = Math.min(100, (deliveredClamped / safeTarget) * 100);
-
-  const donatedButNotDelivered = Math.max(0, donatedClamped - deliveredClamped);
-  const donatedButNotDeliveredPercent = Math.min(
-    100 - deliveredPercent,
-    (donatedButNotDelivered / safeTarget) * 100,
-  );
+  const donatedPercent = Math.min(100, (donatedClamped / safeTarget) * 100);
 
   const isLoadingDonate = loadingAction === "donate";
   const isLoadingCancel = loadingAction === "cancel";
@@ -290,8 +281,7 @@ export function RequestedProductCard({
                 {isFull && <IoMdCube size={16} className="text-warning" />}
               </h4>
               <p className="text-sm text-base-content/70">
-                {deliveredQuantity} entregues | {donatedQuantity} doadas |{" "}
-                meta {requestedQuantity} {product.unit}
+                {donatedQuantity} entregues | meta {requestedQuantity} {product.unit}
               </p>
             </div>
 
@@ -318,11 +308,7 @@ export function RequestedProductCard({
           <div className="w-full h-4 bg-base-200 rounded-full overflow-hidden flex mb-4 relative">
             <div
               className={`h-full ${style(requestedProduct.status).barDeliveredColor} transition-all duration-500`}
-              style={{ width: `${deliveredPercent}%` }}
-            />
-            <div
-              className={`h-full ${style(requestedProduct.status).barPendingColor} transition-all duration-500`}
-              style={{ width: `${donatedButNotDeliveredPercent}%` }}
+              style={{ width: `${donatedPercent}%` }}
             />
           </div>
 
